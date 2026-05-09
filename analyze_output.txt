@@ -1,0 +1,62 @@
+Analyzing Nexus...                                              
+
+  error • The name 'UserProfile' isn't a type, so it can't be used as a type argument • lib/core/database/app_database.dart:112:10 • non_type_as_type_argument
+  error • Undefined name 'userProfiles' • lib/core/database/app_database.dart:113:15 • undefined_identifier
+  error • The getter 'id' isn't defined for the type 'HasResultSet' • lib/core/database/app_database.dart:113:45 • undefined_getter
+  error • Undefined name 'userProfiles' • lib/core/database/app_database.dart:119:18 • undefined_identifier
+  error • Undefined name 'UserProfilesCompanion' • lib/core/database/app_database.dart:119:39 • undefined_identifier
+  error • Undefined class 'UserProfilesCompanion' • lib/core/database/app_database.dart:126:30 • undefined_class
+  error • Undefined name 'userProfiles' • lib/core/database/app_database.dart:127:15 • undefined_identifier
+  error • The getter 'id' isn't defined for the type 'Table' • lib/core/database/app_database.dart:127:45 • undefined_getter
+  error • Missing concrete implementations of 'Table.blob', 'Table.boolean', 'Table.customType', 'Table.dateTime', and 12 more • lib/core/database/app_database.g.dart:1502:7 • non_abstract_class_inherits_abstract_member
+  error • Mixin can only be applied to class • lib/core/database/app_database.g.dart:1502:33 • mixin_with_non_class_superclass
+  error • 'TableInfo<$UserProfileTable, UserProfileData>' can't be mixed onto 'Object' because 'Object' doesn't implement 'Table' • lib/core/database/app_database.g.dart:1503:10 • mixin_application_not_implemented_interface
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1510:35 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1516:38 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1524:35 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1530:38 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1538:38 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1546:35 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1554:35 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1562:35 • override_on_non_overriding_member
+warning • The field doesn't override an inherited getter or setter • lib/core/database/app_database.g.dart:1570:35 • override_on_non_overriding_member
+  error • The name 'UserProfile' isn't a type, so it can't be used as a type argument • lib/core/providers/providers.dart:27:40 • non_type_as_type_argument
+  error • The getter 'userProfiles' isn't defined for the type 'AppDatabase' • lib/core/providers/providers.dart:29:23 • undefined_getter
+warning • The value of the local variable 'todayMs' isn't used • lib/core/services/notification_service.dart:100:13 • unused_local_variable
+warning • The value of the local variable 'createdDate' isn't used • lib/core/services/scheduling_service.dart:32:11 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/graph/goal_detail_sheet.dart:369:53 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/graph/graph_page.dart:266:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/graph/graph_page.dart:306:34 • deprecated_member_use
+  error • Target of URI doesn't exist: '../graph/add_goal_form.dart' • lib/features/home/home_page.dart:12:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../tasks/add_task_form.dart' • lib/features/home/home_page.dart:13:8 • uri_does_not_exist
+  error • The getter 'displayName' isn't defined for the type 'Object' • lib/features/home/home_page.dart:37:49 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/home_page.dart:323:49 • deprecated_member_use
+warning • The value of the local variable 'statusColor' isn't used • lib/features/home/home_page.dart:398:11 • unused_local_variable
+  error • The name 'AddGoalForm' isn't a class • lib/features/home/home_page.dart:569:39 • creation_with_non_type
+  error • The name 'AddTaskForm' isn't a class • lib/features/home/home_page.dart:583:39 • creation_with_non_type
+  error • The method 'UserProfilesCompanion' isn't defined for the type '_OnboardingPageState' • lib/features/onboarding/onboarding_page.dart:148:11 • undefined_method
+  error • Target of URI doesn't exist: '../yaml_import/yaml_import_page.dart' • lib/features/profile/profile_page.dart:11:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../yaml_prompt/yaml_prompt_page.dart' • lib/features/profile/profile_page.dart:12:8 • uri_does_not_exist
+  error • The name 'YamlPromptPage' isn't a class • lib/features/profile/profile_page.dart:138:55 • creation_with_non_type
+  error • The name 'YamlImportPage' isn't a class • lib/features/profile/profile_page.dart:149:55 • creation_with_non_type
+  error • Undefined class 'UserProfile' • lib/features/profile/profile_page.dart:181:59 • undefined_class
+  error • Undefined class 'UserProfile' • lib/features/profile/profile_page.dart:192:44 • undefined_class
+  error • The method 'UserProfilesCompanion' isn't defined for the type '_ProfilePageState' • lib/features/profile/profile_page.dart:218:23 • undefined_method
+  error • Undefined class 'UserProfile' • lib/features/profile/profile_page.dart:301:9 • undefined_class
+  error • Undefined class 'UserProfile' • lib/features/profile/profile_page.dart:536:9 • undefined_class
+  error • The method 'UserProfilesCompanion' isn't defined for the type '_SettingsSheet' • lib/features/profile/profile_page.dart:674:46 • undefined_method
+warning • The value of the local variable 'allTasks' isn't used • lib/features/progress/progress_page.dart:17:11 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/progress/progress_page.dart:358:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/tasks/tasks_page.dart:91:55 • deprecated_member_use
+warning • The value of the local variable 'goalMap' isn't used • lib/features/tasks/tasks_page.dart:416:17 • unused_local_variable
+  error • Target of URI doesn't exist: 'features/yaml_prompt/yaml_prompt_page.dart' • lib/main.dart:14:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: 'features/yaml_import/yaml_import_page.dart' • lib/main.dart:15:8 • uri_does_not_exist
+  error • Const variables must be initialized with a constant value • lib/main.dart:171:5 • const_initialized_with_non_constant_value
+  error • The method 'YamlPromptPage' isn't defined for the type '_MainShell' • lib/main.dart:171:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/main.dart:171:5 • non_constant_list_element
+  error • The method 'YamlImportPage' isn't defined for the type '_MainShell' • lib/main.dart:172:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/main.dart:172:5 • non_constant_list_element
+  error • The method 'UserProfilesCompanion' isn't defined for the type '_RadialNavOverlayState' • lib/navigation/radial_bubble_nav.dart:170:54 • undefined_method
+warning • The value of the local variable 'holdProg' isn't used • lib/navigation/radial_bubble_nav.dart:458:17 • unused_local_variable
+   info • Don't invoke 'print' in production code • rename_colors.dart:14:9 • avoid_print
+
