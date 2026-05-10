@@ -11,7 +11,7 @@ import 'features/tasks/tasks_page.dart';
 import 'features/progress/progress_page.dart';
 import 'features/profile/profile_page.dart';
 import 'features/onboarding/onboarding_page.dart';
-import 'features/yaml_prompt/yaml_prompt_page.dart';
+import 'features/activity/activity_page.dart';
 import 'features/yaml_import/yaml_import_page.dart';
 import 'navigation/radial_bubble_nav.dart';
 import 'core/services/widget_service.dart';
@@ -180,7 +180,7 @@ class _MainShell extends ConsumerWidget {
     const TasksPage(),
     const ProgressPage(),
     const ProfilePage(),
-    const YamlPromptPage(),
+    const ActivityPage(),
     const YamlImportPage(),
   ];
 
