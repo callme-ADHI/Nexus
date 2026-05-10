@@ -14,6 +14,8 @@ import 'features/onboarding/onboarding_page.dart';
 import 'features/yaml_prompt/yaml_prompt_page.dart';
 import 'features/yaml_import/yaml_import_page.dart';
 import 'navigation/radial_bubble_nav.dart';
+import 'core/services/widget_service.dart';
+
 import 'shared/theme/app_theme.dart';
 import 'splash_screen.dart';
 
@@ -137,7 +139,17 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
 
   @override
   Widget build(BuildContext context) {
+    // Sync Home Widget whenever today's tasks change
+    ref.listen(todayCompletionsProvider, (prev, next) {
+      next.whenData((completions) {
+        final tasks = ref.read(allTasksProvider).value ?? [];
+        final taskMap = {for (final t in tasks) t.id: t};
+        WidgetService.updateHomeWidget(completions, taskMap);
+      });
+    });
+
     if (!_initialized) {
+
       return const Scaffold(
         backgroundColor: Colors.black,
         body: Center(

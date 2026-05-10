@@ -47,6 +47,8 @@ dependencies:
   path: ^1.9.1
   collection: ^1.19.1
   url_launcher: ^6.3.2
+  home_widget: ^0.7.1
+
 
 dev_dependencies:
   flutter_test:
