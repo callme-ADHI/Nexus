@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import '../models/models.dart';
 import '../database/app_database.dart';
 
 class WidgetService {
@@ -20,7 +19,6 @@ class WidgetService {
 
       final lastUpdated = DateFormat('HH:mm').format(DateTime.now());
 
-      // Render with a high resolution to ensure it looks good when scaled
       final path = await HomeWidget.renderFlutterWidget(
         NexusWidgetUI(tasks: activeTasks, lastUpdated: lastUpdated),
         key: _imageKey,
@@ -29,7 +27,6 @@ class WidgetService {
       );
 
       if (path != null) {
-        // Explicitly save the path so the native side can find it
         await HomeWidget.saveWidgetData<String>(_imageKey, path);
         await HomeWidget.updateWidget(
           name: _androidWidgetName,
@@ -50,141 +47,152 @@ class NexusWidgetUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // We avoid Material/Scaffold/View here as they can cause 'View.of()' errors
+    // during background/off-screen rendering.
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: Material(
-        type: MaterialType.transparency,
+      child: MediaQuery(
+        data: const MediaQueryData(size: Size(600, 600), devicePixelRatio: 3.0),
         child: Container(
           width: 600,
           height: 600,
           color: Colors.black,
           padding: const EdgeInsets.all(48),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+          child: DefaultTextStyle(
+            style: const TextStyle(
+              color: Colors.white,
+              fontFamily: 'Inter',
+              fontSize: 16,
+              decoration: TextDecoration.none,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 14,
+                          height: 14,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      const Text(
-                        'NEXUS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 4,
+                        const SizedBox(width: 20),
+                        const Text(
+                          'NEXUS',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 4,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    lastUpdated,
-                    style: const TextStyle(
-                      color: Color(0xFF333333),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 56),
-              
-              // Section Title
-              Text(
-                tasks.isEmpty ? 'OBJECTIVES CLEAR' : 'DAILY OBJECTIVES',
-                style: const TextStyle(
-                  color: Color(0xFF666666),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 2.0,
+                    Text(
+                      lastUpdated,
+                      style: const TextStyle(
+                        color: Color(0xFF333333),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 32),
-              
-              // Task Items
-              Expanded(
-                child: tasks.isEmpty
-                    ? const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.check_circle_outline, color: Color(0xFF111111), size: 100),
-                            SizedBox(height: 16),
-                            Text(
-                              'ALL TASKS COMPLETED',
-                              style: TextStyle(color: Color(0xFF222222), fontSize: 10, fontWeight: FontWeight.w800),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: tasks.length > 7 ? 7 : tasks.length,
-                        separatorBuilder: (ctx, i) => const SizedBox(height: 20),
-                        itemBuilder: (ctx, i) {
-                          return Row(
+                const SizedBox(height: 56),
+                
+                // Section Title
+                const Text(
+                  'DAILY OBJECTIVES',
+                  style: TextStyle(
+                    color: Color(0xFF666666),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // Task Items
+                Expanded(
+                  child: tasks.isEmpty
+                      ? const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                width: 4,
-                                height: 4,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white24,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: Text(
-                                  tasks[i].name.toUpperCase(),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
+                              Text('★', style: TextStyle(color: Color(0xFF111111), fontSize: 64)),
+                              SizedBox(height: 16),
+                              Text(
+                                'ALL TASKS COMPLETED',
+                                style: TextStyle(color: Color(0xFF222222), fontSize: 10, fontWeight: FontWeight.w800),
                               ),
                             ],
-                          );
-                        },
-                      ),
-              ),
-              
-              // Footer
-              if (tasks.length > 7)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    '+ ${tasks.length - 7} MORE PENDING',
-                    style: const TextStyle(
-                      color: Color(0xFF444444),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: tasks.take(7).map((task) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 4,
+                                    height: 4,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white24,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Text(
+                                      task.name.toUpperCase(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
                 ),
                 
-              const SizedBox(height: 16),
-              // Design Accent
-              Container(
-                height: 2,
-                width: 40,
-                color: Colors.white,
-              ),
-            ],
+                // Footer
+                if (tasks.length > 7)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      '+ ${tasks.length - 7} MORE PENDING',
+                      style: const TextStyle(
+                        color: Color(0xFF444444),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  
+                const SizedBox(height: 16),
+                // Design Accent
+                Container(
+                  height: 2,
+                  width: 40,
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),
