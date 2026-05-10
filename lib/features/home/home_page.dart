@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:intl/intl.dart';
 
 import '../../core/providers/providers.dart';
@@ -8,7 +7,6 @@ import '../../core/database/app_database.dart';
 import '../../core/models/models.dart';
 import '../../shared/theme/app_theme.dart';
 import '../graph/goal_detail_sheet.dart';
-import '../graph/add_goal_form.dart';
 import '../tasks/add_task_form.dart';
 
 class HomePage extends ConsumerWidget {
@@ -16,106 +14,75 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile           = ref.watch(profileProvider);
-    final goalGraph         = ref.watch(goalGraphProvider);
-    final todayCompletions  = ref.watch(todayCompletionsProvider);
-    final missedCompletions = ref.watch(missedCompletionsProvider);
-    final allTasks          = ref.watch(allTasksProvider);
+    final profile          = ref.watch(profileProvider);
+    final goalGraph        = ref.watch(goalGraphProvider);
+    final todayCompletions = ref.watch(todayCompletionsProvider);
+    final allTasks         = ref.watch(allTasksProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // ── Header ──────────────────────────────────────────────────
+            // ── Minimal Header ──────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, AppSpacing.md),
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
                 child: profile.when(
-                  data: (p) => _Header(name: p?.displayName ?? 'You'),
-                  loading: () => const _Header(name: 'You'),
-                  error: (_, __) => const _Header(name: 'You'),
+                  data: (p) => _MinimalHeader(name: p?.displayName ?? 'You'),
+                  loading: () => const _MinimalHeader(name: 'You'),
+                  error: (_, __) => const _MinimalHeader(name: 'You'),
                 ),
               ),
             ),
 
-            // ── Missed Banner ───────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: missedCompletions.when(
-                data: (missed) => missed.isEmpty
-                    ? const SizedBox.shrink()
-                    : _MissedBanner(
-                        count: missed.length,
-                        onTap: () =>
-                            ref.read(pageIndexProvider.notifier).state = 2,
-                      ),
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-            ),
-
-            // ── Today's Tasks ───────────────────────────────────────────
-            SliverToBoxAdapter(
+            // ── Today's Tasks ───────────────────────────────────────────────
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl, AppSpacing.sectionSpacing, AppSpacing.xl, AppSpacing.titleContentGap),
-                child: Row(
-                  children: [
-                    Text('TODAY', style: AppTypography.sectionHeader),
-                    const SizedBox(width: 8),
-                    todayCompletions.when(
-                      data: (completions) {
-                        final incomplete =
-                            completions.where((c) => c.completedDate == null).length;
-                        return incomplete > 0
-                            ? _CountBadge(incomplete)
-                            : const SizedBox.shrink();
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
-                    ),
-                  ],
+                padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: Text(
+                  'TODAY',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF666666),
+                  ),
                 ),
               ),
             ),
 
-            // Tasks list
             todayCompletions.when(
               data: (completions) => allTasks.when(
                 data: (tasks) {
                   if (completions.isEmpty) {
-                    return const SliverToBoxAdapter(child: _EmptyTasks());
+                    return const SliverToBoxAdapter(child: _EmptyState('No tasks for today.'));
                   }
                   final taskMap = {for (final t in tasks) t.id: t};
                   final sorted = [...completions]..sort((a, b) {
                       if (a.completedDate != null && b.completedDate == null) return 1;
                       if (a.completedDate == null && b.completedDate != null) return -1;
-                      final ta = taskMap[a.taskId];
-                      final tb = taskMap[b.taskId];
-                      if (ta == null || tb == null) return 0;
-                      return ta.reminderTime.compareTo(tb.reminderTime);
+                      return (taskMap[a.taskId]?.reminderTime ?? '')
+                          .compareTo(taskMap[b.taskId]?.reminderTime ?? '');
                     });
+                  
                   return SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (ctx, i) {
                         final c = sorted[i];
                         final task = taskMap[c.taskId];
                         if (task == null) return null;
-                        return _TodayTaskRow(
+                        return _MinimalTaskRow(
                           completion: c,
                           task: task,
                           onToggle: (done) {
                             if (done) {
                               ref.read(taskNotifierProvider.notifier).completeTask(
-                                taskId: c.taskId,
-                                scheduledDate: c.scheduledDate,
-                              );
+                                taskId: c.taskId, scheduledDate: c.scheduledDate);
                             } else {
                               ref.read(taskNotifierProvider.notifier).uncompleteTask(
-                                taskId: c.taskId,
-                                scheduledDate: c.scheduledDate,
-                              );
+                                taskId: c.taskId, scheduledDate: c.scheduledDate);
                             }
                           },
                         );
@@ -127,73 +94,59 @@ class HomePage extends ConsumerWidget {
                 loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
                 error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
               ),
-              loading: () => const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Center(child: CircularProgressIndicator(color: AppColors.accentBlue)),
-                ),
-              ),
+              loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
               error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
 
-            // ── Active Goals ─────────────────────────────────────────────
-            SliverToBoxAdapter(
+            // ── Active Goals ───────────────────────────────────────────────
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl, AppSpacing.sectionSpacing, AppSpacing.xl, AppSpacing.titleContentGap),
-                child: Text('ACTIVE GOALS', style: AppTypography.sectionHeader),
+                padding: EdgeInsets.fromLTRB(24, 48, 24, 16),
+                child: Text(
+                  'ACTIVE GOALS',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF666666),
+                  ),
+                ),
               ),
             ),
 
             SliverToBoxAdapter(
               child: goalGraph.when(
                 data: (goals) {
-                  final active = goals
-                      .where((g) =>
-                          g.status != GoalStatus.completed &&
-                          g.status != GoalStatus.blocked)
-                      .toList();
+                  final active = goals.where((g) =>
+                      g.status != GoalStatus.completed &&
+                      g.status != GoalStatus.blocked).toList();
+                  
                   if (active.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-                      child: Text(
-                        'No active goals. Tap + to add your first goal.',
-                        style: AppTypography.body.copyWith(color: AppColors.textSecondary),
-                      ),
-                    );
+                    return const _EmptyState('No active goals.');
                   }
-                  return SizedBox(
-                    height: 140,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-                      itemCount: active.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.md),
-                      itemBuilder: (ctx, i) => _GoalCard(
-                        goalWP: active[i],
-                        onTap: () => _openGoalDetail(context, active[i].goal as Goal, ref),
-                      ),
-                    ),
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: active.map((g) => _MinimalGoalRow(
+                      goalWP: g,
+                      onTap: () => _openGoalDetail(context, g.goal as Goal),
+                    )).toList(),
                   );
                 },
-                loading: () => const SizedBox(
-                  height: 140,
-                  child: Center(child: CircularProgressIndicator(color: AppColors.accentBlue)),
-                ),
+                loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
               ),
             ),
 
-            // Bottom padding for FAB
             const SliverToBoxAdapter(child: SizedBox(height: 120)),
           ],
         ),
       ),
-      floatingActionButton: _QuickAddFAB(),
     );
   }
 
-  void _openGoalDetail(BuildContext context, Goal goal, WidgetRef ref) {
+  void _openGoalDetail(BuildContext context, Goal goal) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -203,374 +156,178 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────
+// ── Minimal Components ──────────────────────────────────────────────────
 
-class _Header extends StatelessWidget {
+class _MinimalHeader extends StatelessWidget {
   final String name;
-  const _Header({required this.name});
+  const _MinimalHeader({required this.name});
 
   @override
   Widget build(BuildContext context) {
-    final hour = DateTime.now().hour;
-    final greeting = hour >= 5 && hour < 12
-        ? 'Good morning'
-        : hour >= 12 && hour < 18
-            ? 'Good afternoon'
-            : 'Good evening';
-
-    final now = DateTime.now();
-    final dateStr = DateFormat('EEE, d MMM').format(now);
-
+    final dateStr = DateFormat('MMMM d, yyyy').format(DateTime.now());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '$greeting,',
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary, fontSize: 15),
-            ),
-            Text(
-              dateStr,
-              style: AppTypography.caption.copyWith(fontSize: 13),
-            ),
-          ],
+        Text(
+          dateStr.toUpperCase(),
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 10,
+            letterSpacing: 2.0,
+            color: Color(0xFF666666),
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        const SizedBox(height: 2),
-        Text(name, style: AppTypography.pageTitle),
+        const SizedBox(height: 8),
+        Text(
+          name,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 28,
+            fontWeight: FontWeight.w300,
+            color: Colors.white,
+            letterSpacing: -0.5,
+          ),
+        ),
       ],
     );
   }
 }
 
-// ── Missed tasks banner ────────────────────────────────────────────────────
-
-class _MissedBanner extends StatelessWidget {
-  final int count;
-  final VoidCallback onTap;
-  const _MissedBanner({required this.count, required this.onTap});
+class _EmptyState extends StatelessWidget {
+  final String text;
+  const _EmptyState(this.text);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.md, AppSpacing.xl, 0),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.accentRedDim.withValues(alpha: 0.3),
-          borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.accentRed.withValues(alpha: 0.4)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.warning_amber_rounded, color: AppColors.accentRed, size: 16),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '$count missed task${count == 1 ? '' : 's'} — tap to review',
-                style: AppTypography.body.copyWith(color: AppColors.accentRed, fontSize: 13),
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.accentRed, size: 18),
-          ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: Color(0xFF444444),
         ),
       ),
     );
   }
 }
 
-// ── Today task row ─────────────────────────────────────────────────────────
-
-class _TodayTaskRow extends ConsumerWidget {
+class _MinimalTaskRow extends StatelessWidget {
   final TaskCompletion completion;
   final Task task;
   final ValueChanged<bool> onToggle;
 
-  const _TodayTaskRow({
+  const _MinimalTaskRow({
     required this.completion,
     required this.task,
     required this.onToggle,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDone = completion.completedDate != null;
-    final allGoals = ref.watch(allGoalsProvider);
-
-    return allGoals.when(
-      data: (goals) {
-        final goal = goals.where((g) => g.id == task.goalId).firstOrNull;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: 3),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 12),
-          decoration: BoxDecoration(
-            color: isDone ? AppColors.surface : AppColors.surface,
-            borderRadius: AppRadius.card,
-            border: Border.all(
-              color: isDone
-                  ? AppColors.border
-                  : AppColors.border,
+    
+    return InkWell(
+      onTap: () => onToggle(!isDone),
+      splashColor: Colors.transparent,
+      highlightColor: const Color(0xFF111111),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDone ? Colors.white : const Color(0xFF333333),
+                  width: 1.5,
+                ),
+                color: isDone ? Colors.white : Colors.transparent,
+              ),
+              child: isDone
+                  ? const Icon(Icons.check, size: 12, color: Colors.black)
+                  : null,
             ),
-          ),
-          child: Row(
-            children: [
-              // Checkbox
-              GestureDetector(
-                onTap: () => onToggle(!isDone),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDone ? AppColors.success : Colors.transparent,
-                    border: Border.all(
-                      color: isDone ? AppColors.success : AppColors.textSecondary,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: isDone
-                      ? const Icon(Icons.check, color: Colors.white, size: 13)
-                      : null,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                task.name,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: isDone ? const Color(0xFF555555) : Colors.white,
+                  decoration: isDone ? TextDecoration.lineThrough : null,
+                  decorationColor: const Color(0xFF555555),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      task.name,
-                      style: AppTypography.cardTitle.copyWith(
-                        decoration: isDone ? TextDecoration.lineThrough : null,
-                        color: isDone ? AppColors.textSecondary : AppColors.textPrimary,
-                      ),
-                    ),
-                    if (goal != null) ...[
-                      const SizedBox(height: 2),
-                      Text(goal.name, style: AppTypography.caption),
-                    ],
-                  ],
-                ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              task.reminderTime,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                color: isDone ? const Color(0xFF444444) : const Color(0xFF888888),
               ),
-              Text(task.reminderTime, style: AppTypography.caption),
-            ],
-          ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-// ── Goal card ────────────────────────────────────────────────────────────
-
-class _GoalCard extends StatelessWidget {
+class _MinimalGoalRow extends StatelessWidget {
   final GoalWithProgress goalWP;
   final VoidCallback onTap;
-  const _GoalCard({required this.goalWP, required this.onTap});
+
+  const _MinimalGoalRow({required this.goalWP, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final goal = goalWP.goal as Goal;
-    final progress = goalWP.effectiveProgress;
-    final daysLeft = _daysLeft(goal.deadline);
-    final accent = AppColors.nodeAccent(goal.colorIndex);
+    final progress = goalWP.effectiveProgress.round();
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        width: 160,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      splashColor: Colors.transparent,
+      highlightColor: const Color(0xFF111111),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Status indicator line
-            Container(
-              height: 2,
-              width: 32,
-              decoration: BoxDecoration(
-                color: accent,
-                borderRadius: AppRadius.chip,
-              ),
-            ),
-            const SizedBox(height: 8),
             Expanded(
               child: Text(
                 goal.name,
-                style: AppTypography.cardTitle.copyWith(fontSize: 13),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            // Progress bar
-            ClipRRect(
-              borderRadius: AppRadius.chip,
-              child: LinearProgressIndicator(
-                value: progress / 100,
-                backgroundColor: AppColors.progressTrack,
-                valueColor: AlwaysStoppedAnimation(accent),
-                minHeight: 3,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${progress.round()}%',
-                  style: AppTypography.badge.copyWith(fontSize: 11, color: accent),
-                ),
-                Text(
-                  daysLeft < 0 ? 'Overdue' : '${daysLeft}d left',
-                  style: AppTypography.caption.copyWith(
-                    color: daysLeft < 0 ? AppColors.accentRed : AppColors.textSecondary,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  int _daysLeft(int deadlineMs) =>
-      DateTime.fromMillisecondsSinceEpoch(deadlineMs).difference(DateTime.now()).inDays;
-}
-
-// ── Empty tasks ──────────────────────────────────────────────────────────
-
-class _EmptyTasks extends StatelessWidget {
-  const _EmptyTasks();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 0),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.wb_sunny_outlined, color: AppColors.textSecondary, size: 28),
-            const SizedBox(height: 8),
+            const SizedBox(width: 16),
             Text(
-              'No tasks scheduled for today.',
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
+              '$progress%',
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF888888),
+              ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// ── Quick add FAB ─────────────────────────────────────────────────────────
-
-class _QuickAddFAB extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FloatingActionButton(
-      onPressed: () => _showQuickAdd(context, ref),
-      child: const Icon(Icons.add),
-    );
-  }
-
-  void _showQuickAdd(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 12),
-          Container(
-            width: 32, height: 4,
-            decoration: BoxDecoration(color: AppColors.border, borderRadius: AppRadius.chip),
-          ),
-          const SizedBox(height: 20),
-          ListTile(
-            leading: Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.accentBlueDim,
-                borderRadius: AppRadius.button,
-              ),
-              child: const Icon(Icons.flag_rounded, color: AppColors.accentBlue, size: 18),
-            ),
-            title: Text('Add Goal', style: AppTypography.cardTitle),
-            subtitle: Text('Create a new goal', style: AppTypography.caption),
-            onTap: () {
-              Navigator.pop(ctx);
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (c) => const AddGoalForm(),
-              );
-            },
-          ),
-          ListTile(
-            leading: Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.accentBlueDim,
-                borderRadius: AppRadius.button,
-              ),
-              child: const Icon(Icons.check_box_rounded, color: AppColors.accentBlue, size: 18),
-            ),
-            title: Text('Add Task', style: AppTypography.cardTitle),
-            subtitle: Text('Add a task to an existing goal', style: AppTypography.caption),
-            onTap: () {
-              Navigator.pop(ctx);
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (c) => const AddTaskForm(),
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Count badge ───────────────────────────────────────────────────────────
-
-class _CountBadge extends StatelessWidget {
-  final int count;
-  const _CountBadge(this.count);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppColors.accentBlue,
-        borderRadius: AppRadius.chip,
-      ),
-      child: Text('$count', style: AppTypography.badge.copyWith(fontSize: 10, color: Colors.white)),
     );
   }
 }

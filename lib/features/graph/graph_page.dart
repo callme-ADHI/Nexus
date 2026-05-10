@@ -253,15 +253,10 @@ class _GraphViewState extends State<_GraphView>
 
   void _computeLayout() {
     final ids = widget.goals.map((g) => (g.goal as Goal).id).toList();
-    // Use a canvas 3× the screen size for panning room
-    final layoutBounds = Size(
-      widget.canvasSize.width  * 2.5,
-      widget.canvasSize.height * 2.5,
-    );
     _positions = _ForceLayout.compute(
       ids: ids,
       edges: _edges,
-      bounds: layoutBounds,
+      bounds: widget.canvasSize,
     );
   }
 
@@ -276,20 +271,18 @@ class _GraphViewState extends State<_GraphView>
           minScale: 0.25,
           maxScale: 3.0,
           child: SizedBox(
-            // Canvas is larger than screen to allow panning
-            width:  widget.canvasSize.width  * 2.5,
-            height: widget.canvasSize.height * 2.5,
+            width:  widget.canvasSize.width,
+            height: widget.canvasSize.height,
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                // Edge layer — single CustomPaint
+                // Edge layer — single CustomPaint (no RepaintBoundary to save memory)
                 Positioned.fill(
-                  child: RepaintBoundary(
-                    child: CustomPaint(
-                      painter: _EdgePainter(
-                        goals: widget.goals,
-                        deps: widget.deps,
-                        positions: _positions,
-                      ),
+                  child: CustomPaint(
+                    painter: _EdgePainter(
+                      goals: widget.goals,
+                      deps: widget.deps,
+                      positions: _positions,
                     ),
                   ),
                 ),
@@ -298,8 +291,8 @@ class _GraphViewState extends State<_GraphView>
                 ...widget.goals.map((gwp) {
                   final goal = gwp.goal as Goal;
                   final pos  = _positions[goal.id] ?? Offset(
-                    widget.canvasSize.width  * 1.25,
-                    widget.canvasSize.height * 1.25,
+                    widget.canvasSize.width  / 2,
+                    widget.canvasSize.height / 2,
                   );
 
                   return Positioned(
