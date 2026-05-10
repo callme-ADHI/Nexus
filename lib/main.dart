@@ -13,7 +13,7 @@ import 'features/profile/profile_page.dart';
 import 'features/onboarding/onboarding_page.dart';
 import 'features/yaml_prompt/yaml_prompt_page.dart';
 import 'features/yaml_import/yaml_import_page.dart';
-import 'navigation/radial_bubble_nav.dart';
+import 'navigation/minimal_bottom_nav.dart';
 import 'shared/theme/app_theme.dart';
 import 'splash_screen.dart';
 
@@ -185,7 +185,7 @@ class _MainShell extends ConsumerWidget {
             index: pageIndex,
             children: _pages,
           ),
-          const RadialNavOverlay(),
+          const MinimalBottomNav(),
         ],
       ),
     );
