@@ -38,6 +38,7 @@ class GraphPage extends ConsumerWidget {
             data: (goals) => allDeps.when(
               data: (deps) {
                 if (goals.isEmpty) return const _EmptyGraph();
+                if (size.width == 0 || size.height == 0) return const _GraphLoading();
                 return _GraphView(
                   goals: goals,
                   deps: deps,
