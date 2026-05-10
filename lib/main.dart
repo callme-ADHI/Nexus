@@ -143,8 +143,7 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
     ref.listen(widgetUpdateProvider, (prev, next) {
       if (next != null) {
         final (completions, tasks) = next;
-        final taskMap = {for (final t in tasks) t.id: t};
-        WidgetService.updateHomeWidget(completions, taskMap);
+        WidgetService.updateHomeWidget(completions, tasks);
       }
     });
 
