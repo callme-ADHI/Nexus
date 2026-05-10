@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../models/models.dart';
 import '../database/app_database.dart';
 
