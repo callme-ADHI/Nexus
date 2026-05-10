@@ -8,21 +8,22 @@ class WidgetService {
   static const String _imageKey = 'nexus_widget_image';
 
   /// Renders the today's tasks widget to an image and updates the home screen.
-  static Future<void> updateHomeWidget(List<TaskCompletion> todayCompletions, Map<String, Task> taskMap) async {
+  static Future<void> updateHomeWidget(List<TaskCompletion> todayCompletions, List<Task> allTasks) async {
     try {
+      final taskMap = {for (final t in allTasks) t.id: t};
       final activeTasks = todayCompletions
           .where((c) => c.completedDate == null)
           .map((c) => taskMap[c.taskId])
           .whereType<Task>()
           .toList();
 
-      // Render the widget to an image
-      // We use a fixed size for the widget image (e.g. 512x512)
+      // Render with higher resolution for better size flexibility on high-DPI screens
+      // 512 logical pixels at 3.0 pixel ratio = 1536 physical pixels
       final path = await HomeWidget.renderFlutterWidget(
         NexusWidgetUI(tasks: activeTasks),
         key: _imageKey,
-        logicalSize: const Size(400, 400),
-        pixelRatio: 2.0,
+        logicalSize: const Size(512, 512),
+        pixelRatio: 3.0,
       );
 
       if (path != null) {
@@ -50,73 +51,77 @@ class NexusWidgetUI extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: Container(
-          width: 400,
-          height: 400,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: const Color(0xFF222222), width: 1),
-          ),
-          padding: const EdgeInsets.all(32),
+          width: 512,
+          height: 512,
+          color: Colors.black,
+          padding: const EdgeInsets.all(40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Row(
                 children: [
                   Container(
-                    width: 12,
-                    height: 12,
+                    width: 16,
+                    height: 16,
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   const Text(
                     'NEXUS',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 24,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
+                      letterSpacing: 3,
                       fontFamily: 'Inter',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
+              
+              // Status Label
               Text(
-                tasks.isEmpty ? 'ALL TASKS COMPLETED' : 'TODAY\'S FOCUS',
+                tasks.isEmpty ? 'STATUS: CLEAR' : 'TODAY\'S OBJECTIVES',
                 style: const TextStyle(
-                  color: Color(0xFF666666),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
+                  color: Color(0xFF888888),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2.0,
                   fontFamily: 'Inter',
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
+              
+              // Tasks List
               Expanded(
                 child: tasks.isEmpty
                     ? const Center(
-                        child: Icon(Icons.done_all, color: Color(0xFF222222), size: 64),
+                        child: Opacity(
+                          opacity: 0.1,
+                          child: Icon(Icons.check_circle_outline, color: Colors.white, size: 120),
+                        ),
                       )
                     : ListView.separated(
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: tasks.length > 5 ? 5 : tasks.length,
-                        separatorBuilder: (ctx, i) => const SizedBox(height: 12),
+                        itemCount: tasks.length > 8 ? 8 : tasks.length,
+                        separatorBuilder: (ctx, i) => const SizedBox(height: 16),
                         itemBuilder: (ctx, i) {
                           return Row(
                             children: [
                               Container(
-                                width: 6,
-                                height: 6,
+                                width: 8,
+                                height: 8,
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFF444444),
+                                  color: Color(0xFF333333),
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   tasks[i].name.toUpperCase(),
@@ -124,8 +129,8 @@ class NexusWidgetUI extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
                                     letterSpacing: 0.5,
                                     fontFamily: 'Inter',
                                   ),
@@ -136,19 +141,29 @@ class NexusWidgetUI extends StatelessWidget {
                         },
                       ),
               ),
-              if (tasks.length > 5)
+              
+              // Footer / Overflow
+              if (tasks.length > 8)
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 12),
                   child: Text(
-                    '+ ${tasks.length - 5} MORE',
+                    '+ ${tasks.length - 8} ADDITIONAL TASKS',
                     style: const TextStyle(
                       color: Color(0xFF444444),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
                       fontFamily: 'Inter',
                     ),
                   ),
                 ),
+                
+              const SizedBox(height: 12),
+              // Bottom divider for formal look
+              Container(
+                height: 1,
+                width: 60,
+                color: const Color(0xFF222222),
+              ),
             ],
           ),
         ),

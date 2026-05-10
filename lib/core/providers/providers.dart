@@ -474,3 +474,10 @@ final yamlImportProvider =
     ref.watch(schedulingServiceProvider),
   );
 });
+
+final widgetUpdateProvider = Provider((ref) {
+  final completions = ref.watch(todayCompletionsProvider).value;
+  final tasks = ref.watch(allTasksProvider).value;
+  if (completions == null || tasks == null) return null;
+  return (completions, tasks);
+});

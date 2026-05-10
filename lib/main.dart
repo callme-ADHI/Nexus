@@ -140,12 +140,12 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
   @override
   Widget build(BuildContext context) {
     // Sync Home Widget whenever today's tasks change
-    ref.listen(todayCompletionsProvider, (prev, next) {
-      next.whenData((completions) {
-        final tasks = ref.read(allTasksProvider).value ?? [];
+    ref.listen(widgetUpdateProvider, (prev, next) {
+      if (next != null) {
+        final (completions, tasks) = next;
         final taskMap = {for (final t in tasks) t.id: t};
         WidgetService.updateHomeWidget(completions, taskMap);
-      });
+      }
     });
 
     if (!_initialized) {
