@@ -315,6 +315,22 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<void> clearAllData() async {
+    await transaction(() async {
+      await delete(taskCompletions).go();
+      await delete(tasks).go();
+      await delete(goalDependencies).go();
+      await delete(goals).go();
+    });
+  }
+
+  Future<void> clearFutureData() async {
+    final todayMidnight = _todayMidnightMs();
+    await (delete(taskCompletions)
+          ..where((t) => t.scheduledDate.isBiggerThanValue(todayMidnight)))
+        .go();
+  }
+
   // ── HELPERS ───────────────────────────────────────────────────────────────
 
   int _todayMidnightMs() {

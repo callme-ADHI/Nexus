@@ -118,7 +118,8 @@ class NotificationService {
     }
 
     final now   = tz.TZDateTime.now(tz.local);
-    final end   = now.add(const Duration(days: 30));
+    // Reduced to 7 days to stay within Android's 500-alarm limit
+    final end   = now.add(const Duration(days: 7));
     final tasks = await db.getAllTasks();
     final goals = await db.getAllGoals();
     final goalMap = {for (final g in goals) g.id: g};
@@ -241,6 +242,7 @@ class NotificationService {
       switch (task.schedule) {
         case 'daily':
           include = true;
+          break;
         case 'weekly':
           final on = task.scheduleOn?.toLowerCase() ?? '';
           final dayNames = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -248,9 +250,11 @@ class NotificationService {
           if (dayIdx >= 0) {
             include = cursor.weekday - 1 == dayIdx;
           }
+          break;
         case 'monthly':
           final dom = int.tryParse(task.scheduleOn ?? '') ?? 0;
           include = dom > 0 && cursor.day == dom;
+          break;
         case 'specific_date':
           // handled elsewhere
           break;
@@ -321,6 +325,22 @@ class NotificationService {
         );
       } catch (_) {}
     }
+  }
+
+  static Future<void> showTestNotification() async {
+    const details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'daily_morning', 'Test Notification',
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    );
+    await _plugin.show(999, 'Nexus Test', 'Your notifications are working perfectly!', details);
   }
 
   static Future<void> _createChannels() async {

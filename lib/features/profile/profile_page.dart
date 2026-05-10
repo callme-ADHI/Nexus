@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -8,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/database/app_database.dart';
 import '../../core/providers/providers.dart';
 import '../../shared/theme/app_theme.dart';
+import '../../core/services/notification_service.dart';
 import '../yaml_import/yaml_import_page.dart';
 import '../yaml_prompt/yaml_prompt_page.dart';
 
@@ -164,6 +166,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               : 'Calculating...',
                           showChevron: false,
                         ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Text('Troubleshooting', style: AppTypography.sectionHeader),
+                        const SizedBox(height: AppSpacing.md),
+                        _DataTile(
+                          icon: Icons.notification_important_rounded,
+                          label: 'Test Notification',
+                          subtitle: 'Fire an immediate notification to check setup',
+                          onTap: () => NotificationService.showTestNotification(),
+                        ),
+                        _DataTile(
+                          icon: Icons.settings_suggest_rounded,
+                          label: 'Fix Permissions',
+                          subtitle: 'Request notification and exact alarm permissions',
+                          onTap: () async {
+                             await NotificationService.requestPermissions();
+                             if (context.mounted) {
+                               ScaffoldMessenger.of(context).showSnackBar(
+                                 const SnackBar(content: Text('Permissions requested. Please allow if prompted.')),
+                               );
+                             }
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -181,9 +205,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void _openSettings(BuildContext context, WidgetRef ref, UserProfile? p) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
       builder: (_) => _SettingsSheet(profile: p, ref: ref),
     );
   }
@@ -544,134 +567,106 @@ class _SettingsSheet extends ConsumerWidget {
     final reducedMotion = profile?.reducedMotion == 1;
     final bubbleSide = profile?.bubbleSide ?? 'right';
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.55,
-      minChildSize: 0.35,
-      maxChildSize: 0.85,
-      builder: (ctx, scrollCtrl) => SingleChildScrollView(
-        controller: scrollCtrl,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Handle
-              Center(
-                child: Container(
-                  width: 32,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.border,
-                    borderRadius: AppRadius.chip,
-                  ),
-                ),
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 12, AppSpacing.xl, 48),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Settings',
-                      style: AppTypography.pageTitle
-                          .copyWith(fontSize: 18)),
-                  IconButton(
-                    icon: const Icon(Icons.close,
-                        color: AppColors.textSecondary),
-                    onPressed: () => Navigator.pop(ctx),
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              _SettingToggle(
-                label: 'Notifications',
-                description: 'Task reminders and deadline alerts',
-                value: notifsOn,
-                onChanged: (v) => _update(ref, notifsEnabled: v),
-              ),
-              _SettingToggle(
-                label: 'Haptic Feedback',
-                description: 'Vibration on bubble navigation',
-                value: hapticsOn,
-                onChanged: (v) => _update(ref, hapticsEnabled: v),
-              ),
-              _SettingToggle(
-                label: 'Reduced Motion',
-                description: 'Simplify animations for accessibility',
-                value: reducedMotion,
-                onChanged: (v) => _update(ref, reducedMotion: v),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Bubble side
-              Text('Navigation Bubble Side',
-                  style: AppTypography.cardTitle),
-              const SizedBox(height: 4),
-              Text('Which side the navigation bubble sits on',
-                  style: AppTypography.caption),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _SegmentButton(
-                      label: 'Left',
-                      selected: bubbleSide == 'left',
-                      onTap: () => _update(ref, bubbleSide: 'left'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _SegmentButton(
-                      label: 'Right',
-                      selected: bubbleSide == 'right',
-                      onTap: () => _update(ref, bubbleSide: 'right'),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 28),
-
-              // About
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceAlt,
-                  borderRadius: AppRadius.card,
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  children: [
-                    Text('Nexus v1.0.0',
-                        style: AppTypography.caption
-                            .copyWith(color: AppColors.textSecondary)),
-                    const SizedBox(height: 2),
-                    Text('Built with Flutter',
-                        style: AppTypography.caption
-                            .copyWith(color: AppColors.textSecondary)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 24),
+          Text('Preferences', style: AppTypography.pageTitle.copyWith(fontSize: 22)),
+          const SizedBox(height: 24),
+
+          _SettingRow(
+            label: 'Notifications',
+            description: 'Task reminders and goal alerts',
+            trailing: Switch(
+              value: notifsOn,
+              onChanged: (v) => _update(ref, notifsEnabled: v),
+            ),
+          ),
+          const Divider(color: AppColors.border, height: 32),
+          _SettingRow(
+            label: 'Haptic Feedback',
+            description: 'Subtle vibration on navigation',
+            trailing: Switch(
+              value: hapticsOn,
+              onChanged: (v) => _update(ref, hapticsEnabled: v),
+            ),
+          ),
+          const Divider(color: AppColors.border, height: 32),
+          _SettingRow(
+            label: 'Reduced Motion',
+            description: 'Simplify app-wide animations',
+            trailing: Switch(
+              value: reducedMotion,
+              onChanged: (v) => _update(ref, reducedMotion: v),
+            ),
+          ),
+          const Divider(color: AppColors.border, height: 32),
+          
+          _SettingRow(
+            label: 'Navigation Side',
+            description: 'Placement of the control bubble',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _MiniToggle(
+                  label: 'L',
+                  selected: bubbleSide == 'left',
+                  onTap: () => _update(ref, bubbleSide: 'left'),
+                ),
+                const SizedBox(width: 8),
+                _MiniToggle(
+                  label: 'R',
+                  selected: bubbleSide == 'right',
+                  onTap: () => _update(ref, bubbleSide: 'right'),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 48),
+          Text('Danger Zone', style: AppTypography.sectionHeader.copyWith(color: AppColors.error)),
+          const SizedBox(height: 16),
+          
+          _DangerButton(
+            label: 'Delete All Data',
+            onTap: () => _confirmDelete(context, ref, 'ALL', () => ref.read(databaseProvider).clearAllData()),
+          ),
+          const SizedBox(height: 12),
+          _DangerButton(
+            label: 'Clear Future Schedule',
+            onTap: () => _confirmDelete(context, ref, 'FUTURE', () => ref.read(databaseProvider).clearFutureData()),
+          ),
+        ],
       ),
     );
   }
 
-  void _update(
+  Future<void> _update(
     WidgetRef ref, {
     bool? notifsEnabled,
     bool? hapticsEnabled,
     bool? reducedMotion,
     String? bubbleSide,
-  }) {
-    ref.read(databaseProvider).updateProfile(UserProfilesCompanion(
+  }) async {
+    await ref.read(databaseProvider).updateProfile(UserProfilesCompanion(
       notifsEnabled: notifsEnabled != null
           ? Value(notifsEnabled ? 1 : 0)
           : const Value.absent(),
@@ -686,70 +681,130 @@ class _SettingsSheet extends ConsumerWidget {
     ));
     ref.invalidate(profileProvider);
   }
+
+  void _confirmDelete(BuildContext context, WidgetRef ref, String type, Future<void> Function() action) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text('Confirm Deletion', style: AppTypography.cardTitle),
+        content: Text(
+          type == 'ALL' 
+            ? 'This will permanently erase all your goals, tasks, and progress. This cannot be undone.'
+            : 'This will clear all future task completions. You will need to regenerate your schedule.',
+          style: AppTypography.body,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () async {
+              await action();
+              ref.invalidate(allGoalsProvider);
+              ref.invalidate(allTasksProvider);
+              ref.invalidate(todayCompletionsProvider);
+              if (ctx.mounted) Navigator.pop(ctx);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Data cleared successfully.')),
+                );
+              }
+            },
+            child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _SettingToggle extends StatelessWidget {
+class _SettingRow extends StatelessWidget {
   final String label;
   final String description;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-  const _SettingToggle({
-    required this.label,
-    required this.description,
-    required this.value,
-    required this.onChanged,
-  });
+  final Widget trailing;
+
+  const _SettingRow({required this.label, required this.description, required this.trailing});
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: AppTypography.cardTitle),
-                  const SizedBox(height: 2),
-                  Text(description, style: AppTypography.caption),
-                ],
-              ),
-            ),
-            Switch(value: value, onChanged: onChanged),
-          ],
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: AppTypography.cardTitle.copyWith(fontSize: 16)),
+              const SizedBox(height: 2),
+              Text(description, style: AppTypography.caption),
+            ],
+          ),
         ),
-      );
+        trailing,
+      ],
+    );
+  }
 }
 
-class _SegmentButton extends StatelessWidget {
+class _MiniToggle extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _SegmentButton(
-      {required this.label, required this.selected, required this.onTap});
+
+  const _MiniToggle({required this.label, required this.selected, required this.onTap});
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? AppColors.accentPrimary : AppColors.surfaceAlt,
-            borderRadius: AppRadius.button,
-            border: Border.all(
-              color: selected ? AppColors.accentPrimary : AppColors.border,
-            ),
-          ),
-          child: Text(
-            label,
-            style: AppTypography.body.copyWith(
-              fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : AppColors.textSecondary,
-            ),
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 32,
+        height: 32,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : AppColors.surfaceAlt,
+          shape: BoxShape.circle,
+          border: Border.all(color: selected ? Colors.white : AppColors.border),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? Colors.black : AppColors.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
           ),
         ),
-      );
+      ),
+    );
+  }
+}
+
+class _DangerButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _DangerButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppRadius.button,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppColors.error.withValues(alpha: 0.1),
+          borderRadius: AppRadius.button,
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: AppTypography.body.copyWith(color: AppColors.error, fontWeight: FontWeight.w600)),
+            Icon(Icons.delete_forever_rounded, color: AppColors.error, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
 }
