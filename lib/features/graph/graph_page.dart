@@ -260,17 +260,19 @@ class _GraphViewState extends State<_GraphView>
     );
   }
 
+// Graph view local panning
+  Offset _panOffset = Offset.zero;
+
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _entranceFade,
       child: ScaleTransition(
         scale: _entranceScale,
-        child: InteractiveViewer(
-          boundaryMargin: const EdgeInsets.all(double.infinity),
-          minScale: 0.25,
-          maxScale: 3.0,
-          child: SizedBox(
+        child: GestureDetector(
+          onPanUpdate: (d) => setState(() => _panOffset += d.delta),
+          child: Container(
+            color: Colors.transparent, // Capture taps over entire area
             width:  widget.canvasSize.width,
             height: widget.canvasSize.height,
             child: Stack(
@@ -283,6 +285,7 @@ class _GraphViewState extends State<_GraphView>
                       goals: widget.goals,
                       deps: widget.deps,
                       positions: _positions,
+                      panOffset: _panOffset,
                     ),
                   ),
                 ),
@@ -290,10 +293,10 @@ class _GraphViewState extends State<_GraphView>
                 // Node layer
                 ...widget.goals.map((gwp) {
                   final goal = gwp.goal as Goal;
-                  final pos  = _positions[goal.id] ?? Offset(
+                  final pos  = (_positions[goal.id] ?? Offset(
                     widget.canvasSize.width  / 2,
                     widget.canvasSize.height / 2,
-                  );
+                  )) + _panOffset;
 
                   return Positioned(
                     left: pos.dx - 48,
@@ -305,7 +308,7 @@ class _GraphViewState extends State<_GraphView>
                       onDragUpdate: (delta) {
                         if (_dragId == goal.id) {
                           setState(() {
-                            _positions[goal.id] = pos + delta;
+                            _positions[goal.id] = (_positions[goal.id] ?? Offset.zero) + delta;
                           });
                         }
                       },
@@ -330,11 +333,13 @@ class _EdgePainter extends CustomPainter {
   final List<GoalWithProgress> goals;
   final List<GoalDependency>   deps;
   final Map<String, Offset>    positions;
+  final Offset panOffset;
 
   const _EdgePainter({
     required this.goals,
     required this.deps,
     required this.positions,
+    required this.panOffset,
   });
 
   static final _depPaint = Paint()
@@ -356,7 +361,7 @@ class _EdgePainter extends CustomPainter {
       final from = positions[dep.dependsOnId];
       final to   = positions[dep.goalId];
       if (from == null || to == null) continue;
-      _drawArrow(canvas, from, to, _depPaint, dashed: false);
+      _drawArrow(canvas, from + panOffset, to + panOffset, _depPaint, dashed: false);
     }
 
     // Parent-child edges (dashed grey)
@@ -366,7 +371,7 @@ class _EdgePainter extends CustomPainter {
       final from = positions[goal.parentId!];
       final to   = positions[goal.id];
       if (from == null || to == null) continue;
-      _drawArrow(canvas, from, to, _parentPaint, dashed: true);
+      _drawArrow(canvas, from + panOffset, to + panOffset, _parentPaint, dashed: true);
     }
   }
 
@@ -419,6 +424,7 @@ class _EdgePainter extends CustomPainter {
   @override
   bool shouldRepaint(_EdgePainter old) =>
       old.positions != positions ||
+      old.panOffset != panOffset ||
       old.goals.length != goals.length ||
       old.deps.length != deps.length;
 }
@@ -566,16 +572,7 @@ class _NodePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 2;
 
-    // Glow
-    canvas.drawCircle(
-      center,
-      radius + 4,
-      Paint()
-        ..color = accent.withValues(alpha: 0.15)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
-    );
-
-    // Background circle
+    // Background circle (removed glow for performance)
     canvas.drawCircle(
       center,
       radius,

@@ -1,0 +1,1000 @@
+05-10 07:12:01.619 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): total connections for client : com.google.android.gmsare :2
+05-10 07:12:01.623 D/AdvertisingIdClient(17564): AdvertisingIdClient is bounded
+05-10 07:12:01.626 W/AdvertisingIdSettings(17564): Package com.nothing.weather failed Ad Id permission check. Apps that target Android SDK 33 or higher should declare com.google.android.gms.permission.AD_ID in the app manifest to access Ad Id.
+05-10 07:12:01.627 I/AdvertisingIdClient(17564): shouldSendLog 1967925682
+05-10 07:12:01.627 I/AdvertisingIdClient(17564): GetInfoInternal elapse 12ms
+05-10 07:12:01.844 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60aa went down
+05-10 07:12:01.844 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60aa went down
+05-10 07:12:01.846 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ab went down
+05-10 07:12:01.846 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ab went down
+05-10 07:12:01.847 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ac went down
+05-10 07:12:01.848 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ac went down
+05-10 07:12:01.850 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ae went down
+05-10 07:12:01.850 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ae went down
+05-10 07:12:01.874 D/OomAdjuster( 2539): process : com.android.systemui, pid = 3257, isTop = false, uid = 10226, hasActivity = false
+05-10 07:12:01.874 D/OomAdjuster( 2539): system app not need limit!
+05-10 07:12:01.874 D/OomAdjuster( 2539): set group = -1
+05-10 07:12:01.874 D/OomAdjuster( 2539): set cpuset: -1
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.109 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.110 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.110 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.110 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.110 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.110 W/System  ( 3257): A resource failed to call release. 
+05-10 07:12:02.187 I/SDM     ( 1627): DisplayBase::CommitThread: Received idle timeout, panel: video, timeout: 70000 us
+05-10 07:12:02.229 V/WindowManagerShell( 3257): onTransitionReady(transaction=10904923723375)
+05-10 07:12:02.231 V/WindowManager( 2539): Sent Transition (#25802) createdAt=05-10 07:12:02.226 via request=TransitionRequestInfo { type = SLEEP, triggerTask = null, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 25802 }
+05-10 07:12:02.231 V/WindowManager( 2539):     startWCT=null
+05-10 07:12:02.231 V/WindowManagerShell( 3257): Transition requested (#25802): android.os.BinderProxy@38360d5 TransitionRequestInfo { type = SLEEP, triggerTask = null, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 25802 }
+05-10 07:12:02.231 V/WindowManager( 2539):     info={id=25802 t=SLEEP f=0x40 trk=0 isSameTaskSwitch=false r=[] c=[]}
+05-10 07:12:02.232 D/OomAdjuster( 2539): set group = 5
+05-10 07:12:02.232 D/OomAdjuster( 2539): set cpuset: 5
+05-10 07:12:02.235 W/Transition( 2539): Transition already started id=25802 state=2
+05-10 07:12:02.237 V/WindowManagerShell( 3257): onTransitionReady (#25802) android.os.BinderProxy@38360d5: {id=25802 t=SLEEP f=0x40 trk=0 isSameTaskSwitch=false r=[] c=[]}
+05-10 07:12:02.237 V/WindowManagerShell( 3257): No transition roots in (#25802) android.os.BinderProxy@38360d5@0 so abort
+05-10 07:12:02.238 D/PopUpViewTransitionObserver( 3257): onTransitionFinished: transition=android.os.BinderProxy@38360d5, taskInfo=[]
+05-10 07:12:02.239 V/WindowManagerShell( 3257): Transition animation finished (aborted=true), notifying core (#25802) android.os.BinderProxy@38360d5@0
+05-10 07:12:02.241 V/WindowManager( 2539): Finish Transition (#25802): created at 05-10 07:12:02.226 collect-started=0.291ms request-sent=0.381ms started=0.947ms ready=0.937ms sent=1.409ms finished=13.511ms
+05-10 07:12:02.241 V/WindowManagerShell( 3257): Track 0 became idle
+05-10 07:12:02.241 V/WindowManagerShell( 3257): All active transition animations finished
+05-10 07:12:02.242 D/OomAdjuster( 2539): process : com.android.systemui, pid = 3257, isTop = false, uid = 10226, hasActivity = false
+05-10 07:12:02.242 D/OomAdjuster( 2539): system app not need limit!
+05-10 07:12:02.242 D/OomAdjuster( 2539): set group = -1
+05-10 07:12:02.242 D/OomAdjuster( 2539): set cpuset: -1
+05-10 07:12:02.535 I/NTWidget-(25262): Host queried service apiLevel = 7
+05-10 07:12:02.540 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): bindService is called for service : com.nothing.cardservice/.CardWidgetService and for client com.nothing.weather
+05-10 07:12:02.541 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): total connections for service : com.nothing.cardservice/.CardWidgetServiceare :6
+05-10 07:12:02.541 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): total connections for client : com.nothing.weatherare :4
+05-10 07:12:02.541 I/NTWidget-BindServiceHandler2(25262): Run service connect callback.
+05-10 07:12:02.542 I/NTWidget-BindServiceHandler2(25262): on card service connected.
+05-10 07:12:02.542 I/NTWidget-BindServiceHandler2(25262): Begin bind card service firstly, waiting time = 6
+05-10 07:12:02.542 I/NTWidget-Host(25262): onServiceBind service = j8.k@50f655b, isAlive = true
+05-10 07:12:02.542 I/NTWidget-BindServiceHandler2(25262): Call bind card service over, cardService = j8.k@50f655b
+05-10 07:12:02.546 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.ComboWidget1x1CardProvider}
+05-10 07:12:02.546 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.RectangleWidgetCardProvider}
+05-10 07:12:02.547 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.ComboWidgetCardProvider}
+05-10 07:12:02.547 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.CircleWidgetCardProvider}
+05-10 07:12:02.547 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.AirQualityWidgetCardProvider}
+05-10 07:12:02.547 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.SquareWidgetCardProvider}
+05-10 07:12:02.548 I/NTWidget-CardWidgetService( 5553): getAppWidgetIds, component = ComponentInfo{com.nothing.weather/com.nothing.weather.widget.provider.SunsetWidgetCardProvider}
+05-10 07:12:02.947 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60af went down
+05-10 07:12:02.947 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60af went down
+05-10 07:12:02.949 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b0 went down
+05-10 07:12:02.950 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b0 went down
+05-10 07:12:02.951 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b2 went down
+05-10 07:12:02.951 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b2 went down
+05-10 07:12:02.955 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b3 went down
+05-10 07:12:02.955 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b3 went down
+05-10 07:12:04.047 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b4 went down
+05-10 07:12:04.047 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b4 went down
+05-10 07:12:04.056 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b5 went down
+05-10 07:12:04.057 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b5 went down
+05-10 07:12:04.062 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b6 went down
+05-10 07:12:04.063 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b6 went down
+05-10 07:12:04.066 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b7 went down
+05-10 07:12:04.067 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b7 went down
+05-10 07:11:58.011 E/healthd ( 1506): soc_b:0, soc:79, soc_c:80, Vol:4182, Cur:353,chg_s:1,t_l:185,b_s:2,OffTlast:0,lcd_off:1,Vu:4781,Vw:0,pid:1506,brightness:1.889764,rmCap:3949
+05-10 07:11:58.011 E/healthd ( 1506): battery l=80 v=4182 t=37.0 h=2 st=2 c=353402 fc=4969000 cc=97 chg=u
+05-10 07:12:04.646 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:11:58.026 E/healthd ( 1506): soc_b:0, soc:79, soc_c:80, Vol:4182, Cur:353,chg_s:1,t_l:185,b_s:2,OffTlast:0,lcd_off:1,Vu:4781,Vw:0,pid:1506,brightness:1.889764,rmCap:3949
+05-10 07:11:58.027 W/HealthLoop( 1506): debug.tracing.screen_brightness:1.889764
+05-10 07:12:04.660 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:04.928 D/Dragonite( 2539): release 71
+05-10 07:12:05.148 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b8 went down
+05-10 07:12:05.148 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b8 went down
+05-10 07:12:05.150 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60b9 went down
+05-10 07:12:05.151 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60b9 went down
+05-10 07:12:05.152 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ba went down
+05-10 07:12:05.152 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ba went down
+05-10 07:12:05.154 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60bb went down
+05-10 07:12:05.155 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60bb went down
+05-10 07:12:05.321 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110842): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:05.326 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:05.991 D/BatteryChargeManager2( 3229): onSceneChanged: [screen_off]
+05-10 07:12:05.993 D/ThermalMitigationStrategy( 3229): reEvaluate:  mPendingScenesInfo: scenes: [charger, screen_off] app: com.nothing.launcher appCat: -1 level: 6 temp: 38 uid: 10218 pid: 25870 mScenesInfo: scenes: [charger] app: com.nothing.launcher appCat: -1 level: 6 temp: 38 uid: 10218 pid: 25870 sceneChange: true appChange: false levelChange: false
+05-10 07:12:05.993 D/ThermalMitigationStrategy( 3229): updatePolicyAndNotifyLocked222: origin config: {} last: {}
+05-10 07:12:05.993 D/ThermalMitigationStrategy( 3229): updatePolicyAndNotifyLocked: no any update, return
+05-10 07:12:05.994 D/BatteryChargeManager2( 3229): handleStateChange: new level: 20000 last level: 2500
+05-10 07:12:05.994 D/BatteryChargeManager2( 3229): setChargeLevel: 20000
+05-10 07:12:05.994 E/NtChgAidl( 1606): NtChgAidl: setChargeFccIn user:3,val = 20000
+05-10 07:11:59.362 W/nt_vote ( 1606): FCC_MAIN: FCC_TEMPERATURE_CONTROL_VOTER,2 voting on of val=20000
+05-10 07:11:59.362 W/nt_vote ( 1606): FCC_MAIN: effective vote is now 9000 voted by FCC_NT_CHG_VOTER,0
+05-10 07:12:05.998 E/NtChgAidl( 1606): NtChgAidl: write_int  /proc/charger/scenario_fcc, val = 9000
+05-10 07:12:06.042 D/UdfpsController( 3257): dismissFingerprintIcon() reason = DELAY_DISMISS_FINGERPRINT shouldHandleTouch = true
+05-10 07:12:06.042 D/DeviceEntryUdfpsInteractor( 3257): setHandleTouchWhenHide true
+05-10 07:12:06.042 D/DeviceEntryUdfpsInteractor( 3257): setUdfpsHide true
+05-10 07:12:06.053 D/UdfpsController( 3257): dismissFingerprintIcon() reason = DELAY_DISMISS_FINGERPRINT shouldHandleTouch = true
+05-10 07:12:06.053 D/DeviceEntryUdfpsInteractor( 3257): setHandleTouchWhenHide true
+05-10 07:12:06.053 D/DeviceEntryUdfpsInteractor( 3257): setUdfpsHide true
+05-10 07:12:06.053 D/UdfpsController( 3257): dismissFingerprintIcon() reason = DELAY_DISMISS_FINGERPRINT shouldHandleTouch = true
+05-10 07:12:06.053 D/DeviceEntryUdfpsInteractor( 3257): setHandleTouchWhenHide true
+05-10 07:12:06.053 D/DeviceEntryUdfpsInteractor( 3257): setUdfpsHide true
+05-10 07:12:06.248 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60bc went down
+05-10 07:12:06.248 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60bc went down
+05-10 07:12:06.250 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60be went down
+05-10 07:12:06.250 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60be went down
+05-10 07:12:06.251 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60bf went down
+05-10 07:12:06.251 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60bf went down
+05-10 07:12:06.254 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c0 went down
+05-10 07:12:06.255 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c0 went down
+05-10 07:12:06.477 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:06.477 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:06.477 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:06.478 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:06.478 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:06.478 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:06.478 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:06.478 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:06.479 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:06.479 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:06.479 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:06.479 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:06.479 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:06.480 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:06.480 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:07.071 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:07.072 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:07.072 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:11:59.362 E/BATTERY_CHG( 1606): scenario_fcc_write: scenario_fcc_write,val:9000
+05-10 07:12:09.072 D/DozeService( 3257): setDozeScreenState= state: 3, dozeScreenState: 3, cb: com.android.systemui.doze.DozeMachine$Service$Delegate.setDozeScreenState:721 com.android.systemui.doze.DozeMachine$Service$Delegate.setDozeScreenState:721 com.android.systemui.doze.DozeSuspendScreenStatePreventingAdapter.setDozeScreenState:40 com.android.systemui.doze.DozeScreenState.applyScreenState:463 com.android.systemui.doze.DozeScreenState.$r8$lambda$z5VvcEP0FxHuYP5DNIXAFKxmoZI:0 com.android.systemui.doze.DozeScreenState$$ExternalSyntheticLambda2.accept:0 com.nothing.systemui.doze.DozeScreenStateEx$4.run:386 android.os.Handler.handleCallback:995 
+05-10 07:12:09.072 D/DozeService( 3257): request state is same with current state, skip change request
+05-10 07:12:09.316 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c2 went down
+05-10 07:12:09.317 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c2 went down
+05-10 07:12:09.318 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c3 went down
+05-10 07:12:09.319 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c3 went down
+05-10 07:12:09.322 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c4 went down
+05-10 07:12:09.322 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c4 went down
+05-10 07:12:09.328 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c5 went down
+05-10 07:12:09.328 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c5 went down
+05-10 07:12:10.019 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:12:10.019 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:12:10.321 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110843): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:10.327 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:01.518 E/BATTERY_CHG(23948): handle_message: adsp_to_kernel_log:key_info:battid:100612 pump_chip:8582,buck_chip:89601,pump_en:0,buck_en:0,ovp:0,fcc:7050,fv:4500,icl:500,ibus_ma:459,usb_sus:0,BattInit:1,chg_type:2,soc:7949,real_cap:4969000,plug_in:1,plugGpio:0,usbTemp:0,battTemp:0,nt_cc_enable:0,2646:01,2654:75,2606:83,2708:0a,2952:0a,2658:b4,2707:0a,2b09:63,280c:08,280d:08,2910:11,2940:00,2941:00,270b:e2,4f46:80,2954:00,
+05-10 07:12:10.415 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c6 went down
+05-10 07:12:10.415 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c6 went down
+05-10 07:12:10.421 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c7 went down
+05-10 07:12:10.421 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c7 went down
+05-10 07:12:10.425 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60c8 went down
+05-10 07:12:10.425 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60c8 went down
+05-10 07:12:10.429 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ca went down
+05-10 07:12:10.429 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ca went down
+05-10 07:12:11.515 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60cb went down
+05-10 07:12:11.515 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60cb went down
+05-10 07:12:11.518 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60cc went down
+05-10 07:12:11.518 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60cc went down
+05-10 07:12:11.521 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ce went down
+05-10 07:12:11.521 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ce went down
+05-10 07:12:11.524 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60cf went down
+05-10 07:12:11.524 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60cf went down
+05-10 07:12:11.653 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.google.android.gms/.measurement.service.MeasurementBrokerService and for client com.nothing.weather
+05-10 07:12:11.654 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of service connections for service: com.google.android.gms/.measurement.service.MeasurementBrokerServiceafter removal is 0
+05-10 07:12:11.654 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of client connections for client: com.nothing.weatherafter removal is 3
+05-10 07:12:11.656 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): destroyService is called for service : com.google.android.gms/.measurement.service.MeasurementBrokerService
+05-10 07:12:11.656 D/BoundBrokerSvc(17564): onUnbind: Intent { act=com.google.android.gms.measurement.START xflg=0x4 pkg=com.google.android.gms }
+05-10 07:12:11.785 I/keystore2( 1043): system/security/keystore2/watchdog/src/lib.rs:377 - Watchdog thread idle -> terminating. Have a great day.
+05-10 07:12:12.615 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d0 went down
+05-10 07:12:12.615 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d0 went down
+05-10 07:12:12.617 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d1 went down
+05-10 07:12:12.617 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d1 went down
+05-10 07:12:12.618 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d2 went down
+05-10 07:12:12.618 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d2 went down
+05-10 07:12:12.622 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d3 went down
+05-10 07:12:12.622 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d3 went down
+05-10 07:12:07.461 E/ipa_pm_handle_suspend(25921): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:14.195 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d4 went down
+05-10 07:12:14.196 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d4 went down
+05-10 07:12:14.205 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d5 went down
+05-10 07:12:14.205 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d5 went down
+05-10 07:12:14.209 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d6 went down
+05-10 07:12:14.209 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d6 went down
+05-10 07:12:14.212 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d8 went down
+05-10 07:12:14.213 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d8 went down
+05-10 07:12:14.217 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d9 went down
+05-10 07:12:14.217 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d9 went down
+05-10 07:12:14.221 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60da went down
+05-10 07:12:14.221 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60da went down
+05-10 07:12:14.224 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60dc went down
+05-10 07:12:14.225 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60dc went down
+05-10 07:12:14.228 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60dd went down
+05-10 07:12:14.228 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60dd went down
+05-10 07:12:14.233 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60de went down
+05-10 07:12:14.233 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60de went down
+05-10 07:12:14.236 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60df went down
+05-10 07:12:14.236 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60df went down
+05-10 07:12:07.930 E/ipa_pm_handle_suspend(24983): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:15.111 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.google.android.gms/.chimera.PersistentDirectBootAwareApiService and for client com.google.android.apps.wellbeing
+05-10 07:12:15.294 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e0 went down
+05-10 07:12:15.294 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e0 went down
+05-10 07:12:15.297 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e1 went down
+05-10 07:12:15.297 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e1 went down
+05-10 07:12:15.298 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e2 went down
+05-10 07:12:15.299 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e2 went down
+05-10 07:12:15.302 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e3 went down
+05-10 07:12:15.302 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e3 went down
+05-10 07:12:15.325 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110844): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:15.328 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:08.729 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:16.070 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.google.android.gms/.chimera.PersistentDirectBootAwareApiService and for client com.google.android.gms.persistent
+05-10 07:12:16.073 D/BoundBrokerSvc(20612): onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+05-10 07:12:16.353 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.google.android.gms/.chimera.GmsApiService and for client com.google.android.googlequicksearchbox:googleapp
+05-10 07:12:16.353 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of service connections for service: com.google.android.gms/.chimera.GmsApiServiceafter removal is 6
+05-10 07:12:16.353 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of client connections for client: com.google.android.googlequicksearchbox:googleappafter removal is 2
+05-10 07:12:16.395 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e4 went down
+05-10 07:12:16.396 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e4 went down
+05-10 07:12:16.397 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e5 went down
+05-10 07:12:16.397 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e5 went down
+05-10 07:12:16.398 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e6 went down
+05-10 07:12:16.398 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e6 went down
+05-10 07:12:16.402 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e7 went down
+05-10 07:12:16.403 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e7 went down
+05-10 07:12:16.500 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60d7 went down
+05-10 07:12:16.500 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60d7 went down
+05-10 07:12:16.502 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60db went down
+05-10 07:12:16.503 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60db went down
+05-10 07:12:16.541 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.google.android.gms/com.google.android.location.internal.GoogleLocationManagerService and for client com.nothing.weather
+05-10 07:12:16.541 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of service connections for service: com.google.android.gms/com.google.android.location.internal.GoogleLocationManagerServiceafter removal is 7
+05-10 07:12:16.541 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of client connections for client: com.nothing.weatherafter removal is 2
+05-10 07:12:16.606 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.google.android.gms/.chimera.PersistentApiService and for client com.nothing.weather
+05-10 07:12:16.607 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of service connections for service: com.google.android.gms/.chimera.PersistentApiServiceafter removal is 70
+05-10 07:12:16.607 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of client connections for client: com.nothing.weatherafter removal is 1
+05-10 07:12:10.489 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:17.131 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-10 07:12:17.133 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-10 07:12:17.133 D/InetDiagMessage( 2539): Destroyed live tcp sockets for uids={10171, 20171, 1010226, 1020226} in 4ms
+05-10 07:12:17.371 I/system_server( 2539): Background young concurrent mark compact GC freed 71MB AllocSpace bytes, 317(11MB) LOS objects, 51% free, 89MB/183MB, paused 1.541ms,9.196ms total 114.854ms
+05-10 07:12:17.383 I/BpBinder( 2539): onLastStrongRef automatically unlinking death recipients: 
+05-10 07:12:17.415 W/nothing.weather(25262): userfaultfd: MOVE ioctl seems unsupported: Connection timed out
+05-10 07:12:17.501 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e8 went down
+05-10 07:12:17.501 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e8 went down
+05-10 07:12:17.503 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60e9 went down
+05-10 07:12:17.504 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60e9 went down
+05-10 07:12:17.506 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ea went down
+05-10 07:12:17.506 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ea went down
+05-10 07:12:17.509 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60eb went down
+05-10 07:12:17.510 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60eb went down
+05-10 07:12:10.967 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:12:18.600 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ec went down
+05-10 07:12:18.600 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ec went down
+05-10 07:12:18.608 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ed went down
+05-10 07:12:18.609 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ed went down
+05-10 07:12:18.613 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ee went down
+05-10 07:12:18.614 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ee went down
+05-10 07:12:18.617 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ef went down
+05-10 07:12:18.617 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ef went down
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): Cannot acquire BluetoothActivityEnergyInfo
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:372)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2072)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at com.android.server.power.stats.BluetoothPowerStatsCollector.collectBluetoothActivityInfo(BluetoothPowerStatsCollector.java:192)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at com.android.server.power.stats.BluetoothPowerStatsCollector.collectStats(BluetoothPowerStatsCollector.java:155)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at com.android.server.power.stats.PowerStatsCollector.collectAndDeliverStats(PowerStatsCollector.java:176)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at com.android.server.power.stats.PowerStatsCollector$$ExternalSyntheticLambda0.run(R8$$SyntheticClass:0)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.Handler.handleCallback(Handler.java:995)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.Handler.dispatchMessage(Handler.java:103)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.Looper.loopOnce(Looper.java:283)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.Looper.loop(Looper.java:392)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.HandlerThread.run(HandlerThread.java:94)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): Caused by: java.lang.RuntimeException: error: 11
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at com.android.server.power.stats.BluetoothPowerStatsCollector$1.onBluetoothActivityEnergyInfoError(BluetoothPowerStatsCollector.java:181)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.BluetoothAdapter$OnBluetoothActivityEnergyInfoProxy.lambda$onBluetoothActivityEnergyInfoAvailable$0(BluetoothAdapter.java:1040)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.BluetoothAdapter$OnBluetoothActivityEnergyInfoProxy$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.BluetoothUtils.lambda$executeFromBinder$0(BluetoothUtils.java:343)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.BluetoothUtils$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at com.android.server.SystemServerInitThreadPool$$ExternalSyntheticLambda0.execute(R8$$SyntheticClass:0)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.BluetoothUtils.executeFromBinder(BluetoothUtils.java:343)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.BluetoothAdapter$OnBluetoothActivityEnergyInfoProxy.onBluetoothActivityEnergyInfoAvailable(BluetoothAdapter.java:1038)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.bluetooth.IBluetoothActivityEnergyInfoListener$Stub.onTransact(IBluetoothActivityEnergyInfoListener.java:98)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.Binder.execTransactInternal(Binder.java:1433)
+05-10 07:12:19.449 E/BluetoothPowerStatsCollector( 2539): 	at android.os.Binder.execTransact(Binder.java:1372)
+05-10 07:12:19.458 I/SensorService( 2539): checkAndReportAmbientLightSensorStateChangeLocked new 0 old 0 force 0
+05-10 07:12:20.001 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:12:20.001 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:12:20.013 W/PackageManager( 2539): Not removing package com.google.android.trichromelibrary hosting lib com.google.android.trichromelibrary version 772713733 used by [VersionedPackage[com.android.chrome/772713733]] for user 0
+05-10 07:12:20.180 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f0 went down
+05-10 07:12:20.180 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f0 went down
+05-10 07:12:20.185 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f1 went down
+05-10 07:12:20.185 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f1 went down
+05-10 07:12:20.189 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f2 went down
+05-10 07:12:20.189 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f2 went down
+05-10 07:12:20.193 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f3 went down
+05-10 07:12:20.193 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f3 went down
+05-10 07:12:20.325 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110845): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:20.330 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:13.849 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:20.679 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f4 went down
+05-10 07:12:20.679 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f4 went down
+05-10 07:12:20.685 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f5 went down
+05-10 07:12:20.685 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f5 went down
+05-10 07:12:20.690 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f6 went down
+05-10 07:12:20.690 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f6 went down
+05-10 07:12:20.695 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f8 went down
+05-10 07:12:20.696 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f8 went down
+05-10 07:12:20.702 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f9 went down
+05-10 07:12:20.703 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f9 went down
+05-10 07:12:20.707 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60fa went down
+05-10 07:12:20.708 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60fa went down
+05-10 07:12:21.071 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-10 07:12:21.074 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-10 07:12:21.074 D/InetDiagMessage( 2539): Destroyed live tcp sockets for uids={10139} in 5ms
+05-10 07:12:21.076 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-10 07:12:21.077 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-10 07:12:21.078 D/InetDiagMessage( 2539): Destroyed live tcp sockets for uids={20139} in 3ms
+05-10 07:12:14.504 I/servicemanager(  803): Notifying apexservice they don't (previously: do) have clients when we now have no record of a client
+05-10 07:12:14.504 I/servicemanager(  803): Notifying artd they don't (previously: do) have clients when we now have no record of a client
+05-10 07:12:21.138 I/AidlLazyServiceRegistrar(25000): Process has 0 (of 1 available) client(s) in use after notification artd has clients: 0
+05-10 07:12:21.138 I/AidlLazyServiceRegistrar(25000): Trying to shut down the service. No clients in use for any service in process.
+05-10 07:12:14.506 I/AidlLazyServiceRegistrar(25044): Process has 0 (of 1 available) client(s) in use after notification apexservice has clients: 0
+05-10 07:12:14.506 I/AidlLazyServiceRegistrar(25044): Trying to shut down the service. No clients in use for any service in process.
+05-10 07:12:14.506 I/servicemanager(  803): Caller(pid=25044,uid=0,sid=u:r:apexd:s0) Unregistering apexservice
+05-10 07:12:14.506 I/BpBinder(  803): onLastStrongRef automatically unlinking death recipients:
+05-10 07:12:14.507 I/servicemanager(  803): Caller(pid=25000,uid=1082,sid=u:r:artd:s0) Unregistering artd
+05-10 07:12:14.507 I/BpBinder(  803): onLastStrongRef automatically unlinking death recipients:
+05-10 07:12:14.507 I/AidlLazyServiceRegistrar(25044): Unregistered all clients and exiting
+05-10 07:12:21.139 I/AidlLazyServiceRegistrar(25000): Unregistered all clients and exiting
+05-10 07:12:14.520 I/init    (    1): Service 'apexd' (pid 25044) exited with status 0 oneshot service took 59.014000 seconds in background
+05-10 07:12:14.520 I/init    (    1): Sending signal 9 to service 'apexd' (pid 25044) process group...
+05-10 07:12:14.520 I/libprocessgroup(    1): Removed cgroup /sys/fs/cgroup/system/uid_0/pid_25044
+05-10 07:12:14.524 I/init    (    1): Service 'artd' (pid 25000) exited with status 0 oneshot service took 61.875999 seconds in background
+05-10 07:12:14.524 I/init    (    1): Sending signal 9 to service 'artd' (pid 25000) process group...
+05-10 07:12:14.524 I/libprocessgroup(    1): Removed cgroup /sys/fs/cgroup/system/uid_1082/pid_25000
+05-10 07:12:14.649 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:21.284 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60fc went down
+05-10 07:12:21.285 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60fc went down
+05-10 07:12:21.286 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60fd went down
+05-10 07:12:21.287 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60fd went down
+05-10 07:12:21.287 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60fe went down
+05-10 07:12:21.288 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60fe went down
+05-10 07:12:21.291 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60ff went down
+05-10 07:12:21.291 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60ff went down
+05-10 07:12:22.385 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6100 went down
+05-10 07:12:22.385 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6100 went down
+05-10 07:12:22.389 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6101 went down
+05-10 07:12:22.389 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6101 went down
+05-10 07:12:22.394 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6102 went down
+05-10 07:12:22.394 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6102 went down
+05-10 07:12:22.397 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6103 went down
+05-10 07:12:22.397 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6103 went down
+05-10 07:12:15.771 E/ipa_pm_handle_suspend(25921): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:22.492 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60f7 went down
+05-10 07:12:22.492 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60f7 went down
+05-10 07:12:22.495 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 60fb went down
+05-10 07:12:22.496 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 60fb went down
+05-10 07:12:16.247 E/ipa_pm_handle_suspend(25921): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:12:23.485 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6104 went down
+05-10 07:12:23.485 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6104 went down
+05-10 07:12:23.493 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6105 went down
+05-10 07:12:23.493 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6105 went down
+05-10 07:12:23.502 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6106 went down
+05-10 07:12:23.502 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6106 went down
+05-10 07:12:23.508 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6107 went down
+05-10 07:12:23.509 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6107 went down
+05-10 07:12:24.588 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6108 went down
+05-10 07:12:24.589 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6108 went down
+05-10 07:12:24.593 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6109 went down
+05-10 07:12:24.593 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6109 went down
+05-10 07:12:24.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 610a went down
+05-10 07:12:24.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 610a went down
+05-10 07:12:24.601 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 610b went down
+05-10 07:12:24.601 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 610b went down
+05-10 07:12:24.643 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:18.009 E/healthd ( 1506): soc_b:0, soc:79, soc_c:80, Vol:4181, Cur:284,chg_s:1,t_l:205,b_s:2,OffTlast:20,lcd_off:1,Vu:4784,Vw:0,pid:1506,brightness:1.889764,rmCap:3949
+05-10 07:12:18.009 E/healthd ( 1506): battery l=80 v=4181 t=37.0 h=2 st=2 c=284736 fc=4969000 cc=97 chg=u
+05-10 07:12:18.024 E/healthd ( 1506): soc_b:0, soc:79, soc_c:80, Vol:4181, Cur:284,chg_s:1,t_l:205,b_s:2,OffTlast:20,lcd_off:1,Vu:4782,Vw:0,pid:1506,brightness:1.889764,rmCap:3949
+05-10 07:12:24.658 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:18.025 W/HealthLoop( 1506): debug.tracing.screen_brightness:1.889764
+05-10 07:12:25.329 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110846): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:25.331 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:25.649 I/NtCharge( 2539): mLastBatteryCycleCount:97
+05-10 07:12:25.657 D/NtCharge( 2539):  currentTimeInDay: 20583 LastTimeInDay: 20249 diff: 334
+05-10 07:12:19.452 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:12:26.219 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 610c went down
+05-10 07:12:26.220 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 610c went down
+05-10 07:12:26.226 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 610d went down
+05-10 07:12:26.227 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 610d went down
+05-10 07:12:26.231 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 610e went down
+05-10 07:12:26.231 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 610e went down
+05-10 07:12:26.234 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 610f went down
+05-10 07:12:26.235 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 610f went down
+05-10 07:12:26.397 D/ActivityManager( 2539): freezing 17564 com.google.android.gms
+05-10 07:12:20.402 E/ipa_pm_handle_suspend(25921): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:12:27.319 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6110 went down
+05-10 07:12:27.320 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6110 went down
+05-10 07:12:27.326 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6111 went down
+05-10 07:12:27.326 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6111 went down
+05-10 07:12:27.330 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6112 went down
+05-10 07:12:27.330 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6112 went down
+05-10 07:12:27.332 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6113 went down
+05-10 07:12:27.332 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6113 went down
+05-10 07:12:28.335 I/ActivityManager( 2539): Killing 20301:com.google.android.partnersetup/u0a134 (adj 995): empty #31
+05-10 07:12:21.759 I/binder  (21544): undelivered transaction 607426346, process died.
+05-10 07:12:28.393 I/libprocessgroup( 2539): Removed cgroup /sys/fs/cgroup/apps/uid_10134/pid_20301
+05-10 07:12:28.393 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): killProcess is called for pid : 20301
+05-10 07:12:28.393 I/Zygote  ( 1390): Process 20301 exited due to signal 9 (Killed)
+05-10 07:12:28.393 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): process with pid 20301 is client
+05-10 07:12:28.393 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of service connections for service: com.google.android.gms/.chimera.PersistentDirectBootAwareApiServiceafter removal is 64
+05-10 07:12:28.393 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): removing client with pid 20301process namecom.google.android.partnersetup
+05-10 07:12:28.397 V/OsAgent ( 4717): broadcastSystemEvent - 7
+05-10 07:12:28.420 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6114 went down
+05-10 07:12:28.420 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6114 went down
+05-10 07:12:28.427 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6115 went down
+05-10 07:12:28.428 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6115 went down
+05-10 07:12:28.432 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6116 went down
+05-10 07:12:28.432 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6116 went down
+05-10 07:12:28.435 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6117 went down
+05-10 07:12:28.435 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6117 went down
+05-10 07:12:30.017 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:12:30.018 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:12:30.069 D/Dragonite( 2539): release 36
+05-10 07:12:30.069 D/Dragonite( 2539): invalid handle, ignore!
+05-10 07:12:30.329 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110847): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:30.333 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:31.539 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6118 went down
+05-10 07:12:31.540 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6118 went down
+05-10 07:12:31.545 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6119 went down
+05-10 07:12:31.545 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6119 went down
+05-10 07:12:31.549 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 611a went down
+05-10 07:12:31.549 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 611a went down
+05-10 07:12:31.552 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 611b went down
+05-10 07:12:31.552 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 611b went down
+05-10 07:12:32.638 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 611c went down
+05-10 07:12:32.638 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 611c went down
+05-10 07:12:32.643 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 611d went down
+05-10 07:12:32.643 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 611d went down
+05-10 07:12:32.648 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 611e went down
+05-10 07:12:32.648 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 611e went down
+05-10 07:12:32.650 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 611f went down
+05-10 07:12:32.650 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 611f went down
+05-10 07:12:27.461 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:34.195 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6120 went down
+05-10 07:12:34.195 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6120 went down
+05-10 07:12:34.198 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6121 went down
+05-10 07:12:34.199 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6121 went down
+05-10 07:12:34.201 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6122 went down
+05-10 07:12:34.201 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6122 went down
+05-10 07:12:34.210 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6124 went down
+05-10 07:12:34.210 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6124 went down
+05-10 07:12:34.217 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6125 went down
+05-10 07:12:34.217 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6125 went down
+05-10 07:12:34.221 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6126 went down
+05-10 07:12:34.221 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6126 went down
+05-10 07:12:34.227 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6128 went down
+05-10 07:12:34.228 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6128 went down
+05-10 07:12:34.229 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6129 went down
+05-10 07:12:34.229 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6129 went down
+05-10 07:12:34.231 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 612a went down
+05-10 07:12:34.232 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 612a went down
+05-10 07:12:34.233 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 612b went down
+05-10 07:12:34.233 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 612b went down
+05-10 07:12:35.107 W/ActivityManager( 2539): Unbind failed: could not find connection for android.os.BinderProxy@23b3c57
+05-10 07:12:35.108 D/SatelliteModemInterface( 3566): Binding to vendor.qti.data.ntnsatapp
+05-10 07:12:35.109 W/ActivityManager( 2539): Unable to start service Intent { act=android.telephony.satellite.SatelliteService xflg=0x4 pkg=vendor.qti.data.ntnsatapp } U=0: not found
+05-10 07:12:35.110 E/SatelliteModemInterface( 3566): Error binding to the satellite service. Retrying in 60105 ms.
+05-10 07:12:35.199 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6123 went down
+05-10 07:12:35.200 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6123 went down
+05-10 07:12:28.567 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:12:35.203 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6127 went down
+05-10 07:12:35.203 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6127 went down
+05-10 07:12:35.295 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 612c went down
+05-10 07:12:35.295 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 612c went down
+05-10 07:12:35.297 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 612d went down
+05-10 07:12:35.297 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 612d went down
+05-10 07:12:35.299 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 612e went down
+05-10 07:12:35.299 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 612e went down
+05-10 07:12:35.300 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 612f went down
+05-10 07:12:35.300 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 612f went down
+05-10 07:12:35.329 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110848): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:35.335 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:36.875 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6130 went down
+05-10 07:12:36.875 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6130 went down
+05-10 07:12:36.880 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6131 went down
+05-10 07:12:36.881 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6131 went down
+05-10 07:12:36.885 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6132 went down
+05-10 07:12:36.885 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6132 went down
+05-10 07:12:36.888 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6133 went down
+05-10 07:12:36.889 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6133 went down
+05-10 07:12:37.975 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6134 went down
+05-10 07:12:37.975 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6134 went down
+05-10 07:12:37.982 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6135 went down
+05-10 07:12:37.982 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6135 went down
+05-10 07:12:37.985 D/ISltntcService( 3229): onTransact
+05-10 07:12:37.986 D/ThermalStatusListener( 3229): notifyThermalBroadcast: level=6, temp=37954
+05-10 07:12:37.986 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6136 went down
+05-10 07:12:37.987 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6136 went down
+05-10 07:12:37.990 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6137 went down
+05-10 07:12:37.991 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6137 went down
+05-10 07:12:38.376 D/ActivityManager( 2539): freezing 25262 com.nothing.weather
+05-10 07:12:38.386 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-10 07:12:38.388 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-10 07:12:38.388 D/InetDiagMessage( 2539): Destroyed live tcp sockets for uids={10171} in 5ms
+05-10 07:12:39.075 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6138 went down
+05-10 07:12:39.076 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6138 went down
+05-10 07:12:39.078 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6139 went down
+05-10 07:12:39.079 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6139 went down
+05-10 07:12:39.082 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 613a went down
+05-10 07:12:39.082 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 613a went down
+05-10 07:12:39.086 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 613b went down
+05-10 07:12:39.087 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 613b went down
+05-10 07:12:40.018 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:12:40.018 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:12:40.181 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 613c went down
+05-10 07:12:40.181 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 613c went down
+05-10 07:12:40.186 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 613d went down
+05-10 07:12:40.186 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 613d went down
+05-10 07:12:40.190 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 613e went down
+05-10 07:12:40.190 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 613e went down
+05-10 07:12:40.193 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 613f went down
+05-10 07:12:40.193 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 613f went down
+05-10 07:12:40.329 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110849): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:40.336 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:41.280 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6140 went down
+05-10 07:12:41.280 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6140 went down
+05-10 07:12:41.285 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6141 went down
+05-10 07:12:41.285 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6141 went down
+05-10 07:12:41.290 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6142 went down
+05-10 07:12:41.290 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6142 went down
+05-10 07:12:41.293 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6143 went down
+05-10 07:12:41.293 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6143 went down
+05-10 07:12:41.575 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6144 went down
+05-10 07:12:41.575 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6144 went down
+05-10 07:12:41.580 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6145 went down
+05-10 07:12:41.581 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6145 went down
+05-10 07:12:41.585 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6146 went down
+05-10 07:12:41.585 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6146 went down
+05-10 07:12:41.589 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6148 went down
+05-10 07:12:41.590 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6148 went down
+05-10 07:12:41.593 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6149 went down
+05-10 07:12:41.594 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6149 went down
+05-10 07:12:41.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 614a went down
+05-10 07:12:41.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 614a went down
+05-10 07:12:42.377 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 614c went down
+05-10 07:12:42.378 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 614c went down
+05-10 07:12:42.382 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 614d went down
+05-10 07:12:42.382 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 614d went down
+05-10 07:12:42.385 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 614e went down
+05-10 07:12:42.386 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 614e went down
+05-10 07:12:42.390 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 614f went down
+05-10 07:12:42.391 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 614f went down
+05-10 07:12:43.064 I/Tethering( 3443): [BpfCoordinator] onAlertReached
+05-10 07:12:43.208 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:43.209 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:43.209 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:43.209 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:43.209 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:43.211 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:43.212 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:43.212 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:43.212 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:43.213 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:12:43.213 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:12:43.213 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:43.475 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6150 went down
+05-10 07:12:43.476 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6150 went down
+05-10 07:12:43.481 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6151 went down
+05-10 07:12:43.481 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6151 went down
+05-10 07:12:43.485 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6152 went down
+05-10 07:12:43.485 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6152 went down
+05-10 07:12:43.489 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6153 went down
+05-10 07:12:43.489 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6153 went down
+05-10 07:12:44.578 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6154 went down
+05-10 07:12:44.579 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6154 went down
+05-10 07:12:44.583 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6155 went down
+05-10 07:12:44.583 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6155 went down
+05-10 07:12:44.587 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6156 went down
+05-10 07:12:44.587 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6156 went down
+05-10 07:12:44.591 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6157 went down
+05-10 07:12:44.591 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6157 went down
+05-10 07:12:38.005 E/healthd ( 1506): soc_b:0, soc:79, soc_c:80, Vol:4162, Cur:-153,chg_s:1,t_l:225,b_s:2,OffTlast:40,lcd_off:1,Vu:4848,Vw:0,pid:1506,brightness:1.889764,rmCap:3949
+05-10 07:12:38.005 E/healthd ( 1506): battery l=80 v=4162 t=36.0 h=2 st=2 c=-153812 fc=4969000 cc=97 chg=u
+05-10 07:12:44.648 D/PowerUI ( 3257): can't show warning due to - plugged: true status unknown: false
+05-10 07:12:44.653 D/QtiCarrierConfigHelper( 3506): WARNING, no carrier configs on phone Id: 1
+05-10 07:12:44.654 D/DeviceStatisticsService( 3461): onReceive: action= android.intent.action.BATTERY_CHANGED
+05-10 07:12:44.656 D/BatteryHealthController( 3229): plugType=2
+05-10 07:12:44.656 V/UiModeManager( 2539): updateLocked: null action, mDockState=0, category=null
+05-10 07:12:44.657 E/UiModeManager( 2539): mComputedNightMode:true, mNightMode.get():2, mOverrideNightModeOn:false, mOverrideNightModeOff:falsemTwilightManager.getLastTwilightState():null
+05-10 07:12:44.657 D/UiModeManager( 2539): updateConfigurationLocked: mDockState=0; mCarMode=false; mNightMode=com.android.server.UiModeManagerService$1@fcbd00d; mNightModeCustomType=-1; uiMode=33
+05-10 07:12:44.657 D/NtThemeManager( 2539): setExtraDark, currentUser:0, enableOverlay:true, mCurrentExtraDarkMode:true
+05-10 07:12:44.658 E/NtChgAidl( 1606): NtChgAidl: setChargeFccIn user:2,val = 9000
+05-10 07:12:44.659 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:44.659 D/BatteryHealthController( 3229): invoke mICharge setChargeFccInt: 9000
+05-10 07:12:38.025 E/healthd ( 1506): soc_b:0, soc:79, soc_c:80, Vol:4162, Cur:-153,chg_s:1,t_l:225,b_s:2,OffTlast:40,lcd_off:1,Vu:4847,Vw:0,pid:1506,brightness:1.889764,rmCap:3949
+05-10 07:12:38.026 W/HealthLoop( 1506): debug.tracing.screen_brightness:1.889764
+05-10 07:12:38.026 W/nt_vote ( 1606): FCC_MAIN: FCC_BATTERY_HEALTH_VOTER,1 same vote on of val=9000
+05-10 07:12:38.026 W/nt_vote ( 1606): FCC_MAIN: FCC_BATTERY_HEALTH_VOTER,1 Ignoring similar vote on of val=9000
+05-10 07:12:44.659 D/BatteryController( 3257): onBatteryStateChange
+05-10 07:12:44.660 V/DeviceStatisticsService( 3461): chargerType=2 batteryLevel=80 totalBatteryCapacity=4937300
+05-10 07:12:44.660 D/DeviceInfoAidlClient( 3461): isRadioOn()=true
+05-10 07:12:44.660 I/DeviceInfoAidlClient( 3461): isPowerInfoNeverSent=false batteryLevel=80 batteryLevelIndex=6 chargingMode=2 totalCapacity=4937300 powerSaveMode=false
+05-10 07:12:44.660 D/ChargeStateMonitor( 3257): syncNtChgData() adaptorPowerRate = 0 phoneMaxPowerRate = 50
+05-10 07:12:45.333 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110850): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:45.337 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:45.680 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6158 went down
+05-10 07:12:45.681 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6158 went down
+05-10 07:12:45.685 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6159 went down
+05-10 07:12:45.686 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6159 went down
+05-10 07:12:45.690 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 615a went down
+05-10 07:12:45.691 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 615a went down
+05-10 07:12:45.694 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 615b went down
+05-10 07:12:45.694 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 615b went down
+05-10 07:12:46.779 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 615c went down
+05-10 07:12:46.780 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 615c went down
+05-10 07:12:46.784 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 615d went down
+05-10 07:12:46.785 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 615d went down
+05-10 07:12:46.789 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 615e went down
+05-10 07:12:46.790 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 615e went down
+05-10 07:12:46.793 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 615f went down
+05-10 07:12:46.794 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 615f went down
+05-10 07:12:46.881 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6147 went down
+05-10 07:12:46.882 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6147 went down
+05-10 07:12:46.884 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 614b went down
+05-10 07:12:46.885 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 614b went down
+05-10 07:12:47.879 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6160 went down
+05-10 07:12:47.880 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6160 went down
+05-10 07:12:47.886 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6161 went down
+05-10 07:12:47.886 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6161 went down
+05-10 07:12:47.890 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6162 went down
+05-10 07:12:47.890 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6162 went down
+05-10 07:12:47.894 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6163 went down
+05-10 07:12:47.894 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6163 went down
+05-10 07:12:48.180 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6164 went down
+05-10 07:12:48.180 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6164 went down
+05-10 07:12:48.185 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6165 went down
+05-10 07:12:48.185 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6165 went down
+05-10 07:12:48.189 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6166 went down
+05-10 07:12:48.189 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6166 went down
+05-10 07:12:48.194 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6168 went down
+05-10 07:12:48.194 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6168 went down
+05-10 07:12:48.196 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6169 went down
+05-10 07:12:48.197 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6169 went down
+05-10 07:12:48.199 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 616a went down
+05-10 07:12:48.199 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 616a went down
+05-10 07:12:42.238 E/healthd ( 1506): soc_b:0, soc:80, soc_c:80, Vol:4187, Cur:397,chg_s:1,t_l:230,b_s:2,OffTlast:45,lcd_off:1,Vu:4854,Vw:0,pid:1506,brightness:1.889764,rmCap:3956
+05-10 07:12:42.239 E/healthd ( 1506): battery l=80 v=4187 t=36.0 h=2 st=2 c=397348 fc=4969000 cc=97 chg=u
+05-10 07:12:48.872 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:48.889 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:42.255 E/healthd ( 1506): soc_b:0, soc:80, soc_c:80, Vol:4187, Cur:397,chg_s:1,t_l:230,b_s:2,OffTlast:45,lcd_off:1,Vu:4851,Vw:0,pid:1506,brightness:1.889764,rmCap:3956
+05-10 07:12:42.256 W/HealthLoop( 1506): debug.tracing.screen_brightness:1.889764
+05-10 07:12:48.981 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 616c went down
+05-10 07:12:48.981 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 616c went down
+05-10 07:12:48.989 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 616d went down
+05-10 07:12:48.989 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 616d went down
+05-10 07:12:48.997 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 616e went down
+05-10 07:12:48.997 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 616e went down
+05-10 07:12:49.000 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 616f went down
+05-10 07:12:49.000 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 616f went down
+05-10 07:12:42.474 E/BATTERY_CHG(24312): nt_update_status_function_work: capacity:80,Vbat:4185518
+05-10 07:12:49.146 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:42.512 E/healthd ( 1506): soc_b:0, soc:80, soc_c:80, Vol:4185, Cur:346,chg_s:1,t_l:230,b_s:2,OffTlast:45,lcd_off:1,Vu:4849,Vw:0,pid:1506,brightness:1.889764,rmCap:3956
+05-10 07:12:42.512 E/healthd ( 1506): battery l=80 v=4185 t=36.0 h=2 st=2 c=346077 fc=4969000 cc=97 chg=u
+05-10 07:12:49.158 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:42.524 E/healthd ( 1506): soc_b:0, soc:80, soc_c:80, Vol:4185, Cur:346,chg_s:1,t_l:230,b_s:2,OffTlast:45,lcd_off:1,Vu:4849,Vw:0,pid:1506,brightness:1.889764,rmCap:3956
+05-10 07:12:42.525 W/HealthLoop( 1506): debug.tracing.screen_brightness:1.889764
+05-10 07:12:49.184 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6167 went down
+05-10 07:12:49.185 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6167 went down
+05-10 07:12:49.187 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 616b went down
+05-10 07:12:49.187 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 616b went down
+05-10 07:12:50.000 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:12:50.000 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:12:50.087 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6170 went down
+05-10 07:12:50.087 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6170 went down
+05-10 07:12:50.090 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6171 went down
+05-10 07:12:50.090 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6171 went down
+05-10 07:12:50.093 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6172 went down
+05-10 07:12:50.093 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6172 went down
+05-10 07:12:50.095 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6173 went down
+05-10 07:12:50.095 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6173 went down
+05-10 07:12:50.151 I/NtCharge( 2539): mLastBatteryCycleCount:97
+05-10 07:12:50.155 D/NtCharge( 2539):  currentTimeInDay: 20583 LastTimeInDay: 20249 diff: 334
+05-10 07:12:50.333 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110851): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:50.338 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:50.587 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6174 went down
+05-10 07:12:50.587 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6174 went down
+05-10 07:12:50.590 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6175 went down
+05-10 07:12:50.591 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6175 went down
+05-10 07:12:50.593 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6176 went down
+05-10 07:12:50.594 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6176 went down
+05-10 07:12:50.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6178 went down
+05-10 07:12:50.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6178 went down
+05-10 07:12:50.600 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6179 went down
+05-10 07:12:50.601 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6179 went down
+05-10 07:12:50.604 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 617a went down
+05-10 07:12:50.604 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 617a went down
+05-10 07:12:51.190 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 617c went down
+05-10 07:12:51.191 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 617c went down
+05-10 07:12:51.195 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 617d went down
+05-10 07:12:51.196 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 617d went down
+05-10 07:12:51.200 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 617e went down
+05-10 07:12:51.200 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 617e went down
+05-10 07:12:51.203 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 617f went down
+05-10 07:12:51.204 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 617f went down
+05-10 07:12:51.690 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6177 went down
+05-10 07:12:51.690 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6177 went down
+05-10 07:12:51.695 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 617b went down
+05-10 07:12:51.695 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 617b went down
+05-10 07:12:52.292 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6180 went down
+05-10 07:12:52.292 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6180 went down
+05-10 07:12:52.296 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6181 went down
+05-10 07:12:52.297 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6181 went down
+05-10 07:12:52.301 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6182 went down
+05-10 07:12:52.301 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6182 went down
+05-10 07:12:52.304 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6183 went down
+05-10 07:12:52.305 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6183 went down
+05-10 07:12:53.287 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6184 went down
+05-10 07:12:53.287 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6184 went down
+05-10 07:12:53.294 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6185 went down
+05-10 07:12:53.294 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6185 went down
+05-10 07:12:53.298 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6186 went down
+05-10 07:12:53.298 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6186 went down
+05-10 07:12:53.306 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6188 went down
+05-10 07:12:53.306 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6188 went down
+05-10 07:12:53.313 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6189 went down
+05-10 07:12:53.313 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6189 went down
+05-10 07:12:53.316 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 618a went down
+05-10 07:12:53.316 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 618a went down
+05-10 07:12:53.388 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 618c went down
+05-10 07:12:53.388 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 618c went down
+05-10 07:12:53.394 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 618d went down
+05-10 07:12:53.395 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 618d went down
+05-10 07:12:53.399 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 618e went down
+05-10 07:12:53.399 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 618e went down
+05-10 07:12:53.402 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 618f went down
+05-10 07:12:53.403 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 618f went down
+05-10 07:12:46.969 E/ipa_pm_handle_suspend(21477): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:54.487 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6190 went down
+05-10 07:12:54.488 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6190 went down
+05-10 07:12:54.493 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6191 went down
+05-10 07:12:54.493 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6191 went down
+05-10 07:12:54.497 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6192 went down
+05-10 07:12:54.498 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6192 went down
+05-10 07:12:54.501 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6193 went down
+05-10 07:12:54.501 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6193 went down
+05-10 07:12:48.409 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:12:55.333 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110852): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:12:55.339 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:12:55.588 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6194 went down
+05-10 07:12:55.588 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6194 went down
+05-10 07:12:55.592 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6195 went down
+05-10 07:12:55.593 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6195 went down
+05-10 07:12:55.596 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6196 went down
+05-10 07:12:55.597 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6196 went down
+05-10 07:12:55.599 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6197 went down
+05-10 07:12:55.599 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6197 went down
+05-10 07:12:56.687 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6198 went down
+05-10 07:12:56.688 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6198 went down
+05-10 07:12:56.694 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6199 went down
+05-10 07:12:56.695 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6199 went down
+05-10 07:12:56.698 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 619a went down
+05-10 07:12:56.698 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 619a went down
+05-10 07:12:56.702 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 619b went down
+05-10 07:12:56.702 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 619b went down
+05-10 07:12:57.792 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 619c went down
+05-10 07:12:57.793 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 619c went down
+05-10 07:12:57.797 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 619d went down
+05-10 07:12:57.798 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 619d went down
+05-10 07:12:57.802 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 619e went down
+05-10 07:12:57.802 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 619e went down
+05-10 07:12:57.804 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 619f went down
+05-10 07:12:57.805 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 619f went down
+05-10 07:12:57.992 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 6187 went down
+05-10 07:12:57.992 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 6187 went down
+05-10 07:12:57.995 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 618b went down
+05-10 07:12:57.995 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 618b went down
+05-10 07:13:00.017 D/ActivityManager( 2539): sync unfroze 22334 com.nothing.logkit for 10
+05-10 07:13:00.019 D/ActivityManager( 2539): sync unfroze 23803 com.android.keychain for 10
+05-10 07:13:00.034 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:13:00.034 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:13:00.069 D/PolylineClockView( 3257):  onDraw:true
+05-10 07:12:53.447 W/[    C0] [rt_task_fixup][725](    0): RT task was runnable for more than 200000 ns on CPU 0, moved it to CPU 1 (kgsl_hwsched-958)
+05-10 07:13:00.337 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110853): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:13:00.341 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:13:00.618 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a0 went down
+05-10 07:13:00.618 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a0 went down
+05-10 07:13:00.620 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a1 went down
+05-10 07:13:00.621 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a1 went down
+05-10 07:13:00.625 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a2 went down
+05-10 07:13:00.625 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a2 went down
+05-10 07:13:00.629 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a3 went down
+05-10 07:13:00.629 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a3 went down
+05-10 07:13:01.290 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): unbindService is called for service : com.nothing.universal.search/.proxy.SearchUIService and for client com.nothing.launcher
+05-10 07:13:01.290 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of service connections for service: com.nothing.universal.search/.proxy.SearchUIServiceafter removal is 0
+05-10 07:13:01.290 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of client connections for client: com.nothing.launcherafter removal is 7
+05-10 07:13:01.291 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): destroyService is called for service : com.nothing.universal.search/.proxy.SearchUIService
+05-10 07:13:01.297 I/NT-AsyncServiceBinder(25870): innerUnbindService called this = 117712601
+05-10 07:13:01.300 D/ActivityManager( 2539): sync unfroze 22084 com.android.settings.intelligence for 7
+05-10 07:13:01.310 I/ActivityManager( 2539): Killing 22714:com.locket.Locket/u0a340 (adj 995): empty #31
+05-10 07:13:01.313 D/NTBaseContentProvider(22084): onSearchDestroy
+05-10 07:13:01.319 I/SDM     ( 1627): DisplayBase::CommitThread: Received idle timeout, panel: video, timeout: 70000 us
+05-10 07:13:01.387 D/ConnectivityService( 2539): releasing NetworkRequest [ REQUEST id=99969, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10340 RequestorUid: 10340 RequestorPkg: com.locket.Locket UnderlyingNetworks: Null] ] (release request)
+05-10 07:13:01.388 I/Zygote  ( 1390): Process 22714 exited due to signal 9 (Killed)
+05-10 07:13:01.388 I/libprocessgroup( 2539): Removed cgroup /sys/fs/cgroup/apps/uid_10340/pid_22714
+05-10 07:13:01.388 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): killProcess is called for pid : 22714
+05-10 07:13:01.388 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): process with pid 22714 is service
+05-10 07:13:01.388 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): size of client connections for client: com.locket.Locketafter removal is 0
+05-10 07:13:01.388 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): process with pid 22714 is client
+05-10 07:13:01.388 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): removing client with pid 22714process namecom.locket.Locket
+05-10 07:13:01.388 I/vendor.qti.hardware.servicetrackeraidl-service( 1647): destroyService is called for service : com.locket.Locket/com.google.firebase.sessions.SessionLifecycleService
+05-10 07:12:54.754 I/binder  (28054): undelivered transaction 607426345, process died.
+05-10 07:13:01.391 V/OsAgent ( 4717): broadcastSystemEvent - 7
+05-10 07:12:54.996 E/ipa_pm_handle_suspend(25921): 1280 Client IPA_CLIENT_APPS_WAN_CONS woke up the system
+05-10 07:13:01.715 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a4 went down
+05-10 07:13:01.715 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a4 went down
+05-10 07:13:01.717 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a5 went down
+05-10 07:13:01.718 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a5 went down
+05-10 07:13:01.719 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a6 went down
+05-10 07:13:01.719 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a6 went down
+05-10 07:13:01.721 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a7 went down
+05-10 07:13:01.721 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a7 went down
+05-10 07:13:02.115 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a8 went down
+05-10 07:13:02.115 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a8 went down
+05-10 07:13:02.122 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61a9 went down
+05-10 07:13:02.122 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61a9 went down
+05-10 07:13:02.125 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61aa went down
+05-10 07:13:02.125 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61aa went down
+05-10 07:13:02.134 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ac went down
+05-10 07:13:02.134 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ac went down
+05-10 07:13:02.141 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ad went down
+05-10 07:13:02.141 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ad went down
+05-10 07:13:02.145 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ae went down
+05-10 07:13:02.145 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ae went down
+05-10 07:13:02.815 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b0 went down
+05-10 07:13:02.816 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b0 went down
+05-10 07:13:02.819 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b1 went down
+05-10 07:13:02.820 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b1 went down
+05-10 07:13:02.825 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b2 went down
+05-10 07:13:02.825 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b2 went down
+05-10 07:13:02.828 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b3 went down
+05-10 07:13:02.829 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b3 went down
+05-10 07:13:03.038 D/DozeService( 3257): setDozeScreenState= state: 3, dozeScreenState: 3, cb: com.android.systemui.doze.DozeMachine$Service$Delegate.setDozeScreenState:721 com.android.systemui.doze.DozeMachine$Service$Delegate.setDozeScreenState:721 com.android.systemui.doze.DozeSuspendScreenStatePreventingAdapter.setDozeScreenState:40 com.android.systemui.doze.DozeScreenState.applyScreenState:463 com.android.systemui.doze.DozeScreenState.$r8$lambda$z5VvcEP0FxHuYP5DNIXAFKxmoZI:0 com.android.systemui.doze.DozeScreenState$$ExternalSyntheticLambda2.accept:0 com.nothing.systemui.doze.DozeScreenStateEx$4.run:386 android.os.Handler.handleCallback:995 
+05-10 07:13:03.038 D/DozeService( 3257): request state is same with current state, skip change request
+05-10 07:13:03.325 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:13:03.325 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:13:03.326 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:13:03.326 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:13:03.326 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:13:03.326 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:13:03.915 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b4 went down
+05-10 07:13:03.916 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b4 went down
+05-10 07:13:03.922 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b5 went down
+05-10 07:13:03.922 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b5 went down
+05-10 07:13:03.926 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b6 went down
+05-10 07:13:03.927 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b6 went down
+05-10 07:13:03.930 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b7 went down
+05-10 07:13:03.930 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b7 went down
+05-10 07:13:04.061 D/NtMemoryManager( 2539): don't raise adj due to remove task : com.whatsapp : -1
+05-10 07:13:04.061 D/NtMemoryManager( 2539): com.instagram.android last pss: 1119348
+05-10 07:13:04.061 D/NtMemoryManager( 2539): in.startv.hotstar last pss: 677700
+05-10 07:12:58.008 E/healthd ( 1506): soc_b:0, soc:80, soc_c:80, Vol:4174, Cur:116,chg_s:1,t_l:245,b_s:2,OffTlast:60,lcd_off:1,Vu:4852,Vw:0,pid:1506,brightness:1.889764,rmCap:3956
+05-10 07:12:58.008 E/healthd ( 1506): battery l=80 v=4174 t=36.0 h=2 st=2 c=116274 fc=4969000 cc=97 chg=u
+05-10 07:13:04.642 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:58.023 E/healthd ( 1506): soc_b:0, soc:80, soc_c:80, Vol:4174, Cur:116,chg_s:1,t_l:245,b_s:2,OffTlast:60,lcd_off:1,Vu:4852,Vw:0,pid:1506,brightness:1.889764,rmCap:3956
+05-10 07:13:04.657 E/NtChgAidl( 1606): NtChgAidl: mBattTempRegion _aidl_return:0
+05-10 07:12:58.024 W/HealthLoop( 1506): debug.tracing.screen_brightness:1.889764
+05-10 07:13:05.015 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b8 went down
+05-10 07:13:05.016 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b8 went down
+05-10 07:13:05.022 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61b9 went down
+05-10 07:13:05.022 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61b9 went down
+05-10 07:13:05.026 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ba went down
+05-10 07:13:05.027 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ba went down
+05-10 07:13:05.030 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61bb went down
+05-10 07:13:05.031 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61bb went down
+05-10 07:13:05.341 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110854): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:13:05.342 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:13:06.119 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61bc went down
+05-10 07:13:06.119 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61bc went down
+05-10 07:13:06.124 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61bd went down
+05-10 07:13:06.124 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61bd went down
+05-10 07:13:06.128 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61be went down
+05-10 07:13:06.128 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61be went down
+05-10 07:13:06.131 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61bf went down
+05-10 07:13:06.131 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61bf went down
+05-10 07:13:06.519 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ab went down
+05-10 07:13:06.519 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ab went down
+05-10 07:13:06.522 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61af went down
+05-10 07:13:06.523 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61af went down
+05-10 07:13:07.215 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c0 went down
+05-10 07:13:07.215 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c0 went down
+05-10 07:13:07.224 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c1 went down
+05-10 07:13:07.224 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c1 went down
+05-10 07:13:07.233 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c2 went down
+05-10 07:13:07.233 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c2 went down
+05-10 07:13:07.237 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c3 went down
+05-10 07:13:07.237 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c3 went down
+05-10 07:13:07.418 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c4 went down
+05-10 07:13:07.418 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c4 went down
+05-10 07:13:07.422 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c5 went down
+05-10 07:13:07.423 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c5 went down
+05-10 07:13:07.427 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c6 went down
+05-10 07:13:07.427 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c6 went down
+05-10 07:13:07.429 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c8 went down
+05-10 07:13:07.429 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c8 went down
+05-10 07:13:07.437 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c9 went down
+05-10 07:13:07.438 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c9 went down
+05-10 07:13:07.441 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ca went down
+05-10 07:13:07.441 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ca went down
+05-10 07:13:07.629 I/SensorService( 2539): checkAndReportAmbientLightSensorStateChangeLocked new 0 old 0 force 0
+05-10 07:13:08.323 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61cc went down
+05-10 07:13:08.323 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61cc went down
+05-10 07:13:08.330 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61cd went down
+05-10 07:13:08.330 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61cd went down
+05-10 07:13:08.335 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ce went down
+05-10 07:13:08.336 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ce went down
+05-10 07:13:08.339 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61cf went down
+05-10 07:13:08.340 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61cf went down
+05-10 07:13:08.419 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61c7 went down
+05-10 07:13:08.419 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61c7 went down
+05-10 07:13:08.423 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61cb went down
+05-10 07:13:08.423 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61cb went down
+05-10 07:13:09.419 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d0 went down
+05-10 07:13:09.420 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d0 went down
+05-10 07:13:09.424 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d1 went down
+05-10 07:13:09.425 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d1 went down
+05-10 07:13:09.429 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d2 went down
+05-10 07:13:09.429 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d2 went down
+05-10 07:13:09.433 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d3 went down
+05-10 07:13:09.434 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d3 went down
+05-10 07:13:10.027 I/CNSS    ( 2014): /sys/wifi/dump_in_progress doesn't exist
+05-10 07:13:10.028 I/CNSS    ( 2014): /sys/wifi/max_chipset_log_size doesn't exist
+05-10 07:13:10.341 W/pmCoreThread( 1595): type=1400 audit(0.0:2265110855): avc:  denied  { write } for  name="qlm_service" dev="tmpfs" ino=1638 scontext=u:r:vendor_hal_poweroptservice_qti:s0 tcontext=u:object_r:vendor_qlm_socket:s0 tclass=sock_file permissive=0
+05-10 07:13:10.343 E/QLM-Client-Lib( 1595): QLM-Lib-Client:do_common_listen:connect failure, err:13, path:/dev/socket/qlm_service
+05-10 07:13:10.571 I/CNSS    ( 2014): cnss_open_log_file: directory /data/vendor/wifi/wlan_logs/ created
+05-10 07:13:10.807 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d4 went down
+05-10 07:13:10.808 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d4 went down
+05-10 07:13:10.813 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d5 went down
+05-10 07:13:10.813 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d5 went down
+05-10 07:13:10.817 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d6 went down
+05-10 07:13:10.818 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d6 went down
+05-10 07:13:10.821 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d7 went down
+05-10 07:13:10.821 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d7 went down
+05-10 07:13:04.572 E/ipa_pm_handle_suspend(19980): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:13:11.348 D/ActivityManager( 2539): freezing 22084 com.android.settings.intelligence
+05-10 07:13:11.350 D/ActivityManager( 2539): freezing 22043 com.nothing.universal.search
+05-10 07:13:11.389 W/CachedAppOptimi( 2539): type=1400 audit(0.0:2265110856): avc:  denied  { write } for  dev="tmpfs" ino=2058 scontext=u:r:system_server:s0 tcontext=u:object_r:zygote_tmpfs:s0 tclass=file permissive=0
+05-10 07:13:11.908 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d8 went down
+05-10 07:13:11.908 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d8 went down
+05-10 07:13:11.915 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61d9 went down
+05-10 07:13:11.916 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61d9 went down
+05-10 07:13:11.920 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61da went down
+05-10 07:13:11.920 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61da went down
+05-10 07:13:11.923 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61db went down
+05-10 07:13:11.924 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61db went down
+05-10 07:13:13.013 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61dc went down
+05-10 07:13:13.013 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61dc went down
+05-10 07:13:13.017 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61dd went down
+05-10 07:13:13.018 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61dd went down
+05-10 07:13:13.022 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61de went down
+05-10 07:13:13.022 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61de went down
+05-10 07:13:13.025 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61df went down
+05-10 07:13:13.025 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61df went down
+05-10 07:13:13.391 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+05-10 07:13:13.394 D/InetDiagMessage( 2539): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+05-10 07:13:13.394 D/InetDiagMessage( 2539): Destroyed live tcp sockets for uids={10128, 10290, 20290} in 5ms
+05-10 07:13:13.607 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e0 went down
+05-10 07:13:13.607 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e0 went down
+05-10 07:13:13.611 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e1 went down
+05-10 07:13:13.611 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e1 went down
+05-10 07:13:13.615 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e2 went down
+05-10 07:13:13.615 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e2 went down
+05-10 07:13:13.624 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e4 went down
+05-10 07:13:13.624 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e4 went down
+05-10 07:13:13.631 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e5 went down
+05-10 07:13:13.631 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e5 went down
+05-10 07:13:13.634 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e6 went down
+05-10 07:13:13.634 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e6 went down
+05-10 07:13:07.302 E/ipa_pm_handle_suspend(25921): 1280 Client IPA_CLIENT_APPS_WAN_LOW_LAT_CONS woke up the system
+05-10 07:13:14.108 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e8 went down
+05-10 07:13:14.108 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e8 went down
+05-10 07:13:14.116 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61e9 went down
+05-10 07:13:14.116 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61e9 went down
+05-10 07:13:14.119 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61ea went down
+05-10 07:13:14.119 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61ea went down
+05-10 07:13:14.127 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1541 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854430 sock = 20, client with node 1 port 61eb went down
+05-10 07:13:14.127 I/minksocket( 1477): MinkIPC MESSAGE: ( 1477:1559 ) MinkIPC_QRTR_Service:351 minkipc = 0xb400007327854850 sock = 29, client with node 1 port 61eb went down
+05-10 07:13:08.213 I/logd    (  787): logdr: UID=2000 GID=2000 PID=25432 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
