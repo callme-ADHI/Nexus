@@ -232,6 +232,14 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Future<List<TaskCompletion>> getPastCompletions(int days) {
+    final todayMidnight = _todayMidnightMs();
+    final past = todayMidnight - (days * 86400000);
+    return (select(taskCompletions)
+          ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight)))
+        .get();
+  }
+
   Future<List<TaskCompletion>> getUpcomingCompletions(int untilMs) {
     final todayMidnight = _todayMidnightMs();
     return (select(taskCompletions)

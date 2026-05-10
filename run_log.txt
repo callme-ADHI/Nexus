@@ -1,0 +1,5 @@
+No supported devices found with name or id matching 'A059P'.
+
+The following devices were found:
+Linux (desktop) • linux  • linux-x64      • Kali GNU/Linux Rolling 6.19.14+kali-amd64
+Chrome (web)    • chrome • web-javascript • Google Chrome 148.0.7778.96

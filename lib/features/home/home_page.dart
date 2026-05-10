@@ -72,7 +72,7 @@ class HomePage extends ConsumerWidget {
                       (ctx, i) {
                         final c = sorted[i];
                         final task = taskMap[c.taskId];
-                        if (task == null) return null;
+                        if (task == null) return const SizedBox.shrink();
                         return _MinimalTaskRow(
                           completion: c,
                           task: task,

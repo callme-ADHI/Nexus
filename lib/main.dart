@@ -102,6 +102,11 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
         try {
           final sched = SchedulingService(db);
           await sched.generateCompletionWindow();
+          if (mounted) {
+            ref.invalidate(todayCompletionsProvider);
+            ref.invalidate(missedCompletionsProvider);
+            ref.invalidate(goalGraphProvider);
+          }
         } catch (_) {}
 
         try {
