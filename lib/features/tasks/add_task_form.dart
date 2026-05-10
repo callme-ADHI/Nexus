@@ -133,7 +133,9 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                       value: _schedule,
                       onChanged: (v) => setState(() {
                         _schedule = v;
-                        _scheduleOn = null;
+                        if (v == 'weekly') _scheduleOn = 'monday';
+                        else if (v == 'monthly') _scheduleOn = '1';
+                        else _scheduleOn = null;
                       }),
                     ),
 
@@ -242,16 +244,25 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
     final reminderStr =
         '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}';
 
-    await ref.read(taskNotifierProvider.notifier).createTask(
-      goalId: _selectedGoalId!,
-      name: _nameCtrl.text.trim(),
-      schedule: _schedule,
-      scheduleOn: _scheduleOn,
-      reminderTime: reminderStr,
-      isActive: _isActive,
-    );
+    try {
+      await ref.read(taskNotifierProvider.notifier).createTask(
+        goalId: _selectedGoalId!,
+        name: _nameCtrl.text.trim(),
+        schedule: _schedule,
+        scheduleOn: _scheduleOn,
+        reminderTime: reminderStr,
+        isActive: _isActive,
+      );
 
-    if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating task: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 }
 

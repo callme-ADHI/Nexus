@@ -293,7 +293,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncLoading();
     try {
       final id = const Uuid().v4();
-      await db.insertTask(TasksCompanion.insert(
+      final companion = TasksCompanion.insert(
         id: id,
         goalId: goalId,
         name: name,
@@ -302,8 +302,21 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
         reminderTime: reminderTime,
         isActive: Value(isActive ? 1 : 0),
         createdAt: DateTime.now().millisecondsSinceEpoch,
-      ));
-      await schedulingService.generateCompletionWindow();
+      );
+      await db.insertTask(companion);
+      
+      final task = Task(
+        id: id,
+        goalId: goalId,
+        name: name,
+        schedule: schedule,
+        scheduleOn: scheduleOn,
+        reminderTime: reminderTime,
+        isActive: isActive ? 1 : 0,
+        createdAt: companion.createdAt.value,
+      );
+      
+      await schedulingService.generateForTask(task);
       await NotificationService.rescheduleAll(db);
       ref.invalidate(allTasksProvider);
       ref.invalidate(todayCompletionsProvider);

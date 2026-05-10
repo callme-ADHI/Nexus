@@ -7,21 +7,32 @@ class SchedulingService {
   final AppDatabase db;
   SchedulingService(this.db);
 
-  /// Call on app launch and when tasks are created/modified.
+  /// Call on app launch or bulk import.
   Future<void> generateCompletionWindow() async {
     final tasks = await db.getAllTasks();
     final now = DateTime.now();
     final windowEnd = now.add(const Duration(days: 30));
 
     for (final task in tasks) {
-      if (task.isActive == 0) continue;
-      final dates = _scheduledDates(task, now, windowEnd);
-      for (final date in dates) {
-        await db.upsertCompletion(TaskCompletionsCompanion(
-          taskId: Value(task.id),
-          scheduledDate: Value(date),
-        ));
-      }
+      await _generateForTaskInternal(task, now, windowEnd);
+    }
+  }
+
+  /// Call when a specific task is created/modified.
+  Future<void> generateForTask(Task task) async {
+    final now = DateTime.now();
+    final windowEnd = now.add(const Duration(days: 30));
+    await _generateForTaskInternal(task, now, windowEnd);
+  }
+
+  Future<void> _generateForTaskInternal(Task task, DateTime from, DateTime to) async {
+    if (task.isActive == 0) return;
+    final dates = _scheduledDates(task, from, to);
+    for (final date in dates) {
+      await db.upsertCompletion(TaskCompletionsCompanion(
+        taskId: Value(task.id),
+        scheduledDate: Value(date),
+      ));
     }
   }
 
