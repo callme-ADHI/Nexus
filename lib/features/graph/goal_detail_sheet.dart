@@ -36,32 +36,44 @@ class _GoalDetailSheetState extends ConsumerState<GoalDetailSheet> {
         final gwp = goals.where((g) => (g.goal as Goal).id == _goal.id).firstOrNull;
         if (gwp == null) return const SizedBox.shrink();
 
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          maxChildSize: 0.95,
-          minChildSize: 0.3,
-          expand: false,
-          builder: (ctx, scrollCtrl) => Container(
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: Container(
             decoration: const BoxDecoration(
               color: AppColors.surface,
-              borderRadius: AppRadius.sheet,
             ),
             child: CustomScrollView(
-              controller: scrollCtrl,
               slivers: [
-                // Handle
-                SliverToBoxAdapter(
-                  child: Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 12),
-                      width: 32,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.border,
-                        borderRadius: AppRadius.chip,
-                      ),
-                    ),
+                // Top Bar
+                SliverAppBar(
+                  backgroundColor: AppColors.surface,
+                  floating: true,
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
                   ),
+                  actions: [
+                     if (gwp.goal.parentId != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Center(
+                          child: Text(
+                            'SUB-GOAL',
+                            style: AppTypography.badge.copyWith(color: AppColors.accentBlue),
+                          ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Center(
+                          child: Text(
+                            'MAIN GOAL',
+                            style: AppTypography.badge.copyWith(color: AppColors.accentSecondary),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
 
                 // Header
@@ -122,6 +134,32 @@ class _GoalDetailSheetState extends ConsumerState<GoalDetailSheet> {
                         loading: () => const SizedBox.shrink(),
                         error: (_, __) => const SizedBox.shrink(),
                       ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+
+                // Sub-goals section
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.md),
+                    child: goalGraph.when(
+                      data: (goals) {
+                        final subGoals = goals
+                            .where((g) => (g.goal as Goal).parentId == _goal.id)
+                            .toList();
+                        return _SubGoalsSection(
+                          subGoals: subGoals,
+                          onTap: (g) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => GoalDetailSheet(goal: g),
+                            ),
+                          ),
+                        );
+                      },
                       loading: () => const SizedBox.shrink(),
                       error: (_, __) => const SizedBox.shrink(),
                     ),
@@ -243,80 +281,110 @@ class _SheetHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = gwp.effectiveProgress;
     final deadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
+    final created = DateTime.fromMillisecondsSinceEpoch(goal.createdAt);
     final daysLeft = deadline.difference(DateTime.now()).inDays;
+    
+    final df = '${deadline.day}/${deadline.month}/${deadline.year}';
+    final cf = '${created.day}/${created.month}/${created.year}';
 
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(goal.name, style: AppTypography.pageTitle),
-              if (goal.aim != null && goal.aim!.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(goal.aim!,
-                    style: AppTypography.body
-                        .copyWith(color: AppColors.textSecondary)),
-              ],
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _InfoChip(goal.timeframe),
-                  _InfoChip(daysLeft < 0
-                      ? 'Overdue'
-                      : '$daysLeft days left',
-                    color: daysLeft < 0 ? AppColors.error : null),
+                  Text(goal.name.toUpperCase(), 
+                    style: AppTypography.pageTitle.copyWith(letterSpacing: 1.5, fontSize: 24)),
+                  const SizedBox(height: 8),
+                  if (goal.aim != null && goal.aim!.isNotEmpty)
+                    Text(goal.aim!,
+                        style: AppTypography.body.copyWith(color: Colors.white70, height: 1.5)),
                 ],
               ),
+            ),
+            const SizedBox(width: 16),
+            _ProgressRing(progress: progress),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _DetailStat(label: 'TIMEFRAME', value: goal.timeframe.toUpperCase()),
+              _DetailStat(label: 'DEADLINE', value: df, color: daysLeft < 0 ? AppColors.error : null),
+              _DetailStat(label: 'CREATED', value: cf),
             ],
           ),
         ),
-        const SizedBox(width: 16),
-        // Large progress ring
-        SizedBox(
-          width: 80,
-          height: 80,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              PieChart(
-                PieChartData(
-                  startDegreeOffset: -90,
-                  sections: [
-                    PieChartSectionData(
-                      value: progress,
-                      color: AppColors.accentSecondary,
-                      radius: 10,
-                      showTitle: false,
-                    ),
-                    PieChartSectionData(
-                      value: 100 - progress,
-                      color: AppColors.progressTrack,
-                      radius: 10,
-                      showTitle: false,
-                    ),
-                  ],
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 28,
+      ],
+    );
+  }
+}
+
+class _ProgressRing extends StatelessWidget {
+  final double progress;
+  const _ProgressRing({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 80, height: 80,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          PieChart(
+            PieChartData(
+              startDegreeOffset: -90,
+              sections: [
+                PieChartSectionData(
+                  value: progress,
+                  color: AppColors.accentSecondary,
+                  radius: 8,
+                  showTitle: false,
                 ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${progress.round()}%',
-                    style: AppTypography.badge.copyWith(
-                      fontSize: 18,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                PieChartSectionData(
+                  value: 100 - progress,
+                  color: Colors.white10,
+                  radius: 8,
+                  showTitle: false,
+                ),
+              ],
+              sectionsSpace: 0,
+              centerSpaceRadius: 28,
+            ),
           ),
-        ),
+          Text('${progress.round()}%', 
+            style: AppTypography.badge.copyWith(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? color;
+  const _DetailStat({required this.label, required this.value, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: AppTypography.caption.copyWith(fontSize: 8, letterSpacing: 1, color: Colors.white38)),
+        const SizedBox(height: 4),
+        Text(value, style: AppTypography.badge.copyWith(color: color ?? Colors.white, fontSize: 12)),
       ],
     );
   }
@@ -547,4 +615,74 @@ class _TasksSection extends ConsumerWidget {
       _               => task.schedule,
     };
   }
+}
+// ── Sub-goals section ──────────────────────────────────────────────────────
+
+class _SubGoalsSection extends StatelessWidget {
+  final List<GoalWithProgress> subGoals;
+  final ValueChanged<Goal> onTap;
+
+  const _SubGoalsSection({required this.subGoals, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    if (subGoals.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Sub-Goals', style: AppTypography.sectionHeader),
+        const SizedBox(height: 12),
+        ...subGoals.map((gwp) {
+          final g = gwp.goal as Goal;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: GestureDetector(
+              onTap: () => onTap(g),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAlt,
+                  borderRadius: AppRadius.card,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: _statusColor(gwp.status),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(g.name, style: AppTypography.body),
+                          Text('${gwp.effectiveProgress.round()}% Complete',
+                              style: AppTypography.caption),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Color _statusColor(GoalStatus s) => switch (s) {
+    GoalStatus.completed  => const Color(0xFF00FF7F),
+    GoalStatus.inProgress => const Color(0xFF00BFFF),
+    GoalStatus.overdue    => const Color(0xFFFF4500),
+    GoalStatus.blocked    => const Color(0xFFFFD700),
+    GoalStatus.notStarted => const Color(0xFF888888),
+  };
 }
