@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/database/app_database.dart';
 import '../../core/providers/providers.dart';
 import '../../shared/theme/app_theme.dart';
+import '../../shared/widgets/nexus_logo.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   final VoidCallback onComplete;
@@ -67,23 +68,29 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // App name
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            const LinearGradient(
-                          colors: [
-                            AppColors.accentPrimary,
-                            AppColors.accentSecondary,
-                          ],
-                        ).createShader(bounds),
-                        child: Text(
-                          'Nexus',
-                          style: AppTypography.pageTitle.copyWith(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                      // App logo & name
+                      Column(
+                        children: [
+                          const NexusLogo(size: 64, color: Colors.white),
+                          const SizedBox(height: 16),
+                          ShaderMask(
+                            shaderCallback: (bounds) =>
+                                const LinearGradient(
+                              colors: [
+                                AppColors.accentPrimary,
+                                AppColors.accentSecondary,
+                              ],
+                            ).createShader(bounds),
+                            child: Text(
+                              'Nexus',
+                              style: AppTypography.pageTitle.copyWith(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Text(

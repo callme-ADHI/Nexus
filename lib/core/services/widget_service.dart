@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import '../database/app_database.dart';
+import '../../shared/widgets/nexus_logo.dart';
 
 class WidgetService {
   static const String _androidWidgetName = 'NexusWidget';
@@ -74,15 +75,8 @@ class NexusWidgetUI extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          width: 14,
-                          height: 14,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 20),
+                        const NexusLogo(size: 22, color: Colors.white),
+                        const SizedBox(width: 16),
                         const Text(
                           'NEXUS',
                           style: TextStyle(

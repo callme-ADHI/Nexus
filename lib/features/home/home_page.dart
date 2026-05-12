@@ -8,6 +8,7 @@ import '../../core/models/models.dart';
 import '../../shared/theme/app_theme.dart';
 import '../graph/goal_detail_sheet.dart';
 import '../tasks/add_task_form.dart';
+import '../../shared/widgets/nexus_logo.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -165,29 +166,39 @@ class _MinimalHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateStr = DateFormat('MMMM d, yyyy').format(DateTime.now());
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          dateStr.toUpperCase(),
-          style: const TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 10,
-            letterSpacing: 2.0,
-            color: Color(0xFF666666),
-            fontWeight: FontWeight.w600,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              dateStr.toUpperCase(),
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                letterSpacing: 2.0,
+                color: Color(0xFF666666),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              name,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 28,
+                fontWeight: FontWeight.w300,
+                color: Colors.white,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          name,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 28,
-            fontWeight: FontWeight.w300,
-            color: Colors.white,
-            letterSpacing: -0.5,
-          ),
+        const Padding(
+          padding: EdgeInsets.only(top: 4),
+          child: NexusLogo(size: 28, color: Colors.white24),
         ),
       ],
     );
