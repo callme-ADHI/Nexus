@@ -30,7 +30,7 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
     _NavTarget(icon: Icons.checklist_outlined, label: 'TASKS'),
     _NavTarget(icon: Icons.speed_outlined, label: 'PROGRESS'),
     _NavTarget(icon: Icons.person_outline, label: 'PROFILE'),
-    _NavTarget(icon: Icons.monitor_heart_outlined, label: 'ACTIVITY'),
+    _NavTarget(icon: Icons.auto_graph_outlined, label: 'PRODUCTIVITY'),
     _NavTarget(icon: Icons.file_upload_outlined, label: 'IMPORT'),
   ];
 
