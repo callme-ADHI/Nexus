@@ -1,52 +1,198 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import '../../core/providers/providers.dart';
-import '../../core/database/app_database.dart';
-import '../../core/models/models.dart';
-import '../../shared/theme/app_theme.dart';
+import 'package:nexus/core/providers/providers.dart';
+import 'package:nexus/core/database/app_database.dart';
+import 'package:nexus/core/models/models.dart';
+import 'package:nexus/shared/theme/app_theme.dart';
+import 'graph_node_model.dart';
+import 'graph_edge_model.dart';
+import 'graph_physics_engine.dart';
+import 'goal_graph_controller.dart';
+import 'graph_canvas_painter.dart';
+import 'graph_interaction_handler.dart';
 import 'goal_detail_sheet.dart';
 import 'add_goal_form.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
-// GRAPH PAGE — Obsidian-style Force Directed Graph
+// GOAL VISION PAGE — Obsidian-style Force Directed Graph
 // ════════════════════════════════════════════════════════════════════════════
 
-class GraphPage extends ConsumerWidget {
+class GraphPage extends ConsumerStatefulWidget {
   const GraphPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final goalGraph = ref.watch(goalGraphProvider);
-    final allDeps = ref.watch(allDependenciesProvider);
+  ConsumerState<GraphPage> createState() => _GraphPageState();
+}
 
+class _GraphPageState extends ConsumerState<GraphPage> with TickerProviderStateMixin {
+  late GoalGraphController _controller;
+  bool _initialized = false;
+
+  final Map<int, Color> accentColors = {
+    0: const Color(0xFF9B6FF5), // Violet
+    1: const Color(0xFF4A90D9), // Blue
+    2: const Color(0xFFE8705A), // Coral
+    3: const Color(0xFFD4A837), // Gold
+    4: const Color(0xFF4AD97A), // Mint
+    5: const Color(0xFFE8922B), // Orange
+    6: const Color(0xFFCC5DE8), // Purple-pink
+    7: const Color(0xFF4AB8E8), // Sky
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = GoalGraphController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _syncData(List<GoalWithProgress> goals, List<GoalDependency> deps) {
+    final nodes = goals.map((gwp) {
+      final g = gwp.goal;
+      return GraphNode(
+        id: g.id,
+        label: g.name,
+        sublabel: g.aim,
+        status: _mapStatus(g.status),
+        colorIndex: g.colorIndex,
+        isMainGoal: g.parentId == null || g.parentId!.isEmpty,
+        isSubGoal: g.parentId != null && g.parentId!.isNotEmpty,
+        progress: gwp.effectiveProgress,
+        depth: g.parentId == null ? 1 : 2, // Simplified depth for now
+      );
+    }).toList();
+
+    final edges = <GraphEdge>[];
+    
+    // Sub-goal edges
+    for (var gwp in goals) {
+      if (gwp.goal.parentId != null && gwp.goal.parentId!.isNotEmpty) {
+        edges.add(GraphEdge(
+          sourceId: gwp.goal.parentId!,
+          targetId: gwp.goal.id,
+          type: EdgeType.subgoal,
+        ));
+      }
+    }
+
+    // Dependency edges
+    for (var dep in deps) {
+      edges.add(GraphEdge(
+        sourceId: dep.dependsOnId,
+        targetId: dep.goalId,
+        type: EdgeType.dependency,
+      ));
+    }
+
+    _controller.updateData(nodes, edges);
+
+    if (!_initialized && nodes.isNotEmpty) {
+      _initialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.reset(MediaQuery.of(context).size);
+      });
+    }
+  }
+
+  GoalStatus _mapStatus(String s) {
+    switch (s.toLowerCase()) {
+      case 'completed': return GoalStatus.completed;
+      case 'blocked': return GoalStatus.blocked;
+      case 'overdue': return GoalStatus.overdue;
+      case 'in_progress': return GoalStatus.inProgress;
+      default: return GoalStatus.notStarted;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final goalsAsync = ref.watch(goalGraphProvider);
+    final depsAsync = ref.watch(allDependenciesProvider);
+
+    return goalsAsync.when(
+      data: (goals) => depsAsync.when(
+        data: (deps) {
+          _syncData(goals, deps);
+          return _buildGraphView(goals);
+        },
+        loading: () => const _LoadingView(),
+        error: (_, __) => const _LoadingView(),
+      ),
+      loading: () => const _LoadingView(),
+      error: (e, _) => Center(child: Text('Error: $e')),
+    );
+  }
+
+  Widget _buildGraphView(List<GoalWithProgress> goals) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0A0A0F),
       body: Stack(
         children: [
-          goalGraph.when(
-            data: (goals) => allDeps.when(
-              data: (deps) {
-                if (goals.isEmpty) return const _EmptyGraph();
-                return _GraphSimulator(goals: goals, deps: deps);
-              },
-              loading: () => const _GraphLoading(),
-              error: (_, __) => const _GraphLoading(),
+          // The Canvas Interaction Layer
+          GraphInteractionHandler(
+            controller: _controller,
+            onNodeTap: (id) => showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (_) => GoalDetailSheet(
+                goal: goals.firstWhere((gwp) => gwp.goal.id == id).goal as Goal,
+              ),
             ),
-            loading: () => const _GraphLoading(),
-            error: (e, _) => Center(child: Text('Error: $e', style: AppTypography.caption)),
+            child: ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) => CustomPaint(
+                size: Size.infinite,
+                painter: GraphCanvasPainter(
+                  nodes: _controller.nodes,
+                  edges: _controller.edges,
+                  panOffset: _controller.panOffset,
+                  zoomLevel: _controller.zoomLevel,
+                  rotationAngle: _controller.rotationAngle,
+                  accentColors: accentColors,
+                ),
+              ),
+            ),
           ),
-          
-          // Header
-          const _Header(),
-          
-          // Floating Controls
+
+          // Top Bar
+          const _TopBar(),
+
+          // Zoom Controls
           Positioned(
-            bottom: 32,
+            top: 100,
             right: 16,
-            child: _GraphControls(),
+            child: _ZoomControls(controller: _controller),
+          ),
+
+          // Legend
+          const Positioned(
+            bottom: 20,
+            left: 20,
+            child: _Legend(),
+          ),
+
+          // Node Count
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Center(child: _NodeCountBadge(count: _controller.nodes.length)),
+          ),
+
+          // Minimap
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: _Minimap(controller: _controller, accentColors: accentColors),
           ),
         ],
       ),
@@ -54,403 +200,222 @@ class GraphPage extends ConsumerWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// SIMULATOR — Handles the physics loop and rendering
-// ════════════════════════════════════════════════════════════════════════════
+// ── UI OVERLAYS ─────────────────────────────────────────────────────────────
 
-class _GraphSimulator extends StatefulWidget {
-  final List<GoalWithProgress> goals;
-  final List<GoalDependency> deps;
-
-  const _GraphSimulator({required this.goals, required this.deps});
-
-  @override
-  State<_GraphSimulator> createState() => _GraphSimulatorState();
-}
-
-class _GraphSimulatorState extends State<_GraphSimulator> with SingleTickerProviderStateMixin {
-  late Ticker _ticker;
-  final List<_Node> _nodes = [];
-  final List<_Edge> _edges = [];
-  
-  final TransformationController _transformCtrl = TransformationController();
-  
-  // Simulation Constants
-  static const double repulsion = 120.0;
-  static const double linkStrength = 0.08;
-  static const double gravity = 0.015;
-  static const double friction = 0.94;
-
-  @override
-  void initState() {
-    super.initState();
-    _initGraph();
-    _ticker = createTicker(_onTick)..start();
-  }
-
-  void _initGraph() {
-    _nodes.clear();
-    _edges.clear();
-    
-    final rand = math.Random();
-    final nodeMap = <String, _Node>{};
-
-    for (var gwp in widget.goals) {
-      final goal = gwp.goal as Goal;
-      final isMain = goal.parentId == null || goal.parentId!.isEmpty;
-      
-      final node = _Node(
-        id: goal.id,
-        label: goal.name,
-        color: _statusColor(gwp.status),
-        weight: gwp.effectiveProgress,
-        radius: isMain ? 10.0 : 4.5,
-        isMain: isMain,
-        x: (rand.nextDouble() - 0.5) * 500,
-        y: (rand.nextDouble() - 0.5) * 500,
-      );
-      _nodes.add(node);
-      nodeMap[goal.id] = node;
-    }
-
-    for (var dep in widget.deps) {
-      if (nodeMap.containsKey(dep.goalId) && nodeMap.containsKey(dep.dependsOnId)) {
-        _edges.add(_Edge(source: nodeMap[dep.dependsOnId]!, target: nodeMap[dep.goalId]!));
-      }
-    }
-
-    for (var gwp in widget.goals) {
-      final goal = gwp.goal as Goal;
-      if (goal.parentId != null && nodeMap.containsKey(goal.parentId)) {
-        _edges.add(_Edge(source: nodeMap[goal.parentId]!, target: nodeMap[goal.id]!, isParent: true));
-      }
-    }
-  }
-
-  void _onTick(Duration elapsed) {
-    if (!mounted) return;
-
-    // 1. Repulsion (Nodes push each other away)
-    for (int i = 0; i < _nodes.length; i++) {
-      for (int j = i + 1; j < _nodes.length; j++) {
-        final nodeA = _nodes[i];
-        final nodeB = _nodes[j];
-        
-        double dx = nodeB.x - nodeA.x;
-        double dy = nodeB.y - nodeA.y;
-        double distanceSq = dx * dx + dy * dy + 0.1;
-        
-        if (distanceSq < 100000) { // Limit influence range
-          double force = repulsion / distanceSq;
-          double fx = dx * force;
-          double fy = dy * force;
-          
-          nodeA.vx -= fx;
-          nodeA.vy -= fy;
-          nodeB.vx += fx;
-          nodeB.vy += fy;
-        }
-      }
-    }
-
-    // 2. Link Attraction (Edges pull nodes together)
-    for (var edge in _edges) {
-      double dx = edge.target.x - edge.source.x;
-      double dy = edge.target.y - edge.source.y;
-      double dist = math.sqrt(dx * dx + dy * dy) + 0.1;
-      
-      double strength = edge.isParent ? linkStrength * 0.5 : linkStrength;
-      double force = (dist - 100) * strength;
-      
-      double fx = (dx / dist) * force;
-      double fy = (dy / dist) * force;
-      
-      edge.source.vx += fx;
-      edge.source.vy += fy;
-      edge.target.vx -= fx;
-      edge.target.vy -= fy;
-    }
-
-    // 3. Central Gravity & Update Positions
-    for (var node in _nodes) {
-      node.vx -= node.x * gravity;
-      node.vy -= node.y * gravity;
-      
-      node.vx *= friction;
-      node.vy *= friction;
-      
-      node.x += node.vx;
-      node.y += node.vy;
-    }
-
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    _ticker.dispose();
-    _transformCtrl.dispose();
-    super.dispose();
-  }
-
+class _TopBar extends StatelessWidget {
+  const _TopBar();
   @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(
-      transformationController: _transformCtrl,
-      minScale: 0.1,
-      maxScale: 4.0,
-      boundaryMargin: const EdgeInsets.all(double.infinity),
-      child: Center(
-        child: GestureDetector(
-          onTapUp: _handleTap,
-          child: CustomPaint(
-            size: Size.infinite,
-            painter: _GraphPainter(nodes: _nodes, edges: _edges),
-          ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('GOAL VISION', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 2, color: Colors.white)),
+                Text('Interactive dependency graph', style: GoogleFonts.inter(fontSize: 12, color: Colors.white38)),
+              ],
+            ),
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 24),
+              onPressed: () => showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const AddGoalForm(),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-
-  void _handleTap(TapUpDetails details) {
-    // Convert local tap to simulation space
-    final matrix = _transformCtrl.value;
-    final inverted = Matrix4.inverted(matrix);
-    final scenePos = MatrixUtils.transformPoint(inverted, details.localPosition);
-    
-    // Find closest node
-    _Node? closest;
-    double minDist = 30.0; // Click radius
-    
-    for (var node in _nodes) {
-      double d = math.sqrt(math.pow(node.x - scenePos.dx, 2) + math.pow(node.y - scenePos.dy, 2));
-      if (d < minDist) {
-        minDist = d;
-        closest = node;
-      }
-    }
-    
-    if (closest != null) {
-      final goal = widget.goals.firstWhere((g) => (g.goal as Goal).id == closest!.id).goal as Goal;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => GoalDetailSheet(goal: goal)),
-      );
-    }
-  }
-
-  Color _statusColor(GoalStatus s) => switch (s) {
-    GoalStatus.completed  => const Color(0xFF00FF7F), // Neon Spring Green
-    GoalStatus.inProgress => const Color(0xFF00BFFF), // Deep Sky Blue
-    GoalStatus.overdue    => const Color(0xFFFF4500), // Orange Red
-    GoalStatus.blocked    => const Color(0xFFFFD700), // Gold
-    GoalStatus.notStarted => const Color(0xFF888888),
-  };
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// PAINTER — High performance rendering
-// ════════════════════════════════════════════════════════════════════════════
+class _ZoomControls extends StatelessWidget {
+  final GoalGraphController controller;
+  const _ZoomControls({required this.controller});
 
-class _GraphPainter extends CustomPainter {
-  final List<_Node> nodes;
-  final List<_Edge> edges;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _btn(Icons.add, () => controller.zoom(1.25, Offset.zero, MediaQuery.of(context).size)),
+        const SizedBox(height: 8),
+        _btn(Icons.remove, () => controller.zoom(0.8, Offset.zero, MediaQuery.of(context).size)),
+        const SizedBox(height: 8),
+        _btn(Icons.fit_screen, () => controller.fitAll(MediaQuery.of(context).size)),
+        const SizedBox(height: 8),
+        _btn(Icons.refresh, () => controller.reset(MediaQuery.of(context).size)),
+      ],
+    );
+  }
 
-  _GraphPainter({required this.nodes, required this.edges});
+  Widget _btn(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36, height: 36,
+        decoration: BoxDecoration(
+          color: const Color(0xCC121218),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF2E2E42)),
+        ),
+        child: Icon(icon, color: Colors.white70, size: 18),
+      ),
+    );
+  }
+}
+
+class _Legend extends StatelessWidget {
+  const _Legend();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xE6121218),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF2E2E42)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _row(const Color(0xFF3FC47A), 'DONE'),
+          _row(Colors.white54, 'ACTIVE'),
+          _row(const Color(0xFFD94A4A), 'OVERDUE'),
+          const SizedBox(height: 8),
+          _row(Colors.white, 'MAIN GOAL', hollow: true),
+          _row(Colors.white24, 'SUB GOAL', small: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(Color c, String l, {bool hollow = false, bool small = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Container(
+            width: small ? 6 : 8, height: small ? 6 : 8,
+            decoration: BoxDecoration(
+              color: hollow ? Colors.transparent : c,
+              shape: BoxShape.circle,
+              border: hollow ? Border.all(color: c, width: 1) : null,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(l, style: GoogleFonts.inter(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
+        ],
+      ),
+    );
+  }
+}
+
+class _NodeCountBadge extends StatelessWidget {
+  final int count;
+  const _NodeCountBadge({required this.count});
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(color: const Color(0xCC121218), borderRadius: BorderRadius.circular(99)),
+    child: Text('$count GOALS', style: GoogleFonts.inter(color: Colors.white60, fontSize: 10, letterSpacing: 1)),
+  );
+}
+
+class _Minimap extends StatelessWidget {
+  final GoalGraphController controller;
+  final Map<int, Color> accentColors;
+  const _Minimap({required this.controller, required this.accentColors});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => Container(
+        width: 120, height: 90,
+        decoration: BoxDecoration(
+          color: const Color(0xE6121218),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFF2E2E42)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: CustomPaint(
+          painter: _MinimapPainter(controller: controller, accentColors: accentColors),
+        ),
+      ),
+    );
+  }
+}
+
+class _MinimapPainter extends CustomPainter {
+  final GoalGraphController controller;
+  final Map<int, Color> accentColors;
+  _MinimapPainter({required this.controller, required this.accentColors});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paintEdge = Paint()
-      ..color = Colors.white.withValues(alpha: 0.35)
-      ..strokeWidth = 1.2;
+    if (controller.nodes.isEmpty) return;
+    
+    // Calculate bounds of all nodes
+    double minX = controller.nodes.first.position.dx;
+    double maxX = controller.nodes.first.position.dx;
+    double minY = controller.nodes.first.position.dy;
+    double maxY = controller.nodes.first.position.dy;
 
-    final paintParentEdge = Paint()
-      ..color = Colors.white.withValues(alpha: 0.15)
-      ..strokeWidth = 0.8;
-
-    // Draw Edges
-    for (var edge in edges) {
-      canvas.drawLine(
-        Offset(edge.source.x, edge.source.y),
-        Offset(edge.target.x, edge.target.y),
-        edge.isParent ? paintParentEdge : paintEdge,
-      );
+    for (var n in controller.nodes) {
+      minX = math.min(minX, n.position.dx);
+      maxX = math.max(maxX, n.position.dx);
+      minY = math.min(minY, n.position.dy);
+      maxY = math.max(maxY, n.position.dy);
     }
+
+    final graphW = maxX - minX + 200;
+    final graphH = maxY - minY + 200;
+    final scale = math.min(size.width / graphW, size.height / graphH);
+    
+    final offset = Offset(size.width / 2 - (minX + maxX) / 2 * scale, size.height / 2 - (minY + maxY) / 2 * scale);
 
     // Draw Nodes
-    for (var node in nodes) {
-      final nodePaint = Paint()
-        ..color = node.color
-        ..style = PaintingStyle.fill;
-      
-      // Node Glow
-      final glowPaint = Paint()
-        ..color = node.color.withValues(alpha: 0.3)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, node.isMain ? 8.0 : 4.0);
-
-      canvas.drawCircle(Offset(node.x, node.y), node.radius * 1.8, glowPaint);
-      canvas.drawCircle(Offset(node.x, node.y), node.radius, nodePaint);
-
-      // Label (Small and clean)
-      if (node.label.length > 0) {
-        final textPainter = TextPainter(
-          text: TextSpan(
-            text: node.label.toUpperCase(),
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: node.isMain ? 0.8 : 0.5),
-              fontSize: node.isMain ? 8 : 6,
-              fontWeight: node.isMain ? FontWeight.w800 : FontWeight.w600,
-              letterSpacing: 0.5,
-              fontFamily: 'Inter',
-            ),
-          ),
-          textDirection: TextDirection.ltr,
-        )..layout();
-        textPainter.paint(canvas, Offset(node.x + node.radius + 4, node.y - (node.isMain ? 4 : 3)));
-      }
+    for (var node in controller.nodes) {
+      final pos = node.position * scale + offset;
+      final radius = math.max(node.finalRadius * scale, 1.5);
+      canvas.drawCircle(pos, radius, Paint()..color = accentColors[node.colorIndex] ?? Colors.white);
     }
+
+    // Draw Viewport Rect
+    final viewLeft = -controller.panOffset.dx / controller.zoomLevel;
+    final viewTop = -controller.panOffset.dy / controller.zoomLevel;
+    final viewRight = viewLeft + 400 / controller.zoomLevel; // Approx screen size
+    final viewBottom = viewTop + 800 / controller.zoomLevel;
+
+    final rectLeft = viewLeft * scale + offset.dx;
+    final rectTop = viewTop * scale + offset.dy;
+    final rectRight = viewRight * scale + offset.dx;
+    final rectBottom = viewBottom * scale + offset.dy;
+
+    canvas.drawRect(
+      Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom),
+      Paint()..color = Colors.white.withValues(alpha: 0.08)..style = PaintingStyle.fill,
+    );
+    canvas.drawRect(
+      Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom),
+      Paint()..color = Colors.white.withValues(alpha: 0.3)..style = PaintingStyle.stroke..strokeWidth = 1.0,
+    );
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// MODELS
-// ════════════════════════════════════════════════════════════════════════════
-
-class _Node {
-  final String id;
-  final String label;
-  final Color color;
-  final double weight;
-  final double radius;
-  final bool isMain;
-  double x, y;
-  double vx = 0, vy = 0;
-
-  _Node({
-    required this.id,
-    required this.label,
-    required this.color,
-    required this.weight,
-    required this.radius,
-    required this.isMain,
-    required this.x,
-    required this.y,
-  });
-}
-
-class _Edge {
-  final _Node source;
-  final _Node target;
-  final bool isParent;
-  _Edge({required this.source, required this.target, this.isParent = false});
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// COMPONENTS
-// ════════════════════════════════════════════════════════════════════════════
-
-class _Header extends StatelessWidget {
-  const _Header();
-
+class _LoadingView extends StatelessWidget {
+  const _LoadingView();
   @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 16,
-      left: 16,
-      right: 16,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('GOAL NETWORK', style: AppTypography.sectionHeader.copyWith(letterSpacing: 2, color: Colors.white)),
-              Text('Interactive dependency graph', style: AppTypography.caption.copyWith(color: Colors.white38)),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.white, size: 20),
-            onPressed: () => showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => const AddGoalForm(),
-            ),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withValues(alpha: 0.05),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GraphControls extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _indicator(const Color(0xFF00FF7F), 'Done', size: 10),
-              const SizedBox(width: 12),
-              _indicator(const Color(0xFF00BFFF), 'Active', size: 10),
-              const SizedBox(width: 12),
-              _indicator(const Color(0xFFFF4500), 'Overdue', size: 10),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _indicator(Colors.white, 'Main Goal', size: 12),
-              const SizedBox(width: 12),
-              _indicator(Colors.white54, 'Sub Goal', size: 6),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _indicator(Color c, String l, {double size = 6}) {
-    return Row(
-      children: [
-        Container(width: size, height: size, decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
-        const SizedBox(width: 8),
-        Text(l.toUpperCase(), style: const TextStyle(color: Colors.white54, fontSize: 8, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-}
-
-class _EmptyGraph extends StatelessWidget {
-  const _EmptyGraph();
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('NO CONNECTIONS FOUND', style: AppTypography.caption),
-    );
-  }
-}
-
-class _GraphLoading extends StatelessWidget {
-  const _GraphLoading();
-  @override
-  Widget build(BuildContext context) => const Center(child: CircularProgressIndicator(color: Colors.white));
+  Widget build(BuildContext context) => const Scaffold(backgroundColor: Color(0xFF0A0A0F), body: Center(child: CircularProgressIndicator(color: Colors.white)));
 }

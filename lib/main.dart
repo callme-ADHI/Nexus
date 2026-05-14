@@ -188,16 +188,25 @@ class _MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pageIndex = ref.watch(pageIndexProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          IndexedStack(
-            index: pageIndex,
-            children: _pages,
-          ),
-          const RadialNavOverlay(),
-        ],
+    return PopScope(
+      canPop: pageIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (pageIndex != 0) {
+          ref.read(pageIndexProvider.notifier).state = 0;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Stack(
+          children: [
+            IndexedStack(
+              index: pageIndex,
+              children: _pages,
+            ),
+            const RadialNavOverlay(),
+          ],
+        ),
       ),
     );
   }

@@ -26,7 +26,7 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
 
   final List<_NavTarget> _targets = [
     _NavTarget(icon: Icons.home_outlined, label: 'DASHBOARD'),
-    _NavTarget(icon: Icons.auto_graph_outlined, label: 'ANALYTICS'),
+    _NavTarget(icon: Icons.query_stats_outlined, label: 'VISION'),
     _NavTarget(icon: Icons.checklist_outlined, label: 'TASKS'),
     _NavTarget(icon: Icons.speed_outlined, label: 'PROGRESS'),
     _NavTarget(icon: Icons.person_outline, label: 'PROFILE'),

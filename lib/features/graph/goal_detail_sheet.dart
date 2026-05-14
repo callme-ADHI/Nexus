@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-import '../../core/providers/providers.dart';
-import '../../core/database/app_database.dart';
-import '../../core/models/models.dart';
-import '../../shared/theme/app_theme.dart';
+import 'package:nexus/core/providers/providers.dart';
+import 'package:nexus/core/database/app_database.dart';
+import 'package:nexus/core/models/models.dart';
+import 'package:nexus/shared/theme/app_theme.dart';
 
 class GoalDetailSheet extends ConsumerStatefulWidget {
   final Goal goal;
