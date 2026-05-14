@@ -13,6 +13,7 @@ import 'graph_physics_engine.dart';
 import 'goal_graph_controller.dart';
 import 'graph_canvas_painter.dart';
 import 'graph_interaction_handler.dart';
+import 'graph_positions_service.dart';
 import 'goal_detail_sheet.dart';
 import 'add_goal_form.dart';
 
@@ -30,6 +31,7 @@ class GraphPage extends ConsumerStatefulWidget {
 class _GraphPageState extends ConsumerState<GraphPage> with TickerProviderStateMixin {
   late GoalGraphController _controller;
   bool _initialized = false;
+  Map<String, Offset> _savedPositions = {};
 
   final Map<int, Color> accentColors = {
     0: const Color(0xFF9B6FF5), // Violet
@@ -46,6 +48,16 @@ class _GraphPageState extends ConsumerState<GraphPage> with TickerProviderStateM
   void initState() {
     super.initState();
     _controller = GoalGraphController(vsync: this);
+    _loadPersistedState();
+  }
+
+  Future<void> _loadPersistedState() async {
+    _savedPositions = await GraphPositionsService.loadPositions();
+    final viewport = await GraphPositionsService.loadViewport();
+    if (viewport != null) {
+      _controller.panOffset = viewport.panOffset;
+      _controller.zoomLevel = viewport.zoomLevel;
+    }
   }
 
   @override
@@ -92,13 +104,24 @@ class _GraphPageState extends ConsumerState<GraphPage> with TickerProviderStateM
       ));
     }
 
-    _controller.updateData(nodes, edges);
+    _controller.updateData(nodes, edges, savedPositions: _savedPositions);
 
     if (!_initialized && nodes.isNotEmpty) {
       _initialized = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.reset(MediaQuery.of(context).size);
-      });
+      // Only run physics layout if we have NO saved positions for these nodes
+      final allHaveSavedPositions = nodes.every((n) => _savedPositions.containsKey(n.id));
+      if (!allHaveSavedPositions) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _controller.reset(MediaQuery.of(context).size);
+        });
+      } else {
+        // Positions loaded from storage — just fit the viewport if no saved viewport
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_controller.zoomLevel == 1.0 && _controller.panOffset == Offset.zero) {
+            _controller.fitAll(MediaQuery.of(context).size);
+          }
+        });
+      }
     }
   }
 
@@ -242,15 +265,28 @@ class _ZoomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Column(
       children: [
-        _btn(Icons.add, () => controller.zoom(1.25, Offset.zero, MediaQuery.of(context).size)),
+        _btn(Icons.add, () => controller.zoom(1.25, Offset.zero, size)),
         const SizedBox(height: 8),
-        _btn(Icons.remove, () => controller.zoom(0.8, Offset.zero, MediaQuery.of(context).size)),
+        _btn(Icons.remove, () => controller.zoom(0.8, Offset.zero, size)),
         const SizedBox(height: 8),
-        _btn(Icons.fit_screen, () => controller.fitAll(MediaQuery.of(context).size)),
+        _btn(Icons.fit_screen, () => controller.fitAll(size)),
         const SizedBox(height: 8),
-        _btn(Icons.refresh, () => controller.reset(MediaQuery.of(context).size)),
+        _btn(Icons.refresh, () async {
+          await controller.reset(size);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Layout reset', style: GoogleFonts.inter(color: Colors.white)),
+                backgroundColor: const Color(0xFF1E1E2A),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }),
       ],
     );
   }

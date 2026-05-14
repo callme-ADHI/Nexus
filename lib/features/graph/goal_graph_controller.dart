@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'graph_node_model.dart';
 import 'graph_edge_model.dart';
 import 'graph_physics_engine.dart';
+import 'graph_positions_service.dart';
 
 class GoalGraphController extends ChangeNotifier {
   final List<GraphNode> nodes = [];
@@ -15,9 +16,11 @@ class GoalGraphController extends ChangeNotifier {
   double rotationAngle = 0.0;
   bool isSimulationActive = false;
 
+  // Debounce timer for saving positions after drag
+  Timer? _saveDebounce;
+
   Ticker? _ticker;
   late AnimationController _rotationCtrl;
-  late AnimationController _hoverAnimCtrl;
 
   GoalGraphController({required TickerProvider vsync}) {
     _ticker = vsync.createTicker(_onTick);
@@ -29,17 +32,13 @@ class GoalGraphController extends ChangeNotifier {
       rotationAngle = _rotationCtrl.value * 2 * math.pi;
       notifyListeners();
     });
-
-    _hoverAnimCtrl = AnimationController(
-      vsync: vsync,
-      duration: const Duration(milliseconds: 150),
-    );
   }
+
+  // ── Physics Tick ──────────────────────────────────────────────────────────
 
   void _onTick(Duration elapsed) {
     if (!isSimulationActive) return;
-    
-    // We'll define a virtual canvas size for physics
+
     const physicsSize = Size(1000, 1000);
     GraphPhysicsEngine.applyForces(
       nodes: nodes,
@@ -54,13 +53,17 @@ class GoalGraphController extends ChangeNotifier {
 
     if (maxV < 0.3) {
       stopSimulation();
+      // Auto-save positions after physics settles
+      _persistCurrentPositions();
     }
     notifyListeners();
   }
 
   void startSimulation() {
     isSimulationActive = true;
-    _ticker?.start();
+    if (!(_ticker?.isActive ?? false)) {
+      _ticker?.start();
+    }
     notifyListeners();
   }
 
@@ -70,58 +73,90 @@ class GoalGraphController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void restartSimulation() {
-    for (var n in nodes) n.velocity = Offset.zero;
-    if (!isSimulationActive) startSimulation();
-  }
+  // ── Data Sync ─────────────────────────────────────────────────────────────
 
-  void warmup() {
-    const physicsSize = Size(1000, 1000);
-    for (int i = 0; i < 120; i++) {
-      GraphPhysicsEngine.applyForces(
-        nodes: nodes,
-        edges: edges,
-        canvasSize: physicsSize,
-      );
-    }
-  }
+  /// [savedPositions] = previously persisted positions from shared_preferences.
+  void updateData(
+    List<GraphNode> newNodes,
+    List<GraphEdge> newEdges, {
+    required Map<String, Offset> savedPositions,
+  }) {
+    // Preserve in-memory positions (highest priority: what is currently showing)
+    final inMemoryPosMap = {for (var n in nodes) n.id: n.position};
 
-  void updateData(List<GraphNode> newNodes, List<GraphEdge> newEdges) {
-    // Basic sync logic: preserve positions for existing nodes
-    final oldPosMap = {for (var n in nodes) n.id: n.position};
     nodes.clear();
     nodes.addAll(newNodes);
+
     for (var n in nodes) {
-      if (oldPosMap.containsKey(n.id)) {
-        n.position = oldPosMap[n.id]!;
+      if (inMemoryPosMap.containsKey(n.id)) {
+        // Already placed in this session — keep it
+        n.position = inMemoryPosMap[n.id]!;
+      } else if (savedPositions.containsKey(n.id)) {
+        // Restore persisted position
+        n.position = savedPositions[n.id]!;
       }
+      // Otherwise position stays at Offset.zero — will be laid out by initialise()
     }
+
     edges.clear();
     edges.addAll(newEdges);
-    
-    // Update finalRadius based on connections
+
+    // Update finalRadius based on connection count
     for (var node in nodes) {
-      int connections = edges.where((e) => e.sourceId == node.id || e.targetId == node.id).length;
+      final connections = edges
+          .where((e) => e.sourceId == node.id || e.targetId == node.id)
+          .length;
       node.finalRadius = node.baseRadius + math.min(connections * 1.5, 8.0);
     }
 
     notifyListeners();
   }
 
-  void pan(Offset delta) {
-    panOffset += delta;
+  // ── Node Drag ─────────────────────────────────────────────────────────────
+
+  /// Called every frame during a drag — moves node, no physics restart.
+  void moveNode(GraphNode node, Offset canvasPosition) {
+    node.position = canvasPosition;
+    node.velocity = Offset.zero;
     notifyListeners();
   }
 
-  void zoom(double factor, Offset focalPointScreen, Size screenSize) {
-    final oldZoom = zoomLevel;
-    zoomLevel = (zoomLevel * factor).clamp(0.25, 3.5);
-    
-    final focalPointCanvas = (focalPointScreen - panOffset) / oldZoom;
-    panOffset -= (focalPointCanvas * (zoomLevel / oldZoom - 1.0)) * oldZoom;
-    
-    notifyListeners();
+  /// Called when a drag is released — saves layout, no physics restart.
+  void onNodeDropped() {
+    _scheduleSave();
   }
+
+  // ── Viewport ──────────────────────────────────────────────────────────────
+
+  void pan(Offset delta) {
+    panOffset += delta;
+    notifyListeners();
+    _scheduleViewportSave();
+  }
+
+  /// [scaleDelta] is the ratio between current and previous frame scale.
+  /// [focalPoint] is in screen coordinates.
+  void zoomAt(double scaleDelta, Offset focalPoint) {
+    final oldZoom = zoomLevel;
+    zoomLevel = (zoomLevel * scaleDelta).clamp(0.15, 4.0);
+
+    // Adjust pan so the focal point stays fixed on screen
+    final focalCanvas = (focalPoint - panOffset) / oldZoom;
+    panOffset = focalPoint - focalCanvas * zoomLevel;
+
+    notifyListeners();
+    _scheduleViewportSave();
+  }
+
+  /// Button-based zoom (centres on screen centre).
+  void zoom(double factor, Offset focalPointScreen, Size screenSize) {
+    final focal = focalPointScreen == Offset.zero
+        ? Offset(screenSize.width / 2, screenSize.height / 2)
+        : focalPointScreen;
+    zoomAt(factor, focal);
+  }
+
+  // ── Fit / Reset ───────────────────────────────────────────────────────────
 
   void fitAll(Size screenSize) {
     if (nodes.isEmpty) return;
@@ -138,12 +173,12 @@ class GoalGraphController extends ChangeNotifier {
       maxY = math.max(maxY, n.position.dy);
     }
 
-    final graphW = maxX - minX + 160;
-    final graphH = maxY - minY + 160;
+    final graphW = maxX - minX + 200;
+    final graphH = maxY - minY + 200;
 
     final scaleX = screenSize.width / graphW;
     final scaleY = screenSize.height / graphH;
-    zoomLevel = math.min(scaleX, scaleY).clamp(0.25, 3.5);
+    zoomLevel = math.min(scaleX, scaleY).clamp(0.15, 4.0);
 
     final centerX = (minX + maxX) / 2;
     final centerY = (minY + maxY) / 2;
@@ -155,18 +190,58 @@ class GoalGraphController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void reset(Size screenSize) {
+  Future<void> reset(Size screenSize) async {
+    stopSimulation();
+    await GraphPositionsService.clearPositions();
+
     GraphPhysicsEngine.initializePositions(nodes, const Size(1000, 1000));
-    warmup();
+    _warmup();
     fitAll(screenSize);
-    restartSimulation();
+
+    // Let physics settle visually for a moment then stop
+    startSimulation();
   }
+
+  void _warmup() {
+    const physicsSize = Size(1000, 1000);
+    for (int i = 0; i < 150; i++) {
+      GraphPhysicsEngine.applyForces(
+        nodes: nodes,
+        edges: edges,
+        canvasSize: physicsSize,
+      );
+    }
+  }
+
+  // ── Persistence Helpers ───────────────────────────────────────────────────
+
+  void _scheduleSave() {
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 400), _persistCurrentPositions);
+  }
+
+  void _scheduleViewportSave() {
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 800), () {
+      GraphPositionsService.saveViewport(
+        panOffset: panOffset,
+        zoomLevel: zoomLevel,
+      );
+    });
+  }
+
+  void _persistCurrentPositions() {
+    final map = {for (var n in nodes) n.id: n.position};
+    GraphPositionsService.savePositions(map);
+  }
+
+  // ── Dispose ───────────────────────────────────────────────────────────────
 
   @override
   void dispose() {
+    _saveDebounce?.cancel();
     _ticker?.dispose();
     _rotationCtrl.dispose();
-    _hoverAnimCtrl.dispose();
     super.dispose();
   }
 }

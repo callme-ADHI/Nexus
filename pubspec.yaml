@@ -51,6 +51,7 @@ dependencies:
   usage_stats: ^1.1.0
   wakelock_plus: ^1.5.2
   audioplayers: ^6.6.0
+  shared_preferences: ^2.5.5
 
 
 dev_dependencies:
