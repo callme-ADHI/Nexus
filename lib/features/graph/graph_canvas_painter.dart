@@ -29,287 +29,372 @@ class GraphCanvasPainter extends CustomPainter {
 
     final nodeMap = {for (var n in nodes) n.id: n};
 
-    // PASS 1-4: Edges
-    _drawEdges(canvas, edges, nodeMap);
+    // Pass 1: Edges (below nodes)
+    _drawAllEdges(canvas, nodeMap);
 
-    // PASS 5: Outer Glows
-    for (var node in nodes) {
-      _drawNodeOuterGlow(canvas, node);
-    }
+    // Pass 2: Node outer glows
+    for (var node in nodes) _drawNodeGlow(canvas, node);
 
-    // PASS 6: Inner Glows
-    for (var node in nodes) {
-      _drawNodeInnerGlow(canvas, node);
-    }
+    // Pass 3: Node cores + borders
+    for (var node in nodes) _drawNodeCore(canvas, node);
 
-    // PASS 7: Core Circles
-    for (var node in nodes) {
-      _drawNodeCore(canvas, node);
-    }
+    // Pass 4: Progress arcs
+    for (var node in nodes) _drawProgressArc(canvas, node);
 
-    // PASS 8: Progress Arcs
-    for (var node in nodes) {
-      _drawProgressArc(canvas, node);
-    }
-
-    // PASS 9: Status Icons
-    for (var node in nodes) {
-      _drawStatusIcon(canvas, node);
-    }
-
-    // PASS 10: Labels
-    for (var node in nodes) {
-      _drawNodeLabel(canvas, node, size);
-    }
+    // Pass 5: Labels
+    for (var node in nodes) _drawNodeLabel(canvas, node);
 
     canvas.restore();
   }
 
-  void _drawEdges(Canvas canvas, List<GraphEdge> edges, Map<String, GraphNode> nodeMap) {
-    // Group edges by state for batching
+  // ── EDGES ────────────────────────────────────────────────────────────────
+
+  void _drawAllEdges(Canvas canvas, Map<String, GraphNode> nodeMap) {
+    // Draw in order: dimmed → normal → highlighted (painter's algorithm)
     final dimmed = edges.where((e) => e.isDimmed).toList();
     final normal = edges.where((e) => !e.isDimmed && !e.isHighlighted).toList();
     final highlighted = edges.where((e) => e.isHighlighted).toList();
 
-    for (var edge in dimmed) _drawSingleEdge(canvas, edge, nodeMap, isDimmed: true);
-    for (var edge in normal) _drawSingleEdge(canvas, edge, nodeMap);
-    for (var edge in highlighted) {
-      _drawSingleEdge(canvas, edge, nodeMap, isHighlighted: true, hasGlow: true);
-      _drawArrowhead(canvas, edge, nodeMap);
-    }
-
-    // Draw non-highlighted arrowheads for dependencies
-    for (var edge in normal) {
-      if (edge.type == EdgeType.dependency) _drawArrowhead(canvas, edge, nodeMap);
-    }
+    for (var e in dimmed) _drawEdge(canvas, e, nodeMap, isDimmed: true);
+    for (var e in normal) _drawEdge(canvas, e, nodeMap);
+    for (var e in highlighted) _drawEdge(canvas, e, nodeMap, isHighlighted: true);
   }
 
-  void _drawSingleEdge(Canvas canvas, GraphEdge edge, Map<String, GraphNode> nodeMap, {bool isDimmed = false, bool isHighlighted = false, bool hasGlow = false}) {
-    final source = nodeMap[edge.sourceId];
-    final target = nodeMap[edge.targetId];
-    if (source == null || target == null) return;
+  void _drawEdge(
+    Canvas canvas,
+    GraphEdge edge,
+    Map<String, GraphNode> nodeMap, {
+    bool isDimmed = false,
+    bool isHighlighted = false,
+  }) {
+    final src = nodeMap[edge.sourceId];
+    final tgt = nodeMap[edge.targetId];
+    if (src == null || tgt == null) return;
 
-    final color = edge.type == EdgeType.dependency 
-      ? accentColors[source.colorIndex] ?? Colors.white 
-      : Colors.white;
+    final color = edge.type == EdgeType.dependency
+        ? (accentColors[src.colorIndex] ?? Colors.white)
+        : Colors.white;
 
-    double opacity = edge.type == EdgeType.dependency ? 0.45 : 0.18;
-    if (isDimmed) opacity = 0.06;
-    if (isHighlighted) opacity = edge.type == EdgeType.dependency ? 0.85 : 0.50;
+    double alpha = edge.type == EdgeType.dependency ? 0.50 : 0.20;
+    if (isDimmed) alpha = 0.05;
+    if (isHighlighted) alpha = 0.90;
 
-    double strokeW = isHighlighted ? 2.0 : 1.2;
-    if (isDimmed) strokeW = 0.8;
+    double strokeW = isHighlighted ? 1.8 : 1.0;
+    if (isDimmed) strokeW = 0.6;
 
-    final paint = Paint()
-      ..color = color.withValues(alpha: opacity)
+    // Compute path (straight or curved to avoid node overlap)
+    final result = _buildEdgePath(src, tgt);
+    final path = result.path;
+    final arrowDir = result.arrowDir;
+    final arrowTip = result.arrowTip;
+
+    // Glow pass for highlighted edges
+    if (isHighlighted) {
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = color.withValues(alpha: 0.25)
+          ..strokeWidth = strokeW + 5
+          ..style = PaintingStyle.stroke
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
+      );
+    }
+
+    // Main line
+    final linePaint = Paint()
+      ..color = color.withValues(alpha: alpha)
       ..strokeWidth = strokeW
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
-    if (edge.type == EdgeType.subgoal && !isHighlighted) {
-      // Dashed for subgoals
-      // Note: Simplified dash logic for painter performance
+    // Sub-goal edges: dashed
+    if (edge.type == EdgeType.subgoal) {
+      _drawDashedPath(canvas, path, linePaint);
+    } else {
+      canvas.drawPath(path, linePaint);
     }
 
-    final path = _getBezierPath(source, target);
+    // Arrowhead for dependency edges
+    if (edge.type == EdgeType.dependency) {
+      _drawArrowhead(
+        canvas,
+        tip: arrowTip,
+        dir: arrowDir,
+        color: color.withValues(alpha: alpha),
+        size: isHighlighted ? 10.0 : 7.0,
+      );
+    }
+  }
 
-    if (hasGlow) {
-      canvas.drawPath(path, Paint()
-        ..color = color.withValues(alpha: 0.3)
-        ..strokeWidth = strokeW + 4
-        ..style = PaintingStyle.stroke
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+  // ── PATH COMPUTATION ─────────────────────────────────────────────────────
+
+  static const double _avoidRadius = 6.0; // extra clearance
+
+  ({Path path, Offset arrowDir, Offset arrowTip}) _buildEdgePath(
+    GraphNode src,
+    GraphNode tgt,
+  ) {
+    final p0 = src.position;
+    final p1 = tgt.position;
+    final delta = p1 - p0;
+    final dist = delta.distance;
+
+    if (dist < 1) {
+      return (
+        path: Path(),
+        arrowDir: const Offset(1, 0),
+        arrowTip: p1,
+      );
     }
 
-    canvas.drawPath(path, paint);
+    final dir = delta / dist;
+
+    // Clip line to node surfaces (not their centres)
+    final startPt = p0 + dir * (src.finalRadius + 2);
+    final endPt = p1 - dir * (tgt.finalRadius + 2);
+
+    // Check if the straight segment passes through any other node
+    bool needsCurve = false;
+    for (var node in nodes) {
+      if (node.id == src.id || node.id == tgt.id) continue;
+      final d = _distPointToSegment(node.position, startPt, endPt);
+      if (d < node.finalRadius + _avoidRadius) {
+        needsCurve = true;
+        break;
+      }
+    }
+
+    if (!needsCurve) {
+      // Straight line — arrowhead points exactly along dir
+      final path = Path()
+        ..moveTo(startPt.dx, startPt.dy)
+        ..lineTo(endPt.dx, endPt.dy);
+      return (path: path, arrowDir: dir, arrowTip: endPt);
+    }
+
+    // Curved arc — perpendicular bulge
+    final perp = Offset(-dir.dy, dir.dx);
+    final mid = (startPt + endPt) / 2;
+    final ctrl = mid + perp * (dist * 0.22);
+
+    final path = Path()
+      ..moveTo(startPt.dx, startPt.dy)
+      ..quadraticBezierTo(ctrl.dx, ctrl.dy, endPt.dx, endPt.dy);
+
+    // Tangent at t=1: derivative of quadratic bezier = 2*(endPt - ctrl)
+    final tangent = endPt - ctrl;
+    final arrowDir = tangent / tangent.distance;
+
+    return (path: path, arrowDir: arrowDir, arrowTip: endPt);
   }
 
-  Path _getBezierPath(GraphNode s, GraphNode t) {
-    final p0 = s.position;
-    final p1 = t.position;
-    final mid = (p0 + p1) / 2;
-    final delta = p1 - p0;
-    final perp = Offset(-delta.dy, delta.dx);
-    final control = mid + (perp / (perp.distance == 0 ? 1 : perp.distance)) * delta.distance * 0.15;
-
-    final dir = (p1 - p0) / (p1 - p0).distance;
-    final p0Adj = p0 + dir * s.finalRadius;
-    final p1Adj = p1 - dir * t.finalRadius;
-
-    return Path()..moveTo(p0Adj.dx, p0Adj.dy)..quadraticBezierTo(control.dx, control.dy, p1Adj.dx, p1Adj.dy);
+  static double _distPointToSegment(Offset p, Offset a, Offset b) {
+    final ab = b - a;
+    final ap = p - a;
+    final len2 = ab.dx * ab.dx + ab.dy * ab.dy;
+    if (len2 == 0) return (p - a).distance;
+    final t = ((ap.dx * ab.dx + ap.dy * ab.dy) / len2).clamp(0.0, 1.0);
+    final closest = Offset(a.dx + ab.dx * t, a.dy + ab.dy * t);
+    return (p - closest).distance;
   }
 
-  void _drawArrowhead(Canvas canvas, GraphEdge edge, Map<String, GraphNode> nodeMap) {
-    if (edge.type != EdgeType.dependency) return;
-    final source = nodeMap[edge.sourceId];
-    final target = nodeMap[edge.targetId];
-    if (source == null || target == null) return;
+  void _drawArrowhead(
+    Canvas canvas, {
+    required Offset tip,
+    required Offset dir,
+    required Color color,
+    required double size,
+  }) {
+    final perp = Offset(-dir.dy, dir.dx);
+    final base = tip - dir * size;
+    final p1 = base + perp * (size * 0.45);
+    final p2 = base - perp * (size * 0.45);
 
-    final p0 = source.position;
-    final p1 = target.position;
-    final delta = p1 - p0;
-    final mid = (p0 + p1) / 2;
-    final perp = Offset(-delta.dy, delta.dx);
-    final control = mid + (perp / (perp.distance == 0 ? 1 : perp.distance)) * delta.distance * 0.15;
-
-    final dir = (p1 - control) / (p1 - control).distance;
-    final tip = p1 - dir * target.finalRadius;
-    
-    final arrowLen = 9.0;
-    final arrowWid = 5.0;
-    final sidePerp = Offset(-dir.dy, dir.dx);
-
-    final b1 = tip - dir * arrowLen + sidePerp * arrowWid;
-    final b2 = tip - dir * arrowLen - sidePerp * arrowWid;
-
-    final color = (accentColors[source.colorIndex] ?? Colors.white).withValues(alpha: edge.isHighlighted ? 0.85 : 0.45);
-    canvas.drawPath(Path()..moveTo(tip.dx, tip.dy)..lineTo(b1.dx, b1.dy)..lineTo(b2.dx, b2.dy)..close(), Paint()..color = color..style = PaintingStyle.fill);
+    canvas.drawPath(
+      Path()
+        ..moveTo(tip.dx, tip.dy)
+        ..lineTo(p1.dx, p1.dy)
+        ..lineTo(p2.dx, p2.dy)
+        ..close(),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.fill,
+    );
   }
 
-  void _drawNodeOuterGlow(Canvas canvas, GraphNode node) {
+  void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
+    // Approximate dashes by computing points along the path
+    final metrics = path.computeMetrics();
+    for (final metric in metrics) {
+      double dist = 0;
+      const double dashLen = 6.0;
+      const double gapLen = 4.0;
+      bool drawing = true;
+      while (dist < metric.length) {
+        final segLen = drawing ? dashLen : gapLen;
+        final end = math.min(dist + segLen, metric.length);
+        if (drawing) {
+          canvas.drawPath(metric.extractPath(dist, end), paint);
+        }
+        dist = end;
+        drawing = !drawing;
+      }
+    }
+  }
+
+  // ── NODES ────────────────────────────────────────────────────────────────
+
+  void _drawNodeGlow(Canvas canvas, GraphNode node) {
+    if (node.isDimmed) return;
     final color = accentColors[node.colorIndex] ?? Colors.white;
-    double opacity = 0.18;
-    if (node.isHovered) opacity *= 2.0;
-    if (node.isDimmed) opacity *= 0.15;
+    final glowAlpha = node.isHovered ? 0.30 : 0.12;
+    final radius = node.finalRadius * 2.5;
 
-    final radius = node.finalRadius * 2.8;
-    final paint = Paint()
-      ..shader = RadialGradient(
-        colors: [color.withValues(alpha: opacity), color.withValues(alpha: 0)],
-      ).createShader(Rect.fromCircle(center: node.position, radius: radius));
-    
-    canvas.drawCircle(node.position, radius, paint);
-  }
-
-  void _drawNodeInnerGlow(Canvas canvas, GraphNode node) {
-    final color = accentColors[node.colorIndex] ?? Colors.white;
-    double opacity = 0.35;
-    if (node.isHovered) opacity *= 1.8;
-    if (node.isDimmed) opacity *= 0.1;
-
-    final radius = node.finalRadius * 1.6;
-    final paint = Paint()
-      ..shader = RadialGradient(
-        colors: [color.withValues(alpha: opacity), color.withValues(alpha: 0)],
-      ).createShader(Rect.fromCircle(center: node.position, radius: radius));
-    
-    canvas.drawCircle(node.position, radius, paint);
+    canvas.drawCircle(
+      node.position,
+      radius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            color.withValues(alpha: glowAlpha),
+            color.withValues(alpha: 0),
+          ],
+        ).createShader(
+          Rect.fromCircle(center: node.position, radius: radius),
+        ),
+    );
   }
 
   void _drawNodeCore(Canvas canvas, GraphNode node) {
     final color = accentColors[node.colorIndex] ?? Colors.white;
-    final paint = Paint()..style = PaintingStyle.fill;
-    final borderPaint = Paint()..style = PaintingStyle.stroke;
+    final r = node.finalRadius;
+
+    // Status-based fill and border colours
+    Color fillColor;
+    Color borderColor;
+    double borderWidth;
 
     switch (node.status) {
       case GoalStatus.notStarted:
-        paint.color = color.withValues(alpha: 0.12);
-        borderPaint..color = color.withValues(alpha: 0.6)..strokeWidth = 1.5;
+        fillColor = const Color(0xFF0A0A0A);
+        borderColor = color.withValues(alpha: node.isDimmed ? 0.15 : 0.55);
+        borderWidth = 1.5;
       case GoalStatus.inProgress:
-        paint.color = color.withValues(alpha: 0.25);
-        borderPaint..color = color.withValues(alpha: 0.9)..strokeWidth = 2.0;
+        fillColor = color.withValues(alpha: node.isDimmed ? 0.04 : 0.12);
+        borderColor = color.withValues(alpha: node.isDimmed ? 0.2 : 0.85);
+        borderWidth = 1.8;
       case GoalStatus.completed:
-        paint.color = const Color(0xFF3FC47A).withValues(alpha: 0.3);
-        borderPaint..color = const Color(0xFF3FC47A)..strokeWidth = 2.0;
+        fillColor = const Color(0xFF27AE60).withValues(alpha: node.isDimmed ? 0.05 : 0.15);
+        borderColor = const Color(0xFF27AE60).withValues(alpha: node.isDimmed ? 0.2 : 1.0);
+        borderWidth = 1.8;
       case GoalStatus.blocked:
-        paint.color = const Color(0xFF2A2A3A);
-        borderPaint..color = const Color(0xFF3A3A4A)..strokeWidth = 1.0;
+        fillColor = const Color(0xFF0A0A0A);
+        borderColor = const Color(0xFF333333).withValues(alpha: node.isDimmed ? 0.15 : 1.0);
+        borderWidth = 1.0;
       case GoalStatus.overdue:
-        paint.color = const Color(0xFF5C1A1A).withValues(alpha: 0.4);
-        borderPaint..color = const Color(0xFFD94A4A)..strokeWidth = 2.0;
+        fillColor = const Color(0xFFE74C3C).withValues(alpha: node.isDimmed ? 0.03 : 0.08);
+        borderColor = const Color(0xFFE74C3C).withValues(alpha: node.isDimmed ? 0.2 : 0.85);
+        borderWidth = 1.8;
     }
 
-    if (node.isDimmed) {
-       paint.color = paint.color.withValues(alpha: paint.color.a * 0.2);
-       borderPaint.color = borderPaint.color.withValues(alpha: borderPaint.color.a * 0.2);
-    }
+    canvas.drawCircle(node.position, r, Paint()..color = fillColor..style = PaintingStyle.fill);
+    canvas.drawCircle(node.position, r, Paint()..color = borderColor..style = PaintingStyle.stroke..strokeWidth = borderWidth);
 
-    canvas.drawCircle(node.position, node.finalRadius, paint);
-    canvas.drawCircle(node.position, node.finalRadius, borderPaint);
-
+    // Rotating ring for main goals
     if (node.isMainGoal) {
-      final ringRadius = node.finalRadius + 5.0;
       canvas.save();
       canvas.translate(node.position.dx, node.position.dy);
       canvas.rotate(rotationAngle);
-      
-      final ringPaint = Paint()
-        ..color = color.withValues(alpha: 0.4)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5;
-      
-      canvas.drawCircle(Offset.zero, ringRadius, ringPaint);
-      
-      // Add rotation markers (dots)
-      final markerPaint = Paint()..color = color.withValues(alpha: 0.8)..style = PaintingStyle.fill;
-      canvas.drawCircle(Offset(ringRadius, 0), 2, markerPaint);
-      canvas.drawCircle(Offset(-ringRadius, 0), 2, markerPaint);
-      
+      canvas.drawCircle(
+        Offset.zero, r + 5.0,
+        Paint()
+          ..color = color.withValues(alpha: node.isDimmed ? 0.08 : 0.35)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.0,
+      );
+      // Marker dots
+      final mp = Paint()..color = color.withValues(alpha: node.isDimmed ? 0.2 : 0.8)..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(r + 5.0, 0), 2, mp);
+      canvas.drawCircle(Offset(-(r + 5.0), 0), 2, mp);
       canvas.restore();
     }
   }
 
   void _drawProgressArc(Canvas canvas, GraphNode node) {
-    if (node.status == GoalStatus.blocked) return;
-    final color = node.status == GoalStatus.completed ? const Color(0xFF3FC47A) : (accentColors[node.colorIndex] ?? Colors.white);
-    
-    final paint = Paint()
-      ..color = color.withValues(alpha: node.isDimmed ? 0.2 : 1.0)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
+    if (node.status == GoalStatus.blocked || node.progress <= 0) return;
 
-    final sweep = node.progress * 2 * math.pi;
-    canvas.drawArc(Rect.fromCircle(center: node.position, radius: node.finalRadius), -math.pi / 2, sweep, false, paint);
+    final color = node.status == GoalStatus.completed
+        ? const Color(0xFF27AE60)
+        : (accentColors[node.colorIndex] ?? Colors.white);
+
+    final sweep = (node.progress / 100.0).clamp(0.0, 1.0) * 2 * math.pi;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: node.position, radius: node.finalRadius + 3),
+      -math.pi / 2,
+      sweep,
+      false,
+      Paint()
+        ..color = color.withValues(alpha: node.isDimmed ? 0.15 : 0.85)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0
+        ..strokeCap = StrokeCap.round,
+    );
   }
 
-  void _drawStatusIcon(Canvas canvas, GraphNode node) {
-    // Simplified status icons for canvas
-    if (node.status == GoalStatus.notStarted || node.status == GoalStatus.inProgress) return;
-    
-    final iconPos = node.position + Offset(node.finalRadius * 0.7, -node.finalRadius * 0.7);
-    final paint = Paint()..style = PaintingStyle.fill;
+  void _drawNodeLabel(Canvas canvas, GraphNode node) {
+    final alpha = node.isHovered ? 1.0 : (node.isDimmed ? 0.20 : 0.75);
 
-    if (node.status == GoalStatus.completed) {
-      paint.color = const Color(0xFF3FC47A);
-      canvas.drawCircle(iconPos, 4, paint);
-    } else if (node.status == GoalStatus.overdue) {
-      paint.color = const Color(0xFFD94A4A);
-      canvas.drawRect(Rect.fromCenter(center: iconPos, width: 6, height: 6), paint);
-    } else if (node.status == GoalStatus.blocked) {
-      paint.color = Colors.white60;
-      canvas.drawCircle(iconPos, 3, paint);
-    }
-  }
+    // Title-case the label
+    final label = node.label
+        .toLowerCase()
+        .split(' ')
+        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+        .join(' ');
 
-  void _drawNodeLabel(Canvas canvas, GraphNode node, Size canvasSize) {
-    final opacity = node.isHovered ? 1.0 : (node.isDimmed ? 0.25 : 0.8);
-    
-    // Ensure Title Case
-    final labelText = node.label.toLowerCase().split(' ').map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1)).join(' ');
-
-    final textStyle = TextStyle(
-      color: Colors.white.withValues(alpha: opacity),
-      fontSize: node.isMainGoal ? 12 : 11,
-      fontWeight: FontWeight.w500,
+    final style = TextStyle(
+      color: Colors.white.withValues(alpha: alpha),
+      fontSize: node.isMainGoal ? 11.5 : 10.5,
+      fontWeight: node.isMainGoal ? FontWeight.w600 : FontWeight.w400,
       fontFamily: 'Inter',
+      letterSpacing: 0.2,
     );
 
-    final textSpan = TextSpan(text: labelText, style: textStyle);
-    final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr, maxLines: 1, ellipsis: '...');
-    textPainter.layout(maxWidth: 140);
+    final tp = TextPainter(
+      text: TextSpan(text: label, style: style),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+      ellipsis: '…',
+    )..layout(maxWidth: 120);
 
-    final isUpper = node.position.dy < canvasSize.height * 0.4;
-    final yOffset = isUpper ? node.finalRadius + 8 : -(node.finalRadius + 8 + textPainter.height);
-    final pos = Offset(node.position.dx - textPainter.width / 2, node.position.dy + yOffset);
+    // Position label below node (always below for consistency)
+    final labelX = node.position.dx - tp.width / 2;
+    final labelY = node.position.dy + node.finalRadius + 6;
 
+    // Background pill for hovered labels
     if (node.isHovered) {
-      final bgRect = Rect.fromLTWH(pos.dx - 8, pos.dy - 4, textPainter.width + 16, textPainter.height + 8);
-      canvas.drawRRect(RRect.fromRectAndRadius(bgRect, const Radius.circular(4)), Paint()..color = const Color(0xE6121218));
+      final bg = Rect.fromLTWH(labelX - 6, labelY - 3, tp.width + 12, tp.height + 6);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(bg, const Radius.circular(4)),
+        Paint()..color = const Color(0xF0050505),
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(bg, const Radius.circular(4)),
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.08)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.5,
+      );
     }
 
-    textPainter.paint(canvas, pos);
+    tp.paint(canvas, Offset(labelX, labelY));
   }
 
   @override
-  bool shouldRepaint(covariant GraphCanvasPainter old) => true; // simplified for now
+  bool shouldRepaint(covariant GraphCanvasPainter old) =>
+      old.panOffset != panOffset ||
+      old.zoomLevel != zoomLevel ||
+      old.rotationAngle != rotationAngle ||
+      old.nodes != nodes ||
+      old.edges != edges;
 }

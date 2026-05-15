@@ -762,9 +762,9 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
   static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
   @override
   late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
-      'goal_id', aliasedName, false,
+      'goal_id', aliasedName, true,
       type: DriftSqlType.string,
-      requiredDuringInsert: true,
+      requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES goals (id)'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
@@ -833,8 +833,6 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     if (data.containsKey('goal_id')) {
       context.handle(_goalIdMeta,
           goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta));
-    } else if (isInserting) {
-      context.missing(_goalIdMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -884,7 +882,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       goalId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}goal_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}goal_id']),
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       schedule: attachedDatabase.typeMapping
@@ -908,7 +906,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
 
 class Task extends DataClass implements Insertable<Task> {
   final String id;
-  final String goalId;
+  final String? goalId;
   final String name;
   final String schedule;
   final String? scheduleOn;
@@ -917,7 +915,7 @@ class Task extends DataClass implements Insertable<Task> {
   final int createdAt;
   const Task(
       {required this.id,
-      required this.goalId,
+      this.goalId,
       required this.name,
       required this.schedule,
       this.scheduleOn,
@@ -928,7 +926,9 @@ class Task extends DataClass implements Insertable<Task> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['goal_id'] = Variable<String>(goalId);
+    if (!nullToAbsent || goalId != null) {
+      map['goal_id'] = Variable<String>(goalId);
+    }
     map['name'] = Variable<String>(name);
     map['schedule'] = Variable<String>(schedule);
     if (!nullToAbsent || scheduleOn != null) {
@@ -943,7 +943,8 @@ class Task extends DataClass implements Insertable<Task> {
   TasksCompanion toCompanion(bool nullToAbsent) {
     return TasksCompanion(
       id: Value(id),
-      goalId: Value(goalId),
+      goalId:
+          goalId == null && nullToAbsent ? const Value.absent() : Value(goalId),
       name: Value(name),
       schedule: Value(schedule),
       scheduleOn: scheduleOn == null && nullToAbsent
@@ -960,7 +961,7 @@ class Task extends DataClass implements Insertable<Task> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Task(
       id: serializer.fromJson<String>(json['id']),
-      goalId: serializer.fromJson<String>(json['goalId']),
+      goalId: serializer.fromJson<String?>(json['goalId']),
       name: serializer.fromJson<String>(json['name']),
       schedule: serializer.fromJson<String>(json['schedule']),
       scheduleOn: serializer.fromJson<String?>(json['scheduleOn']),
@@ -974,7 +975,7 @@ class Task extends DataClass implements Insertable<Task> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'goalId': serializer.toJson<String>(goalId),
+      'goalId': serializer.toJson<String?>(goalId),
       'name': serializer.toJson<String>(name),
       'schedule': serializer.toJson<String>(schedule),
       'scheduleOn': serializer.toJson<String?>(scheduleOn),
@@ -986,7 +987,7 @@ class Task extends DataClass implements Insertable<Task> {
 
   Task copyWith(
           {String? id,
-          String? goalId,
+          Value<String?> goalId = const Value.absent(),
           String? name,
           String? schedule,
           Value<String?> scheduleOn = const Value.absent(),
@@ -995,7 +996,7 @@ class Task extends DataClass implements Insertable<Task> {
           int? createdAt}) =>
       Task(
         id: id ?? this.id,
-        goalId: goalId ?? this.goalId,
+        goalId: goalId.present ? goalId.value : this.goalId,
         name: name ?? this.name,
         schedule: schedule ?? this.schedule,
         scheduleOn: scheduleOn.present ? scheduleOn.value : this.scheduleOn,
@@ -1053,7 +1054,7 @@ class Task extends DataClass implements Insertable<Task> {
 
 class TasksCompanion extends UpdateCompanion<Task> {
   final Value<String> id;
-  final Value<String> goalId;
+  final Value<String?> goalId;
   final Value<String> name;
   final Value<String> schedule;
   final Value<String?> scheduleOn;
@@ -1074,7 +1075,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   });
   TasksCompanion.insert({
     required String id,
-    required String goalId,
+    this.goalId = const Value.absent(),
     required String name,
     required String schedule,
     this.scheduleOn = const Value.absent(),
@@ -1083,7 +1084,6 @@ class TasksCompanion extends UpdateCompanion<Task> {
     required int createdAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        goalId = Value(goalId),
         name = Value(name),
         schedule = Value(schedule),
         reminderTime = Value(reminderTime),
@@ -1114,7 +1114,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
 
   TasksCompanion copyWith(
       {Value<String>? id,
-      Value<String>? goalId,
+      Value<String?>? goalId,
       Value<String>? name,
       Value<String>? schedule,
       Value<String?>? scheduleOn,
@@ -2732,7 +2732,7 @@ typedef $$GoalDependenciesTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool goalId, bool dependsOnId})>;
 typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
   required String id,
-  required String goalId,
+  Value<String?> goalId,
   required String name,
   required String schedule,
   Value<String?> scheduleOn,
@@ -2743,7 +2743,7 @@ typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
 });
 typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
   Value<String> id,
-  Value<String> goalId,
+  Value<String?> goalId,
   Value<String> name,
   Value<String> schedule,
   Value<String?> scheduleOn,
@@ -2760,9 +2760,9 @@ final class $$TasksTableReferences
   static $GoalsTable _goalIdTable(_$AppDatabase db) =>
       db.goals.createAlias($_aliasNameGenerator(db.tasks.goalId, db.goals.id));
 
-  $$GoalsTableProcessedTableManager get goalId {
-    final $_column = $_itemColumn<String>('goal_id')!;
-
+  $$GoalsTableProcessedTableManager? get goalId {
+    final $_column = $_itemColumn<String>('goal_id');
+    if ($_column == null) return null;
     final manager = $$GoalsTableTableManager($_db, $_db.goals)
         .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_goalIdTable($_db));
@@ -3008,7 +3008,7 @@ class $$TasksTableTableManager extends RootTableManager<
               $$TasksTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> goalId = const Value.absent(),
+            Value<String?> goalId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> schedule = const Value.absent(),
             Value<String?> scheduleOn = const Value.absent(),
@@ -3030,7 +3030,7 @@ class $$TasksTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String goalId,
+            Value<String?> goalId = const Value.absent(),
             required String name,
             required String schedule,
             Value<String?> scheduleOn = const Value.absent(),

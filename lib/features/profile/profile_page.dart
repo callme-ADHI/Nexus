@@ -1,17 +1,17 @@
 import 'dart:io';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/database/app_database.dart';
 import '../../core/providers/providers.dart';
-import '../../shared/theme/app_theme.dart';
 import '../../core/services/notification_service.dart';
 import '../yaml_import/yaml_import_page.dart';
 import '../yaml_prompt/yaml_prompt_page.dart';
+import 'all_goals_page.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // PROFILE PAGE
@@ -47,13 +47,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider);
-    final allGoals = ref.watch(allGoalsProvider);
+    final allGoalsAsync = ref.watch(allGoalsProvider);
     final todayCompletions = ref.watch(todayCompletionsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.black,
       body: RefreshIndicator(
-        color: AppColors.accentSecondary,
+        color: Colors.white54,
+        backgroundColor: const Color(0xFF111111),
         onRefresh: () async {
           ref.invalidate(profileProvider);
           ref.invalidate(allGoalsProvider);
@@ -63,112 +64,114 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           slivers: [
             SliverToBoxAdapter(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Header ─────────────────────────────────────────
                   profile.when(
                     data: (p) => _ProfileHeader(
                       profile: p,
-                      onSettingsTap: () =>
-                          _openSettings(context, ref, p),
+                      onSettingsTap: () => _openSettings(context, ref, p),
                       onNameTap: () => _editName(context, ref, p),
                     ),
                     loading: () => const _ProfileHeader(profile: null),
                     error: (_, __) => const _ProfileHeader(profile: null),
                   ),
 
-                  const SizedBox(height: AppSpacing.sectionSpacing),
+                  const SizedBox(height: 32),
 
                   // ── Journey stats ──────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xl),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Your Journey',
-                            style: AppTypography.sectionHeader),
-                        const SizedBox(height: AppSpacing.md),
-                        allGoals.when(
+                        Text(
+                          'YOUR JOURNEY',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        allGoalsAsync.when(
                           data: (goals) => todayCompletions.when(
                             data: (comps) => _StatsGrid(
                               totalGoals: goals.length,
-                              tasksCompleted: comps
-                                  .where((c) => c.completedDate != null)
-                                  .length,
-                              completedGoals: goals
-                                  .where((g) => g.status == 'completed')
-                                  .length,
+                              tasksCompleted: comps.where((c) => c.completedDate != null).length,
+                              completedGoals: goals.where((g) => g.status == 'completed').length,
                               totalGoalsDenominator: goals.length,
+                              onTapAllGoals: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const AllGoalsPage()),
+                              ),
                             ),
-                            loading: () => const _StatsGrid(
-                                totalGoals: 0,
-                                tasksCompleted: 0,
-                                completedGoals: 0,
-                                totalGoalsDenominator: 0),
+                            loading: () => const _StatsGrid(totalGoals: 0, tasksCompleted: 0, completedGoals: 0, totalGoalsDenominator: 0),
                             error: (_, __) => const SizedBox.shrink(),
                           ),
-                          loading: () => const _StatsGrid(
-                              totalGoals: 0,
-                              tasksCompleted: 0,
-                              completedGoals: 0,
-                              totalGoalsDenominator: 0),
+                          loading: () => const _StatsGrid(totalGoals: 0, tasksCompleted: 0, completedGoals: 0, totalGoalsDenominator: 0),
                           error: (_, __) => const SizedBox.shrink(),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: AppSpacing.sectionSpacing),
+                  const SizedBox(height: 32),
 
                   // ── Data section ───────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xl),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Data', style: AppTypography.sectionHeader),
-                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          'DATA',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         _DataTile(
                           icon: Icons.auto_awesome,
                           label: 'Generate with AI',
-                          subtitle:
-                              'Get a prompt to create your YAML with any AI assistant',
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const YamlPromptPage()),
-                          ),
+                          subtitle: 'Get a prompt to create your YAML with any AI assistant',
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const YamlPromptPage())),
                         ),
                         _DataTile(
                           icon: Icons.upload_rounded,
                           label: 'Import YAML',
-                          subtitle:
-                              'Paste or load a YAML goal definition',
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const YamlImportPage()),
-                          ),
+                          subtitle: 'Paste or load a YAML goal definition',
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const YamlImportPage())),
                         ),
                         _DataTile(
                           icon: Icons.download_rounded,
                           label: 'Export Data',
-                          subtitle:
-                              'Save your goals and progress as a YAML file',
+                          subtitle: 'Save your goals and progress as a YAML file',
                           onTap: () => _exportData(context, ref),
                         ),
                         _DataTile(
                           icon: Icons.storage_rounded,
                           label: 'Storage Used',
-                          subtitle: _dbSizeKb != null
-                              ? '$_dbSizeKb KB'
-                              : 'Calculating...',
+                          subtitle: _dbSizeKb != null ? '$_dbSizeKb KB' : 'Calculating...',
                           showChevron: false,
                         ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Text('Troubleshooting', style: AppTypography.sectionHeader),
-                        const SizedBox(height: AppSpacing.md),
+                        
+                        const SizedBox(height: 32),
+                        
+                        Text(
+                          'TROUBLESHOOTING',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         _DataTile(
                           icon: Icons.notification_important_rounded,
                           label: 'Test Notification',
@@ -180,12 +183,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           label: 'Fix Permissions',
                           subtitle: 'Request notification and exact alarm permissions',
                           onTap: () async {
-                             await NotificationService.requestPermissions();
-                             if (context.mounted) {
-                               ScaffoldMessenger.of(context).showSnackBar(
-                                 const SnackBar(content: Text('Permissions requested. Please allow if prompted.')),
-                               );
-                             }
+                            await NotificationService.requestPermissions();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Permissions requested', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+                                  backgroundColor: const Color(0xFF111111),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],
@@ -211,42 +217,43 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  void _editName(
-      BuildContext context, WidgetRef ref, UserProfile? profile) {
-    final ctrl = TextEditingController(
-        text: profile?.displayName ?? '');
+  void _editName(BuildContext context, WidgetRef ref, UserProfile? profile) {
+    final ctrl = TextEditingController(text: profile?.displayName ?? '');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text('Your Name', style: AppTypography.cardTitle),
+        backgroundColor: const Color(0xFF0A0A0A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.white12),
+        ),
+        title: Text('Your Name', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
         content: TextField(
           controller: ctrl,
           autofocus: true,
-          style: AppTypography.body,
-          decoration: const InputDecoration(
+          style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+          decoration: InputDecoration(
             hintText: 'Enter your name',
+            hintStyle: GoogleFonts.inter(color: Colors.white24),
+            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+            focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white54)),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () async {
               final name = ctrl.text.trim();
               if (name.isNotEmpty) {
-                await ref.read(databaseProvider).updateProfile(
-                      UserProfilesCompanion(
-                        displayName: Value(name),
-                      ),
-                    );
+                await ref.read(databaseProvider).updateProfile(UserProfilesCompanion(displayName: Value(name)));
                 ref.invalidate(profileProvider);
               }
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: Text('Save', style: GoogleFonts.inter(color: Colors.white)),
           ),
         ],
       ),
@@ -259,16 +266,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final tasks = await db.getAllTasks();
 
     final buf = StringBuffer();
-    buf.writeln('version: "1.0"');
-    buf.writeln();
-    buf.writeln('goals:');
+    buf.writeln('version: "1.0"\n\ngoals:');
     for (final g in goals) {
       buf.writeln('  - id: ${g.id}');
       buf.writeln('    name: "${g.name}"');
       if (g.aim != null) buf.writeln('    aim: "${g.aim}"');
       buf.writeln('    timeframe: ${g.timeframe}');
-      buf.writeln(
-          '    deadline: "${DateTime.fromMillisecondsSinceEpoch(g.deadline).toIso8601String().substring(0, 10)}"');
+      buf.writeln('    deadline: "${DateTime.fromMillisecondsSinceEpoch(g.deadline).toIso8601String().substring(0, 10)}"');
       buf.writeln('    weight: ${g.weight}');
       buf.writeln('    color_index: ${g.colorIndex}');
       buf.writeln('    status: ${g.status}');
@@ -279,9 +283,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         for (final t in goalTasks) {
           buf.writeln('      - name: "${t.name}"');
           buf.writeln('        schedule: ${t.schedule}');
-          if (t.scheduleOn != null) {
-            buf.writeln('        on: ${t.scheduleOn}');
-          }
+          if (t.scheduleOn != null) buf.writeln('        on: ${t.scheduleOn}');
           buf.writeln('        reminder: "${t.reminderTime}"');
           buf.writeln('        active: ${t.isActive == 1}');
         }
@@ -289,8 +291,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     final now = DateTime.now();
-    final filename =
-        'nexus_export_${now.year}${_p(now.month)}${_p(now.day)}_${_p(now.hour)}${_p(now.minute)}${_p(now.second)}.yaml';
+    final filename = 'nexus_export_${now.year}${_p(now.month)}${_p(now.day)}_${_p(now.hour)}${_p(now.minute)}${_p(now.second)}.yaml';
 
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -300,15 +301,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       await Share.shareXFiles([XFile(file.path)], subject: filename);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported to $filename')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Exported to $filename', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+          backgroundColor: const Color(0xFF0A0A0A),
+        ));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Export failed: $e', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+          backgroundColor: const Color(0xFFE74C3C),
+        ));
       }
     }
   }
@@ -334,77 +337,65 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = profile?.displayName ?? 'You';
-    final initials = name
-        .split(' ')
-        .take(2)
-        .map((w) => w.isNotEmpty ? w[0].toUpperCase() : '')
-        .join();
-    final createdAt = profile != null
-        ? DateTime.fromMillisecondsSinceEpoch(profile!.createdAt)
-        : DateTime.now();
+    final initials = name.split(' ').take(2).map((w) => w.isNotEmpty ? w[0].toUpperCase() : '').join();
+    final createdAt = profile != null ? DateTime.fromMillisecondsSinceEpoch(profile!.createdAt) : DateTime.now();
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        MediaQuery.of(context).padding.top + 24,
-        AppSpacing.xl,
-        AppSpacing.lg,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Avatar
-          GestureDetector(
-            onTap: onNameTap,
-            child: Container(
-              width: 72,
-              height: 72,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accentPrimary,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                initials.isEmpty ? 'Y' : initials,
-                style: AppTypography.pageTitle.copyWith(fontSize: 26),
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: onNameTap,
+              child: Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111111),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  initials.isEmpty ? 'Y' : initials,
+                  style: GoogleFonts.inter(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                GestureDetector(
-                  onTap: onNameTap,
-                  child: Text(name,
-                      style: AppTypography.pageTitle.copyWith(fontSize: 20)),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Using Nexus since ${_monthYear(createdAt)}',
-                  style: AppTypography.caption,
-                ),
-              ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: onNameTap,
+                    child: Text(
+                      name,
+                      style: GoogleFonts.inter(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Using Nexus since ${_monthYear(createdAt)}',
+                    style: GoogleFonts.inter(color: Colors.white38, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: onSettingsTap,
-            icon: const Icon(Icons.settings_rounded,
-                color: AppColors.textSecondary),
-            padding: EdgeInsets.zero,
-          ),
-        ],
+            IconButton(
+              onPressed: onSettingsTap,
+              icon: const Icon(Icons.settings_outlined, color: Colors.white54, size: 24),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   String _monthYear(DateTime dt) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return '${months[dt.month - 1]} ${dt.year}';
   }
 }
@@ -418,43 +409,46 @@ class _StatsGrid extends StatelessWidget {
   final int tasksCompleted;
   final int completedGoals;
   final int totalGoalsDenominator;
+  final VoidCallback? onTapAllGoals;
+
   const _StatsGrid({
     required this.totalGoals,
     required this.tasksCompleted,
     required this.completedGoals,
     required this.totalGoalsDenominator,
+    this.onTapAllGoals,
   });
 
   @override
   Widget build(BuildContext context) {
-    final rate = totalGoalsDenominator == 0
-        ? 'N/A'
-        : '${(completedGoals / totalGoalsDenominator * 100).round()}%';
+    final rate = totalGoalsDenominator == 0 ? 'N/A' : '${(completedGoals / totalGoalsDenominator * 100).round()}%';
 
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.sm,
-      crossAxisSpacing: AppSpacing.sm,
-      childAspectRatio: 1.55,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 1.6,
       children: [
         _StatCard(
-            label: 'Total Goals',
-            value: '$totalGoals',
-            accent: AppColors.accentSecondary),
+          label: 'Total Goals',
+          value: '$totalGoals',
+          onTap: onTapAllGoals,
+        ),
         _StatCard(
-            label: 'Tasks Completed',
-            value: '$tasksCompleted',
-            accent: AppColors.success),
+          label: 'Tasks Completed',
+          value: '$tasksCompleted',
+        ),
         _StatCard(
-            label: 'Goals Completed',
-            value: '$completedGoals',
-            accent: AppColors.nodeAccents[1]),
+          label: 'Goals Completed',
+          value: '$completedGoals',
+        ),
         _StatCard(
-            label: 'Completion Rate',
-            value: rate,
-            accent: AppColors.nodeAccents[3]),
+          label: 'Completion Rate',
+          value: rate,
+        ),
       ],
     );
   }
@@ -463,36 +457,54 @@ class _StatsGrid extends StatelessWidget {
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;
-  final Color accent;
-  const _StatCard(
-      {required this.label, required this.value, required this.accent});
+  final VoidCallback? onTap;
+
+  const _StatCard({required this.label, required this.value, this.onTap});
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppRadius.card,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              value,
-              style: AppTypography.progressPct.copyWith(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: accent,
+  Widget build(BuildContext context) {
+    final card = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  height: 1.0,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(label,
-                style: AppTypography.caption,
-                textAlign: TextAlign.center),
-          ],
-        ),
-      );
+              if (onTap != null)
+                const Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 12),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: GoogleFonts.inter(color: Colors.white54, fontSize: 11),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap != null) {
+      return GestureDetector(onTap: onTap, child: card);
+    }
+    return card;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -505,6 +517,7 @@ class _DataTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onTap;
   final bool showChevron;
+
   const _DataTile({
     required this.icon,
     required this.label,
@@ -514,41 +527,40 @@ class _DataTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: AppRadius.card,
-            border: Border.all(color: AppColors.border),
+  Widget build(BuildContext context) {
+    final tile = Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: onTap != null ? Colors.white70 : Colors.white24, size: 20),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: GoogleFonts.inter(color: Colors.white38, fontSize: 11)),
+              ],
+            ),
           ),
-          child: Row(
-            children: [
-              Icon(icon,
-                  color: onTap != null
-                      ? AppColors.accentSecondary
-                      : AppColors.textSecondary,
-                  size: 22),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label, style: AppTypography.cardTitle),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: AppTypography.caption),
-                  ],
-                ),
-              ),
-              if (showChevron && onTap != null)
-                const Icon(Icons.chevron_right,
-                    color: AppColors.textSecondary, size: 18),
-            ],
-          ),
-        ),
-      );
+          if (showChevron && onTap != null)
+            const Icon(Icons.chevron_right, color: Colors.white24, size: 18),
+        ],
+      ),
+    );
+
+    if (onTap != null) {
+      return GestureDetector(onTap: onTap, child: tile);
+    }
+    return tile;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -568,88 +580,97 @@ class _SettingsSheet extends ConsumerWidget {
     final bubbleSide = profile?.bubbleSide ?? 'right';
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A0A0A),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
       ),
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 12, AppSpacing.xl, 48),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 48),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Handle
           Center(
             child: Container(
-              width: 36,
+              width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: Colors.white24,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          Text('Preferences', style: AppTypography.pageTitle.copyWith(fontSize: 22)),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
+          Text(
+            'PREFERENCES',
+            style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 2.0),
+          ),
+          const SizedBox(height: 16),
 
           _SettingRow(
             label: 'Notifications',
             description: 'Task reminders and goal alerts',
             trailing: Switch(
               value: notifsOn,
+              activeColor: Colors.white,
+              activeTrackColor: Colors.white24,
+              inactiveThumbColor: Colors.white54,
+              inactiveTrackColor: Colors.transparent,
+              trackOutlineColor: WidgetStateProperty.resolveWith((states) => Colors.white24),
               onChanged: (v) => _update(ref, notifsEnabled: v),
             ),
           ),
-          const Divider(color: AppColors.border, height: 32),
+          const Divider(color: Colors.white10, height: 24),
           _SettingRow(
             label: 'Haptic Feedback',
             description: 'Subtle vibration on navigation',
             trailing: Switch(
               value: hapticsOn,
+              activeColor: Colors.white,
+              activeTrackColor: Colors.white24,
+              inactiveThumbColor: Colors.white54,
+              inactiveTrackColor: Colors.transparent,
+              trackOutlineColor: WidgetStateProperty.resolveWith((states) => Colors.white24),
               onChanged: (v) => _update(ref, hapticsEnabled: v),
             ),
           ),
-          const Divider(color: AppColors.border, height: 32),
+          const Divider(color: Colors.white10, height: 24),
           _SettingRow(
             label: 'Reduced Motion',
             description: 'Simplify app-wide animations',
             trailing: Switch(
               value: reducedMotion,
+              activeColor: Colors.white,
+              activeTrackColor: Colors.white24,
+              inactiveThumbColor: Colors.white54,
+              inactiveTrackColor: Colors.transparent,
+              trackOutlineColor: WidgetStateProperty.resolveWith((states) => Colors.white24),
               onChanged: (v) => _update(ref, reducedMotion: v),
             ),
           ),
-          const Divider(color: AppColors.border, height: 32),
-          
+          const Divider(color: Colors.white10, height: 24),
           _SettingRow(
             label: 'Navigation Side',
             description: 'Placement of the control bubble',
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _MiniToggle(
-                  label: 'L',
-                  selected: bubbleSide == 'left',
-                  onTap: () => _update(ref, bubbleSide: 'left'),
-                ),
+                _MiniToggle(label: 'L', selected: bubbleSide == 'left', onTap: () => _update(ref, bubbleSide: 'left')),
                 const SizedBox(width: 8),
-                _MiniToggle(
-                  label: 'R',
-                  selected: bubbleSide == 'right',
-                  onTap: () => _update(ref, bubbleSide: 'right'),
-                ),
+                _MiniToggle(label: 'R', selected: bubbleSide == 'right', onTap: () => _update(ref, bubbleSide: 'right')),
               ],
             ),
           ),
 
           const SizedBox(height: 48),
-          Text('Danger Zone', style: AppTypography.sectionHeader.copyWith(color: AppColors.error)),
+          Text('DANGER ZONE', style: GoogleFonts.inter(color: const Color(0xFFE74C3C), fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 2.0)),
           const SizedBox(height: 16),
           
           _DangerButton(
             label: 'Delete All Data',
             onTap: () => _confirmDelete(context, ref, 'ALL', () => ref.read(databaseProvider).clearAllData()),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           _DangerButton(
             label: 'Clear Future Schedule',
             onTap: () => _confirmDelete(context, ref, 'FUTURE', () => ref.read(databaseProvider).clearFutureData()),
@@ -659,25 +680,12 @@ class _SettingsSheet extends ConsumerWidget {
     );
   }
 
-  Future<void> _update(
-    WidgetRef ref, {
-    bool? notifsEnabled,
-    bool? hapticsEnabled,
-    bool? reducedMotion,
-    String? bubbleSide,
-  }) async {
+  Future<void> _update(WidgetRef ref, {bool? notifsEnabled, bool? hapticsEnabled, bool? reducedMotion, String? bubbleSide}) async {
     await ref.read(databaseProvider).updateProfile(UserProfilesCompanion(
-      notifsEnabled: notifsEnabled != null
-          ? Value(notifsEnabled ? 1 : 0)
-          : const Value.absent(),
-      hapticsEnabled: hapticsEnabled != null
-          ? Value(hapticsEnabled ? 1 : 0)
-          : const Value.absent(),
-      reducedMotion: reducedMotion != null
-          ? Value(reducedMotion ? 1 : 0)
-          : const Value.absent(),
-      bubbleSide:
-          bubbleSide != null ? Value(bubbleSide) : const Value.absent(),
+      notifsEnabled: notifsEnabled != null ? Value(notifsEnabled ? 1 : 0) : const Value.absent(),
+      hapticsEnabled: hapticsEnabled != null ? Value(hapticsEnabled ? 1 : 0) : const Value.absent(),
+      reducedMotion: reducedMotion != null ? Value(reducedMotion ? 1 : 0) : const Value.absent(),
+      bubbleSide: bubbleSide != null ? Value(bubbleSide) : const Value.absent(),
     ));
     ref.invalidate(profileProvider);
   }
@@ -686,18 +694,21 @@ class _SettingsSheet extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text('Confirm Deletion', style: AppTypography.cardTitle),
+        backgroundColor: const Color(0xFF0A0A0A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.white12),
+        ),
+        title: Text('Confirm Deletion', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
         content: Text(
           type == 'ALL' 
             ? 'This will permanently erase all your goals, tasks, and progress. This cannot be undone.'
             : 'This will clear all future task completions. You will need to regenerate your schedule.',
-          style: AppTypography.body,
+          style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white54))),
+          TextButton(
             onPressed: () async {
               await action();
               ref.invalidate(allGoalsProvider);
@@ -705,12 +716,13 @@ class _SettingsSheet extends ConsumerWidget {
               ref.invalidate(todayCompletionsProvider);
               if (ctx.mounted) Navigator.pop(ctx);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Data cleared successfully.')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Data cleared successfully.', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+                  backgroundColor: const Color(0xFF111111),
+                ));
               }
             },
-            child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+            child: Text('Confirm', style: GoogleFonts.inter(color: const Color(0xFFE74C3C))),
           ),
         ],
       ),
@@ -733,9 +745,9 @@ class _SettingRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: AppTypography.cardTitle.copyWith(fontSize: 16)),
+              Text(label, style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
               const SizedBox(height: 2),
-              Text(description, style: AppTypography.caption),
+              Text(description, style: GoogleFonts.inter(color: Colors.white38, fontSize: 12)),
             ],
           ),
         ),
@@ -762,16 +774,16 @@ class _MiniToggle extends StatelessWidget {
         height: 32,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? Colors.white : AppColors.surfaceAlt,
+          color: selected ? Colors.white : Colors.transparent,
           shape: BoxShape.circle,
-          border: Border.all(color: selected ? Colors.white : AppColors.border),
+          border: Border.all(color: selected ? Colors.white : Colors.white24),
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: selected ? Colors.black : AppColors.textSecondary,
+          style: GoogleFonts.inter(
+            color: selected ? Colors.black : Colors.white54,
             fontSize: 12,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -789,19 +801,19 @@ class _DangerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: AppRadius.button,
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: BoxDecoration(
-          color: AppColors.error.withValues(alpha: 0.1),
-          borderRadius: AppRadius.button,
-          border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE74C3C).withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: AppTypography.body.copyWith(color: AppColors.error, fontWeight: FontWeight.w600)),
-            Icon(Icons.delete_forever_rounded, color: AppColors.error, size: 20),
+            Text(label, style: GoogleFonts.inter(color: const Color(0xFFE74C3C), fontSize: 13, fontWeight: FontWeight.w600)),
+            const Icon(Icons.delete_outline, color: Color(0xFFE74C3C), size: 18),
           ],
         ),
       ),

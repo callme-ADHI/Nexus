@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,7 +8,8 @@ import '../../shared/theme/app_theme.dart';
 
 
 class AddTaskForm extends ConsumerStatefulWidget {
-  const AddTaskForm({super.key});
+  final Task? taskToEdit;
+  const AddTaskForm({super.key, this.taskToEdit});
 
   @override
   ConsumerState<AddTaskForm> createState() => _AddTaskFormState();
@@ -23,6 +25,25 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
   TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
   bool   _isActive = true;
   bool   _saving   = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.taskToEdit != null) {
+      final t = widget.taskToEdit!;
+      _nameCtrl.text = t.name;
+      _selectedGoalId = t.goalId;
+      _schedule = t.schedule;
+      _scheduleOn = t.scheduleOn;
+      _isActive = t.isActive == 1;
+      try {
+        final parts = t.reminderTime.split(':');
+        if (parts.length == 2) {
+          _reminderTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+        }
+      } catch (_) {}
+    }
+  }
 
   @override
   void dispose() {
@@ -62,7 +83,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                 child: Row(
                   children: [
-                    Text('New Task', style: AppTypography.pageTitle.copyWith(fontSize: 18)),
+                    Text(widget.taskToEdit == null ? 'New Task' : 'Edit Task', style: AppTypography.pageTitle.copyWith(fontSize: 18)),
                     const Spacer(),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
@@ -84,17 +105,10 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                     allGoals.when(
                       data: (goals) {
                         if (goals.isEmpty) {
-                          return Container(
-                            padding: const EdgeInsets.all(AppSpacing.lg),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceAlt,
-                              borderRadius: AppRadius.card,
-                              border: Border.all(color: AppColors.border),
-                            ),
-                            child: Text(
-                              'Create a goal first before adding tasks.',
-                              style: AppTypography.caption,
-                            ),
+                          return _GoalPickerDropdown(
+                            goals: const [],
+                            value: _selectedGoalId,
+                            onChanged: (v) => setState(() => _selectedGoalId = v),
                           );
                         }
                         return _GoalPickerDropdown(
@@ -128,13 +142,17 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                     _Label('Schedule'),
                     const SizedBox(height: 8),
                     _SegmentedPicker<String>(
-                      options: const ['daily', 'weekly', 'monthly'],
-                      labels:  const ['Daily',  'Weekly',  'Monthly'],
+                      options: const ['daily', 'weekly', 'monthly', 'specific_date'],
+                      labels:  const ['Daily',  'Weekly',  'Monthly', 'Single Day'],
                       value: _schedule,
                       onChanged: (v) => setState(() {
                         _schedule = v;
                         if (v == 'weekly') _scheduleOn = 'monday';
                         else if (v == 'monthly') _scheduleOn = '1';
+                        else if (v == 'specific_date') {
+                          final now = DateTime.now();
+                          _scheduleOn = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+                        }
                         else _scheduleOn = null;
                       }),
                     ),
@@ -166,6 +184,18 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                           return null;
                         },
                         onChanged: (v) => _scheduleOn = v.trim(),
+                      ),
+                    ],
+
+                    if (_schedule == 'specific_date') ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      _Label('Select Date'),
+                      const SizedBox(height: 6),
+                      _DatePicker(
+                        value: _scheduleOn != null ? (DateTime.tryParse(_scheduleOn!) ?? DateTime.now()) : DateTime.now(),
+                        onChanged: (d) => setState(() {
+                          _scheduleOn = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+                        }),
                       ),
                     ],
 
@@ -214,13 +244,13 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: (_saving || _selectedGoalId == null) ? null : _submit,
+                        onPressed: _saving ? null : _submit,
                         child: _saving
                             ? const SizedBox(
                                 width: 18, height: 18,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Create Task'),
+                            : Text(widget.taskToEdit == null ? 'Create Task' : 'Save Changes'),
                       ),
                     ),
 
@@ -237,7 +267,6 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    if (_selectedGoalId == null) return;
 
     setState(() => _saving = true);
 
@@ -245,14 +274,31 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
         '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}';
 
     try {
-      await ref.read(taskNotifierProvider.notifier).createTask(
-        goalId: _selectedGoalId!,
-        name: _nameCtrl.text.trim(),
-        schedule: _schedule,
-        scheduleOn: _scheduleOn,
-        reminderTime: reminderStr,
-        isActive: _isActive,
-      );
+      if (widget.taskToEdit == null) {
+        await ref.read(taskNotifierProvider.notifier).createTask(
+          goalId: _selectedGoalId,
+          name: _nameCtrl.text.trim(),
+          schedule: _schedule,
+          scheduleOn: _scheduleOn,
+          reminderTime: reminderStr,
+          isActive: _isActive,
+        );
+      } else {
+        await ref.read(databaseProvider).updateTask(
+          TasksCompanion(
+            id: Value(widget.taskToEdit!.id),
+            goalId: Value(_selectedGoalId),
+            name: Value(_nameCtrl.text.trim()),
+            schedule: Value(_schedule),
+            scheduleOn: Value(_scheduleOn),
+            reminderTime: Value(reminderStr),
+            isActive: Value(_isActive ? 1 : 0),
+          )
+        );
+        ref.invalidate(allTasksProvider);
+        ref.invalidate(todayCompletionsProvider);
+        ref.invalidate(missedCompletionsProvider);
+      }
 
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -301,10 +347,16 @@ class _GoalPickerDropdown extends StatelessWidget {
         dropdownColor: AppColors.surface,
         style: AppTypography.body,
         hint: Text('Select a goal', style: AppTypography.body.copyWith(color: AppColors.textSecondary)),
-        items: goals.map((g) => DropdownMenuItem<String?>(
-              value: g.id,
-              child: Text(g.name, style: AppTypography.body, overflow: TextOverflow.ellipsis),
-            )).toList(),
+        items: [
+          DropdownMenuItem<String?>(
+            value: null,
+            child: Text('No Goal (Single Task)', style: AppTypography.body, overflow: TextOverflow.ellipsis),
+          ),
+          ...goals.map((g) => DropdownMenuItem<String?>(
+            value: g.id,
+            child: Text(g.name, style: AppTypography.body, overflow: TextOverflow.ellipsis),
+          )),
+        ],
         onChanged: onChanged,
       ),
     );
@@ -347,6 +399,52 @@ class _TimePicker extends StatelessWidget {
         child: Row(
           children: [
             const Icon(Icons.access_time_rounded, size: 16, color: AppColors.textSecondary),
+            const SizedBox(width: 10),
+            Text(label, style: AppTypography.body),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DatePicker extends StatelessWidget {
+  final DateTime value;
+  final ValueChanged<DateTime> onChanged;
+  const _DatePicker({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final label = "${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}";
+    return GestureDetector(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value,
+          firstDate: DateTime.now().subtract(const Duration(days: 365)),
+          lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+          builder: (ctx, child) => Theme(
+            data: ThemeData.dark().copyWith(
+              colorScheme: const ColorScheme.dark(
+                primary: AppColors.accentBlue,
+                surface: AppColors.surface,
+              ),
+            ),
+            child: child!,
+          ),
+        );
+        if (picked != null) onChanged(picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceAlt,
+          borderRadius: AppRadius.input,
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.textSecondary),
             const SizedBox(width: 10),
             Text(label, style: AppTypography.body),
           ],

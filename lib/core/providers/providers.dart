@@ -53,14 +53,17 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
   final allCompletions = <String, List<TaskCompletion>>{};
 
   for (final t in tasks) {
-    allCompletions[t.goalId] ??= [];
+    if (t.goalId != null) {
+      allCompletions[t.goalId!] ??= [];
+    }
   }
 
   // Fetch all completions
   for (final t in tasks) {
+    if (t.goalId == null) continue;
     final comps = await db.getCompletionsForTask(t.id);
-    allCompletions[t.goalId] = [
-      ...(allCompletions[t.goalId] ?? []),
+    allCompletions[t.goalId!] = [
+      ...(allCompletions[t.goalId!] ?? []),
       ...comps,
     ];
   }
@@ -180,6 +183,11 @@ final missedCompletionsProvider = FutureProvider<List<TaskCompletion>>((ref) {
   return db.getMissedCompletions();
 });
 
+final completedCompletionsProvider = FutureProvider<List<TaskCompletion>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.getCompletedCompletions();
+});
+
 // ════════════════════════════════════════════════════════════════════════════
 // NAVIGATION STATE
 // ════════════════════════════════════════════════════════════════════════════
@@ -283,7 +291,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
   final SchedulingService schedulingService;
 
   Future<void> createTask({
-    required String goalId,
+    String? goalId,
     required String name,
     required String schedule,
     String? scheduleOn,
@@ -295,7 +303,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
       final id = const Uuid().v4();
       final companion = TasksCompanion.insert(
         id: id,
-        goalId: goalId,
+        goalId: Value(goalId),
         name: name,
         schedule: schedule,
         scheduleOn: Value(scheduleOn),
@@ -443,7 +451,7 @@ class YamlImportNotifier extends StateNotifier<AsyncValue<YamlImportResult?>> {
         for (final td in gd.tasks) {
           taskCompanions.add(TasksCompanion.insert(
             id: const Uuid().v4(),
-            goalId: gd.id,
+            goalId: Value(gd.id),
             name: td.name,
             schedule: td.schedule,
             scheduleOn: Value(td.on),

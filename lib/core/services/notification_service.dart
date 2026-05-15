@@ -8,23 +8,16 @@ import '../database/app_database.dart';
 // ════════════════════════════════════════════════════════════════════════════
 // NOTIFICATION SERVICE
 //
-// Algorithm:
-//   DAILY tasks:
-//     - On the task day @ 06:00  → "Today's task: [Name] · [Goal]"
-//     - On the task day @ 20:00  → Reminder IF task not completed
-//
-//   WEEKLY tasks:
-//     - Monday @ 06:00   → "This week: [Name] · [Goal]"
-//     - Saturday @ 06:00 → Follow-up IF task not completed this week
+//   ALL tasks:
+//     - On the scheduled date @ assigned time (task.reminderTime)
+//     - On the scheduled date @ 20:00 (8 PM) → Follow-up IF assigned time < 20:00
 //
 //   GOAL deadline:
 //     - 3 days before deadline @ 09:00 → "Goal deadline: [Goal] — 3 days left"
 //
 // Note: We use the completion window (TaskCompletion table) to determine
-// whether a task was completed or not. For the evening/Saturday follow-ups
-// we schedule them unconditionally (like reminders), since we can't
-// conditionally fire a notification based on DB state at fire time.
-// The user can dismiss them if already done.
+// whether a task was completed or not. The evening follow-ups are scheduled
+// unconditionally, but the user can dismiss them if already done.
 // ════════════════════════════════════════════════════════════════════════════
 
 class NotificationService {
@@ -137,80 +130,43 @@ class NotificationService {
       final dates = _scheduleDates(task: task, from: now, to: end);
 
       for (final date in dates) {
-        if (schedule == 'daily') {
-          // 06:00 morning
-          final morning = _atTime(date, 6, 0);
-          if (morning.isAfter(now) && notifId < 9900) {
-            await _schedule(
-              id: notifId++,
-              channelId: _chDailyMorning.id,
-              title: 'Today\'s Task',
-              body: '${task.name} · ${goal.name}',
-              when: morning,
-            );
-          }
-
-          // 20:00 evening follow-up
-          final evening = _atTime(date, 20, 0);
-          if (evening.isAfter(now) && notifId < 9900) {
-            await _schedule(
-              id: notifId++,
-              channelId: _chDailyEvening.id,
-              title: 'Still Pending',
-              body: '${task.name} — complete it tonight! · ${goal.name}',
-              when: evening,
-            );
-          }
-        } else if (schedule == 'weekly') {
-          // On the task day (should be Monday if configured that way)
-          // Monday 06:00
-          final monday = _findPreviousOrSame(date, DateTime.monday);
-          final mondayMorning = _atTime(monday, 6, 0);
-          if (mondayMorning.isAfter(now) && notifId < 9900) {
-            await _schedule(
-              id: notifId++,
-              channelId: _chWeeklyStart.id,
-              title: 'This Week\'s Task',
-              body: '${task.name} · ${goal.name}',
-              when: mondayMorning,
-            );
-          }
-
-          // Saturday 06:00 follow-up
-          final saturday = _findNextDay(monday, DateTime.saturday);
-          final saturdayMorning = _atTime(saturday, 6, 0);
-          if (saturdayMorning.isAfter(now) && notifId < 9900) {
-            await _schedule(
-              id: notifId++,
-              channelId: _chWeeklySat.id,
-              title: 'Incomplete This Week',
-              body: '${task.name} — finish before the week ends! · ${goal.name}',
-              when: saturdayMorning,
-            );
-          }
+        // Parse the assigned time
+        int h = 8;
+        int m = 0;
+        final timeParts = task.reminderTime.split(':');
+        if (timeParts.length == 2) {
+          h = int.tryParse(timeParts[0]) ?? 8;
+          m = int.tryParse(timeParts[1]) ?? 0;
         }
-        // monthly/yearly: just use the task's reminderTime on that date
-        else {
-          final timeParts = task.reminderTime.split(':');
-          if (timeParts.length == 2) {
-            final h = int.tryParse(timeParts[0]) ?? 8;
-            final m = int.tryParse(timeParts[1]) ?? 0;
-            final reminderDt = _atTime(date, h, m);
-            if (reminderDt.isAfter(now) && notifId < 9900) {
-              await _schedule(
-                id: notifId++,
-                channelId: _chDailyMorning.id,
-                title: 'Scheduled Task',
-                body: '${task.name} · ${goal.name}',
-                when: reminderDt,
-              );
-            }
-          }
+
+        // 1. Notification at the assigned time
+        final reminderDt = _atTime(date, h, m);
+        if (reminderDt.isAfter(now) && notifId < 9900) {
+          await _schedule(
+            id: notifId++,
+            channelId: _chDailyMorning.id,
+              title: 'Scheduled Task',
+              body: '${task.name}${goal != null ? ' · ${goal.name}' : ''}',
+              when: reminderDt,
+          );
+        }
+
+        // 2. Incomplete task notification at 8 PM (20:00)
+        final eveningDt = _atTime(date, 20, 0);
+        // Only schedule evening follow-up if the assigned time is before 8 PM
+        if (eveningDt.isAfter(now) && reminderDt.isBefore(eveningDt) && notifId < 9900) {
+          await _schedule(
+            id: notifId++,
+            channelId: _chDailyEvening.id,
+              title: 'Incomplete Task',
+              body: '${task.name} — complete it tonight!${goal != null ? ' · ${goal.name}' : ''}',
+              when: eveningDt,
+          );
         }
       }
 
       // ── Deadline warning ───────────────────────────────────────────────
-      if (goal.status == 'completed') continue;
+      if (goal == null || goal.status == 'completed') continue;
       final deadline = tz.TZDateTime.fromMillisecondsSinceEpoch(tz.local, goal.deadline);
       final warnDay  = deadline.subtract(const Duration(days: 3));
       final warnAt   = _atTime(warnDay, 9, 0);
@@ -256,7 +212,15 @@ class NotificationService {
           include = dom > 0 && cursor.day == dom;
           break;
         case 'specific_date':
-          // handled elsewhere
+          if (task.scheduleOn != null) {
+            final parts = task.scheduleOn!.split('-');
+            if (parts.length == 3) {
+              final y = int.tryParse(parts[0]) ?? 0;
+              final m = int.tryParse(parts[1]) ?? 0;
+              final d = int.tryParse(parts[2]) ?? 0;
+              include = cursor.year == y && cursor.month == m && cursor.day == d;
+            }
+          }
           break;
       }
       if (include) results.add(cursor);

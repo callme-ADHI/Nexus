@@ -36,7 +36,7 @@ class GoalDependencies extends Table {
 
 class Tasks extends Table {
   TextColumn get id => text()();
-  TextColumn get goalId => text().references(Goals, #id)();
+  TextColumn get goalId => text().nullable().references(Goals, #id)();
   TextColumn get name => text()();
   TextColumn get schedule => text()(); // daily|weekly|monthly|yearly|specific_date
   TextColumn get scheduleOn => text().nullable()();
@@ -93,7 +93,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -103,6 +103,9 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.addColumn(goals, goals.colorIndex);
+          }
+          if (from < 3) {
+            await m.alterTable(TableMigration(tasks));
           }
         },
       );
@@ -199,6 +202,9 @@ class AppDatabase extends _$AppDatabase {
   Future<void> insertTask(TasksCompanion companion) =>
       into(tasks).insert(companion, mode: InsertMode.insertOrReplace);
 
+  Future<void> updateTask(TasksCompanion companion) =>
+      update(tasks).replace(companion);
+
   Future<void> deleteTask(String taskId) async {
     await (delete(taskCompletions)
           ..where((t) => t.taskId.equals(taskId)))
@@ -247,6 +253,13 @@ class AppDatabase extends _$AppDatabase {
               t.scheduledDate.isBiggerThanValue(todayMidnight) &
               t.scheduledDate.isSmallerOrEqualValue(untilMs))
           ..orderBy([(t) => OrderingTerm.asc(t.scheduledDate)]))
+        .get();
+  }
+
+  Future<List<TaskCompletion>> getCompletedCompletions() {
+    return (select(taskCompletions)
+          ..where((t) => t.completedDate.isNotNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.completedDate)]))
         .get();
   }
 

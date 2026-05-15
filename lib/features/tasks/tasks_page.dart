@@ -20,7 +20,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: 4, vsync: this);
+    _tabCtrl = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -34,6 +34,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
     final allGoals = ref.watch(allGoalsProvider);
     final todayCompletions = ref.watch(todayCompletionsProvider);
     final missedCompletions = ref.watch(missedCompletionsProvider);
+    final completedCompletions = ref.watch(completedCompletionsProvider);
     final allTasks = ref.watch(allTasksProvider);
 
     return Scaffold(
@@ -92,6 +93,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
                 Tab(text: 'Missed'),
                 Tab(text: 'Upcoming'),
                 Tab(text: 'All'),
+                Tab(text: 'Completed'),
               ],
             ),
 
@@ -151,6 +153,13 @@ class _TasksPageState extends ConsumerState<TasksPage>
                   ),
                   _AllSection(
                     allTasks: allTasks,
+                    filterGoalId: _filterGoalId,
+                    ref: ref,
+                  ),
+                  _CompletedSection(
+                    completions: completedCompletions,
+                    allTasks: allTasks,
+                    allGoals: allGoals,
                     filterGoalId: _filterGoalId,
                     ref: ref,
                   ),
@@ -221,18 +230,21 @@ class _MinimalTaskRow extends StatelessWidget {
   final String subtitle;
   final bool isDone;
   final ValueChanged<bool>? onToggle;
+  final VoidCallback? onLongPress;
 
   const _MinimalTaskRow({
     required this.title,
     required this.subtitle,
     this.isDone = false,
     this.onToggle,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onToggle == null ? null : () => onToggle!(!isDone),
+      onLongPress: onLongPress,
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
       child: Padding(
@@ -344,6 +356,7 @@ class _TodaySection extends StatelessWidget {
                     ref.read(taskNotifierProvider.notifier).uncompleteTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
                   }
                 },
+                onLongPress: () => _showTaskOptions(context, ref, t),
               );
             },
           );
@@ -400,6 +413,7 @@ class _MissedSection extends StatelessWidget {
                     ref.read(taskNotifierProvider.notifier).completeTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
                   }
                 },
+                onLongPress: () => _showTaskOptions(context, ref, t),
               );
             },
           );
@@ -442,7 +456,10 @@ class _UpcomingSection extends StatelessWidget {
             final t = filtered[i];
             return _MinimalTaskRow(
               title: t.name,
-              subtitle: 'Repeats: ${t.schedule} at ${t.reminderTime}',
+              subtitle: t.schedule == 'specific_date' 
+                  ? 'Scheduled for ${t.scheduleOn} at ${t.reminderTime}'
+                  : 'Repeats: ${t.schedule} at ${t.reminderTime}',
+              onLongPress: () => _showTaskOptions(context, ref, t),
             );
           },
         );
@@ -482,6 +499,7 @@ class _AllSection extends StatelessWidget {
             return _MinimalTaskRow(
               title: t.name,
               subtitle: t.isActive == 1 ? 'Active' : 'Inactive',
+              onLongPress: () => _showTaskOptions(context, ref, t),
             );
           },
         );
@@ -490,4 +508,241 @@ class _AllSection extends StatelessWidget {
       error: (_, __) => const SizedBox.shrink(),
     );
   }
+}
+
+class _CompletedSection extends StatelessWidget {
+  final AsyncValue<List<TaskCompletion>> completions;
+  final AsyncValue<List<Task>> allTasks;
+  final AsyncValue<List<Goal>> allGoals;
+  final String? filterGoalId;
+  final WidgetRef ref;
+
+  const _CompletedSection({
+    required this.completions,
+    required this.allTasks,
+    required this.allGoals,
+    this.filterGoalId,
+    required this.ref,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return completions.when(
+      data: (comps) => allTasks.when(
+        data: (tasks) => allGoals.when(
+          data: (goals) {
+            final taskMap = {for (final t in tasks) t.id: t};
+            final goalMap = {for (final g in goals) g.id: g};
+            var filtered = comps.where((c) {
+              final t = taskMap[c.taskId];
+              if (t == null) return false;
+              if (filterGoalId != null && t.goalId != filterGoalId) return false;
+              return true;
+            }).toList();
+
+            if (filtered.isEmpty) return const _EmptyState('No completed tasks.');
+
+            return ListView.builder(
+              itemCount: filtered.length,
+              itemBuilder: (ctx, i) {
+                final c = filtered[i];
+                final t = taskMap[c.taskId]!;
+                final g = goalMap[t.goalId];
+                
+                final scheduledD = DateTime.fromMillisecondsSinceEpoch(c.scheduledDate);
+                final completedD = DateTime.fromMillisecondsSinceEpoch(c.completedDate!);
+                
+                final scheduledStr = '${scheduledD.month.toString().padLeft(2, '0')}/${scheduledD.day.toString().padLeft(2, '0')}/${scheduledD.year}';
+                final completedStr = '${completedD.month.toString().padLeft(2, '0')}/${completedD.day.toString().padLeft(2, '0')} at ${completedD.hour.toString().padLeft(2, '0')}:${completedD.minute.toString().padLeft(2, '0')}';
+
+                return GestureDetector(
+                  onLongPress: () => _showTaskOptions(context, ref, t),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF111111),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                t.name,
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.check_circle, color: Color(0xFF27AE60), size: 18),
+                          ],
+                        ),
+                        if (g != null) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.track_changes, color: Colors.white38, size: 12),
+                              const SizedBox(width: 4),
+                              Text(
+                                g.name.toUpperCase(),
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 10,
+                                  letterSpacing: 1.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white38,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        const Divider(color: Colors.white10, height: 1),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'SCHEDULED FOR',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 9,
+                                      letterSpacing: 1.0,
+                                      color: Colors.white38,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    scheduledStr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 12,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'COMPLETED ON',
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 9,
+                                      letterSpacing: 1.0,
+                                      color: Colors.white38,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    completedStr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 12,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+void _showTaskOptions(BuildContext context, WidgetRef ref, Task task) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF111111),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      padding: const EdgeInsets.only(bottom: 32, top: 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40, height: 4,
+            decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(height: 24),
+          ListTile(
+            leading: const Icon(Icons.edit, color: Colors.white),
+            title: const Text('Edit Task', style: TextStyle(color: Colors.white, fontFamily: 'Inter')),
+            onTap: () {
+              Navigator.pop(ctx);
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => AddTaskForm(taskToEdit: task),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Color(0xFFE74C3C)),
+            title: const Text('Delete Task', style: TextStyle(color: Color(0xFFE74C3C), fontFamily: 'Inter')),
+            onTap: () {
+              Navigator.pop(ctx);
+              _confirmDeleteTask(context, ref, task);
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+void _confirmDeleteTask(BuildContext context, WidgetRef ref, Task task) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: const Color(0xFF0A0A0A),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Colors.white12)),
+      title: const Text('Delete Task', style: TextStyle(color: Colors.white, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+      content: const Text('Are you sure you want to delete this task? This will permanently remove all associated progress.', style: TextStyle(color: Colors.white70, fontFamily: 'Inter')),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.white54, fontFamily: 'Inter'))),
+        TextButton(
+          onPressed: () {
+            ref.read(taskNotifierProvider.notifier).deleteTask(task.id);
+            Navigator.pop(ctx);
+          },
+          child: const Text('Delete', style: TextStyle(color: Color(0xFFE74C3C), fontFamily: 'Inter')),
+        ),
+      ],
+    ),
+  );
 }

@@ -68,7 +68,10 @@ class SchedulingService {
         final dt = DateTime.tryParse(scheduleOn);
         if (dt == null) return [];
         final midnight = DateTime(dt.year, dt.month, dt.day);
-        if (midnight.isAfter(to) || midnight.isBefore(from)) return [];
+        final fromMidnight = DateTime(from.year, from.month, from.day);
+        final toMidnight = DateTime(to.year, to.month, to.day);
+        
+        if (midnight.isAfter(toMidnight) || midnight.isBefore(fromMidnight)) return [];
         return [midnight.millisecondsSinceEpoch];
 
       default:

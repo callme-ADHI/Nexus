@@ -28,7 +28,7 @@ class HomePage extends ConsumerWidget {
             // ── Minimal Header ──────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                 child: profile.when(
                   data: (p) => _MinimalHeader(name: p?.displayName ?? 'You'),
                   loading: () => const _MinimalHeader(name: 'You'),
@@ -37,80 +37,135 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            // ── Today's Tasks ───────────────────────────────────────────────
-            const SliverToBoxAdapter(
+            // ── Tasks Frame ─────────────────────────────────────────────────
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
-                child: Text(
-                  'TODAY',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 11,
-                    letterSpacing: 1.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF666666),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0A0A0A),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'TASKS',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 11,
+                                letterSpacing: 2.0,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            todayCompletions.when(
+                              data: (comps) {
+                                final done = comps.where((c) => c.completedDate != null).length;
+                                return Text(
+                                  '$done / ${comps.length}',
+                                  style: const TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF444444),
+                                  ),
+                                );
+                              },
+                              loading: () => const SizedBox.shrink(),
+                              error: (_, __) => const SizedBox.shrink(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(color: Colors.white10, height: 1),
+                      Expanded(
+                        child: todayCompletions.when(
+                          data: (completions) => allTasks.when(
+                            data: (tasks) {
+                              if (completions.isEmpty) {
+                                return const Center(child: _EmptyState('No tasks for today.'));
+                              }
+                              final taskMap = {for (final t in tasks) t.id: t};
+                              final sorted = [...completions]..sort((a, b) {
+                                if (a.completedDate != null && b.completedDate == null) return 1;
+                                if (a.completedDate == null && b.completedDate != null) return -1;
+                                return (taskMap[a.taskId]?.reminderTime ?? '').compareTo(taskMap[b.taskId]?.reminderTime ?? '');
+                              });
+
+                              return ListView.builder(
+                                padding: EdgeInsets.zero,
+                                itemCount: sorted.length,
+                                itemBuilder: (ctx, i) {
+                                  final c = sorted[i];
+                                  final task = taskMap[c.taskId];
+                                  if (task == null) return const SizedBox.shrink();
+                                  return _MinimalTaskRow(
+                                    completion: c,
+                                    task: task,
+                                    onToggle: (done) {
+                                      if (done) {
+                                        ref.read(taskNotifierProvider.notifier).completeTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
+                                      } else {
+                                        ref.read(taskNotifierProvider.notifier).uncompleteTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
+                                      }
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            loading: () => const SizedBox.shrink(),
+                            error: (_, __) => const SizedBox.shrink(),
+                          ),
+                          loading: () => const Center(child: CircularProgressIndicator(color: Colors.white24, strokeWidth: 2)),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
+                      ),
+                      const Divider(color: Colors.white10, height: 1),
+                      InkWell(
+                        onTap: () {
+                          ref.read(pageIndexProvider.notifier).state = 2; // Tasks Page
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'VIEW ALL TASKS',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 10,
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
 
-            todayCompletions.when(
-              data: (completions) => allTasks.when(
-                data: (tasks) {
-                  if (completions.isEmpty) {
-                    return const SliverToBoxAdapter(child: _EmptyState('No tasks for today.'));
-                  }
-                  final taskMap = {for (final t in tasks) t.id: t};
-                  final sorted = [...completions]..sort((a, b) {
-                      if (a.completedDate != null && b.completedDate == null) return 1;
-                      if (a.completedDate == null && b.completedDate != null) return -1;
-                      return (taskMap[a.taskId]?.reminderTime ?? '')
-                          .compareTo(taskMap[b.taskId]?.reminderTime ?? '');
-                    });
-                  
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (ctx, i) {
-                        final c = sorted[i];
-                        final task = taskMap[c.taskId];
-                        if (task == null) return const SizedBox.shrink();
-                        return _MinimalTaskRow(
-                          completion: c,
-                          task: task,
-                          onToggle: (done) {
-                            if (done) {
-                              ref.read(taskNotifierProvider.notifier).completeTask(
-                                taskId: c.taskId, scheduledDate: c.scheduledDate);
-                            } else {
-                              ref.read(taskNotifierProvider.notifier).uncompleteTask(
-                                taskId: c.taskId, scheduledDate: c.scheduledDate);
-                            }
-                          },
-                        );
-                      },
-                      childCount: sorted.length,
-                    ),
-                  );
-                },
-                loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
-                error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
-              ),
-              loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
-              error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
-            ),
-
             // ── Active Goals ───────────────────────────────────────────────
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(24, 48, 24, 16),
+                padding: EdgeInsets.fromLTRB(28, 40, 24, 16),
                 child: Text(
-                  'ACTIVE GOALS',
+                  'MAIN GOALS',
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 11,
-                    letterSpacing: 1.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF666666),
+                    letterSpacing: 2.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white54,
                   ),
                 ),
               ),
@@ -119,9 +174,8 @@ class HomePage extends ConsumerWidget {
             SliverToBoxAdapter(
               child: goalGraph.when(
                 data: (goals) {
-                  final active = goals.where((g) =>
-                      g.status != GoalStatus.completed &&
-                      g.status != GoalStatus.blocked).toList();
+                  final active = goals.where((g) => g.status != GoalStatus.completed && g.status != GoalStatus.blocked).toList();
+                  active.sort((a, b) => (b.goal.weight ?? 0).compareTo(a.goal.weight ?? 0));
                   
                   if (active.isEmpty) {
                     return const _EmptyState('No active goals.');
@@ -129,9 +183,19 @@ class HomePage extends ConsumerWidget {
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: active.map((g) => _MinimalGoalRow(
-                      goalWP: g,
-                      onTap: () => _openGoalDetail(context, g.goal as Goal),
+                    children: active.take(5).map((g) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0, left: 24, right: 24),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0A0A0A),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                        ),
+                        child: _MinimalGoalRow(
+                          goalWP: g,
+                          onTap: () => _openGoalDetail(context, g.goal as Goal),
+                        ),
+                      ),
                     )).toList(),
                   );
                 },
@@ -246,7 +310,7 @@ class _MinimalTaskRow extends StatelessWidget {
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -311,7 +375,7 @@ class _MinimalGoalRow extends StatelessWidget {
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

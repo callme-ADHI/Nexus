@@ -12,7 +12,7 @@ import 'features/progress/progress_page.dart';
 import 'features/profile/profile_page.dart';
 import 'features/onboarding/onboarding_page.dart';
 import 'features/productivity/productivity_page.dart';
-import 'features/yaml_import/yaml_import_page.dart';
+import 'features/manage/manage_page.dart';
 import 'navigation/radial_bubble_nav.dart';
 import 'core/services/widget_service.dart';
 
@@ -181,7 +181,7 @@ class _MainShell extends ConsumerWidget {
     const ProgressPage(),
     const ProfilePage(),
     const ProductivityPage(),
-    const YamlImportPage(),
+    const ManagePage(),
   ];
 
   @override
