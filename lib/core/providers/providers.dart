@@ -365,6 +365,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
   Future<void> deleteTask(String taskId) async {
     try {
       await db.deleteTask(taskId);
+      await NotificationService.rescheduleAll(db);
       ref.invalidate(allTasksProvider);
       ref.invalidate(todayCompletionsProvider);
       state = const AsyncData(null);

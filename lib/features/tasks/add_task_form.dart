@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/providers.dart';
 import '../../core/database/app_database.dart';
 import '../../shared/theme/app_theme.dart';
+import '../../core/services/notification_service.dart';
 
 
 class AddTaskForm extends ConsumerStatefulWidget {
@@ -295,6 +296,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
             isActive: Value(_isActive ? 1 : 0),
           )
         );
+        await NotificationService.rescheduleAll(ref.read(databaseProvider));
         ref.invalidate(allTasksProvider);
         ref.invalidate(todayCompletionsProvider);
         ref.invalidate(missedCompletionsProvider);

@@ -32,21 +32,15 @@ class NotificationService {
     importance: Importance.high,
   );
 
-  static const _chDailyEvening = AndroidNotificationChannel(
-    'daily_evening', 'Daily Task — Evening Follow-up',
-    description: '8:00 PM evening follow-up for incomplete daily tasks',
-    importance: Importance.defaultImportance,
-  );
-
-  static const _chWeeklyStart = AndroidNotificationChannel(
-    'weekly_start', 'Weekly Task — Monday',
-    description: 'Monday morning reminder for weekly tasks',
+  static const _chReminders = AndroidNotificationChannel(
+    'task_reminders', 'Task Reminders',
+    description: 'Notifications for your scheduled tasks',
     importance: Importance.high,
   );
 
-  static const _chWeeklySat = AndroidNotificationChannel(
-    'weekly_saturday', 'Weekly Task — Saturday Follow-up',
-    description: 'Saturday follow-up for incomplete weekly tasks',
+  static const _chFollowUps = AndroidNotificationChannel(
+    'task_followups', 'Evening Follow-ups',
+    description: '8:00 PM follow-up for incomplete tasks',
     importance: Importance.defaultImportance,
   );
 
@@ -144,7 +138,7 @@ class NotificationService {
         if (reminderDt.isAfter(now) && notifId < 9900) {
           await _schedule(
             id: notifId++,
-            channelId: _chDailyMorning.id,
+            channelId: _chReminders.id,
               title: 'Scheduled Task',
               body: '${task.name}${goal != null ? ' · ${goal.name}' : ''}',
               when: reminderDt,
@@ -157,7 +151,7 @@ class NotificationService {
         if (eveningDt.isAfter(now) && reminderDt.isBefore(eveningDt) && notifId < 9900) {
           await _schedule(
             id: notifId++,
-            channelId: _chDailyEvening.id,
+            channelId: _chFollowUps.id,
               title: 'Incomplete Task',
               body: '${task.name} — complete it tonight!${goal != null ? ' · ${goal.name}' : ''}',
               when: eveningDt,
@@ -311,7 +305,7 @@ class NotificationService {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android == null) return;
-    for (final ch in [_chDailyMorning, _chDailyEvening, _chWeeklyStart, _chWeeklySat, _chDeadline]) {
+    for (final ch in [_chReminders, _chFollowUps, _chDeadline]) {
       await android.createNotificationChannel(ch);
     }
   }

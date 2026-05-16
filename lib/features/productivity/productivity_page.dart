@@ -8,7 +8,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import '../../core/services/activity_service.dart';
 import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/nexus_logo.dart';
 
@@ -16,14 +15,7 @@ import '../../shared/widgets/nexus_logo.dart';
 // PRODUCTIVITY PAGE — Ultra-Premium Hub
 // ════════════════════════════════════════════════════════════════════════════
 
-final selectedActivityDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 
-final usageDataProvider = FutureProvider<UsageData>((ref) async {
-  final date = ref.watch(selectedActivityDateProvider);
-  bool granted = await ActivityService.isPermissionGranted();
-  if (!granted) throw Exception('Permission required');
-  return ActivityService.fetchDailyStats(date);
-});
 
 class ProductivityPage extends ConsumerStatefulWidget {
   const ProductivityPage({super.key});
@@ -35,7 +27,6 @@ class ProductivityPage extends ConsumerStatefulWidget {
 class _ProductivityPageState extends ConsumerState<ProductivityPage> {
   @override
   Widget build(BuildContext context) {
-    final usageAsync = ref.watch(usageDataProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -56,14 +47,7 @@ class _ProductivityPageState extends ConsumerState<ProductivityPage> {
                       children: [
                         Text('PRODUCTIVITY', style: AppTypography.sectionHeader.copyWith(letterSpacing: 10, fontSize: 10, fontWeight: FontWeight.w900)),
                         const SizedBox(height: 12),
-                        usageAsync.when(
-                          data: (data) => _SummaryPeek(
-                            screenTime: _formatTimeBrief(data.totalScreenTimeMs),
-                            unlocks: data.unlockCount,
-                          ),
-                          loading: () => const _PeekShimmer(),
-                          error: (_, __) => const Text('STATS DISCONNECTED', style: TextStyle(color: Colors.white10, fontSize: 8, letterSpacing: 1)),
-                        ),
+                        Text('ENGINE STATUS: OPTIMIZED', style: AppTypography.caption.copyWith(fontSize: 8, letterSpacing: 1, color: Colors.white24)),
                       ],
                     ),
                   ),
@@ -86,12 +70,6 @@ class _ProductivityPageState extends ConsumerState<ProductivityPage> {
                     icon: Icons.timer_sharp,
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FocusTimerPage())),
                   ),
-                  _HubItem(
-                    title: 'DIGITAL PULSE',
-                    subtitle: 'Application Usage & Well-being',
-                    icon: Icons.auto_graph_outlined,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ScreenTimePage())),
-                  ),
                 ],
               ),
             ),
@@ -101,35 +79,9 @@ class _ProductivityPageState extends ConsumerState<ProductivityPage> {
     );
   }
 
-  String _formatTimeBrief(int ms) {
-    final duration = Duration(milliseconds: ms);
-    if (duration.inHours > 0) return '${duration.inHours}H ${duration.inMinutes % 60}M';
-    return '${duration.inMinutes}M';
-  }
 }
 
-class _PeekShimmer extends StatelessWidget {
-  const _PeekShimmer();
-  @override
-  Widget build(BuildContext context) => Container(width: 100, height: 12, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(2)));
-}
 
-class _SummaryPeek extends StatelessWidget {
-  final String screenTime;
-  final int unlocks;
-  const _SummaryPeek({required this.screenTime, required this.unlocks});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _PeekValue(label: 'USAGE', value: screenTime),
-        const SizedBox(width: 32),
-        _PeekValue(label: 'PULSE', value: '$unlocks UNLOCKS'),
-      ],
-    );
-  }
-}
 
 class _PeekValue extends StatelessWidget {
   final String label;
@@ -788,115 +740,8 @@ class _CompletionOverlay extends StatelessWidget {
   }
 }
 
-// ── Existing ScreenTimePage & Utilities ─────────────────────────────────────
 
-class ScreenTimePage extends ConsumerWidget {
-  const ScreenTimePage({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final usageAsync = ref.watch(usageDataProvider);
-    final selectedDate = ref.watch(selectedActivityDateProvider);
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
-        title: Text('SCREEN TIME', style: AppTypography.sectionHeader.copyWith(letterSpacing: 2)),
-        centerTitle: true,
-        actions: [
-          _DateNavigator(selectedDate: selectedDate, onChanged: (d) => ref.read(selectedActivityDateProvider.notifier).state = d),
-          const SizedBox(width: 12),
-        ],
-      ),
-      body: usageAsync.when(
-        data: (data) => data.totalScreenTimeMs == 0 && data.appUsage.isEmpty ? _EmptyState(date: selectedDate) : _ActivityContent(data: data, date: selectedDate),
-        loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-        error: (err, _) => err.toString().contains('Permission required') ? _PermissionGate() : Center(child: Text('DATA UNAVAILABLE', style: AppTypography.caption)),
-      ),
-    );
-  }
-}
-
-class _DateNavigator extends StatelessWidget {
-  final DateTime selectedDate;
-  final ValueChanged<DateTime> onChanged;
-  const _DateNavigator({required this.selectedDate, required this.onChanged});
-  @override
-  Widget build(BuildContext context) {
-    final isToday = DateUtils.isSameDay(selectedDate, DateTime.now());
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.card, border: Border.all(color: AppColors.border)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(icon: const Icon(Icons.chevron_left, size: 18, color: Colors.white), padding: EdgeInsets.zero, constraints: const BoxConstraints(), onPressed: () => onChanged(selectedDate.subtract(const Duration(days: 1)))),
-          const SizedBox(width: 12),
-          Text(isToday ? 'TODAY' : DateFormat('MMM dd').format(selectedDate).toUpperCase(), style: AppTypography.cardTitle.copyWith(fontSize: 10, letterSpacing: 2)),
-          const SizedBox(width: 12),
-          IconButton(icon: Icon(Icons.chevron_right, size: 18, color: isToday ? Colors.white10 : Colors.white), padding: EdgeInsets.zero, constraints: const BoxConstraints(), onPressed: isToday ? null : () => onChanged(selectedDate.add(const Duration(days: 1)))),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final DateTime date;
-  const _EmptyState({required this.date});
-  @override
-  Widget build(BuildContext context) => Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.history_toggle_off_rounded, size: 48, color: Colors.white10), const SizedBox(height: 16), Text('NO ACTIVITY LOGGED', style: AppTypography.sectionHeader.copyWith(color: AppColors.textSecondary)), const SizedBox(height: 4), Text(DateFormat('EEEE, MMMM dd').format(date), style: AppTypography.caption)]));
-}
-
-class _PermissionGate extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(AppSpacing.xl), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.lock_clock_outlined, size: 64, color: AppColors.accentSecondary), const SizedBox(height: 24), Text('USAGE ACCESS REQUIRED', style: AppTypography.pageTitle), const SizedBox(height: 12), Text('Nexus requires permission to analyze usage patterns.', textAlign: TextAlign.center, style: AppTypography.body.copyWith(color: AppColors.textSecondary)), const SizedBox(height: 32), ElevatedButton(onPressed: () => ActivityService.grantPermission(), child: const Text('OPEN SETTINGS'))]));
-}
-
-class _ActivityContent extends StatelessWidget {
-  final UsageData data;
-  final DateTime date;
-  const _ActivityContent({required this.data, required this.date});
-  @override
-  Widget build(BuildContext context) => ListView(padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl), children: [const SizedBox(height: 32), Center(child: _ScreenTimeRing(timeMs: data.totalScreenTimeMs)), const SizedBox(height: 48), Row(children: [Expanded(child: _SmallStatCard(label: 'UNLOCKS', value: '${data.unlockCount}', icon: Icons.lock_open_rounded)), const SizedBox(width: 12), Expanded(child: _SmallStatCard(label: 'APPS', value: _formatTimeBrief(data.appUsage.values.fold(0, (a, b) => a + b)), icon: Icons.apps_rounded))]), const SizedBox(height: 48), Text('TOP APPLICATIONS', style: AppTypography.sectionHeader), const SizedBox(height: 16), ..._buildAppList(data), const SizedBox(height: 120)]);
-  List<Widget> _buildAppList(UsageData data) {
-    final sorted = data.appUsage.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    final filtered = sorted.where((e) => e.value > 60000).toList();
-    if (filtered.isEmpty) return [const Center(child: Text('Minimal usage detected'))];
-    return filtered.map((app) => _AppUsageTile(name: app.key.split('.').last.toUpperCase(), timeMs: app.value, pct: data.totalScreenTimeMs > 0 ? app.value / data.totalScreenTimeMs : 0.0)).toList();
-  }
-  String _formatTimeBrief(int ms) { final d = Duration(milliseconds: ms); return d.inHours > 0 ? '${d.inHours}H ${d.inMinutes % 60}M' : '${d.inMinutes}M'; }
-}
-
-class _ScreenTimeRing extends StatelessWidget {
-  final int timeMs;
-  const _ScreenTimeRing({required this.timeMs});
-  @override
-  Widget build(BuildContext context) {
-    final d = Duration(milliseconds: timeMs);
-    return SizedBox(width: 240, height: 240, child: Stack(alignment: Alignment.center, children: [CircularProgressIndicator(value: 1.0, strokeWidth: 1, color: Colors.white10), SizedBox(width: 220, height: 220, child: CircularProgressIndicator(value: (timeMs / (12 * 3600 * 1000)).clamp(0.0, 1.0), strokeWidth: 4, color: AppColors.accentSecondary, strokeCap: StrokeCap.round)), Column(mainAxisSize: MainAxisSize.min, children: [Text('${d.inHours}', style: AppTypography.progressPct.copyWith(fontSize: 56)), Text('HOURS ${d.inMinutes % 60} MIN', style: AppTypography.caption.copyWith(letterSpacing: 2))])]));
-  }
-}
-
-class _SmallStatCard extends StatelessWidget {
-  final String label; final String value; final IconData icon;
-  const _SmallStatCard({required this.label, required this.value, required this.icon});
-  @override
-  Widget build(BuildContext context) => Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.card, border: Border.all(color: AppColors.border)), child: Row(children: [Icon(icon, size: 20, color: AppColors.textSecondary), const SizedBox(width: 16), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, style: AppTypography.cardTitle), Text(label, style: AppTypography.caption.copyWith(fontSize: 8, letterSpacing: 1))])]));
-}
-
-class _AppUsageTile extends StatelessWidget {
-  final String name; final int timeMs; final double pct;
-  const _AppUsageTile({required this.name, required this.timeMs, required this.pct});
-  @override
-  Widget build(BuildContext context) {
-    final d = Duration(milliseconds: timeMs);
-    return Container(margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: AppRadius.card), child: Column(children: [Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(name, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)), Text(d.inHours > 0 ? '${d.inHours}H ${d.inMinutes % 60}M' : '${d.inMinutes}M', style: TextStyle(color: AppColors.accentSecondary, fontSize: 12))]), const SizedBox(height: 16), LinearProgressIndicator(value: pct.clamp(0.0, 1.0), minHeight: 2, backgroundColor: Colors.white.withValues(alpha: 0.05), color: Colors.white24)]));
-  }
-}
 
 class FadeIn extends StatefulWidget {
   final Widget child; final Duration duration;
