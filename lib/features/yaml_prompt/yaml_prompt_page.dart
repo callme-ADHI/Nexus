@@ -270,13 +270,17 @@ QUESTION 1 — The Big Outcome:
   If the user gives a vague answer, ask: "What would success look like
   in concrete terms? What would you be able to do that you cannot do today?"
 
-QUESTION 2 — The Deadline:
-  "When do you want to achieve this by? Give me a specific date."
+QUESTION 2 — The Timeline & Independent Goals:
+  "When do you want to start and achieve this by? Give me a specific start date
+   and end date."
   
   If no date is given, suggest one based on the scope:
     A skill goal → 6–12 months
     A fitness goal → 30–90 days
     An academic goal → match the semester/year
+  
+  Also ask: "Do you have any independent goals that don't fit into a sequence,
+   or single-time tasks (like a one-off event) you want to include?"
   Ask for confirmation before proceeding.
 
 QUESTION 3 — The Phases or Major Milestones:
@@ -296,15 +300,18 @@ QUESTION 4 — What Runs in Parallel:
   
   These become sibling goals under the main goal, running alongside phases.
 
-QUESTION 5 — The Daily / Weekly / Monthly Actions:
+QUESTION 5 — The Daily / Weekly / Monthly Actions & Single Time Tasks:
   For each phase and parallel goal, ask:
     "What would you actually DO on a daily or weekly basis to make progress
      on this? Be specific — not 'work on it' but exactly what action, how
      often, and at what time of day?"
   
+  For single-day or one-off tasks within a goal, ask:
+    "What is the exact start date and end date for each single-time task?"
+  
   These become TASKS, not goals. Every goal must have at least one task.
   If a user says "study every day" ask: "At what time? For how long?
-  What exactly will you study?" Get specific.
+  What exactly will you study?" Get specific and avoid any time overlaps.
 
 QUESTION 6 — Importance Weighting:
   "Which of these goals matters most to the overall outcome? If one
@@ -415,10 +422,12 @@ RULE 7 — TASK SCHEDULING RULES:
                   NEVER use "02-29" (Feb 29 does not exist every year).
                   Use "02-28" instead.
   specific_date → exactly once. 'on:' field = "YYYY-MM-DD".
-                  Use for final benchmark tests, one-time milestones.
+                  Use for final benchmark tests, one-time milestones, or
+                  single-day/single-time tasks. If a task spans multiple days,
+                  you MUST create multiple specific_date tasks or use daily/weekly.
                   Do NOT use specific_date for anything recurring.
 
-RULE 8 — REMINDER TIME FORMAT:
+RULE 8 — REMINDER TIME FORMAT & NO CONFLICTS:
   Always "HH:MM" in 24-hour format.
   Examples: "06:30" "09:00" "13:00" "17:30" "21:00"
   Morning sessions: 06:00–08:00
@@ -426,6 +435,11 @@ RULE 8 — REMINDER TIME FORMAT:
   Evening sessions: 18:00–21:30
   Match reminder times to the logical time of day for that task.
   Do not put a gym reminder at 02:00.
+  
+  CRITICAL: NO TIME CONFLICTS.
+  Ensure no two tasks share the exact same reminder time on the same day.
+  Spread tasks out logically. If the user has multiple daily tasks, assign
+  them completely different, non-overlapping reminder times.
 
 RULE 9 — ID RULES:
   Every goal id must be UNIQUE across the entire file.
@@ -478,6 +492,17 @@ goals:
     # REQUIRED. Format: "YYYY-MM-DD"
     # Must be today or a future date. Never a past date.
     # Example: "2026-07-07"
+
+    start_date: string
+    # OPTIONAL. Format: "YYYY-MM-DD"
+    # The date from which this goal's tasks begin appearing in the schedule.
+    # If omitted, tasks start from the import date (today).
+    # Use this when a goal should not begin immediately — e.g. a phase that
+    # starts 2 weeks after import but has no dependency.
+    # Must not be after the deadline.
+    # Note: for goals with depends_on, start_date is IGNORED — the app
+    # sets the start date automatically when the dependency completes.
+    # Example: start_date: "2026-06-15"
 
     weight: integer
     # OPTIONAL. Default: 1 if omitted.
@@ -824,6 +849,8 @@ output EXACTLY the following and nothing else:
    ✓ or ✗ All weights are integers from 1–10
    ✓ or ✗ Every goal has at least one task
    ✓ or ✗ Total goals are 12 or fewer
+   ✓ or ✗ All start_date values (if present) are not after their deadline
+   ✓ or ✗ Goals with depends_on do NOT have a start_date (it is auto-set)
    
    If any check is ✗, fix it in the YAML before showing the output.
    The YAML shown must always pass all checks.
@@ -834,22 +861,61 @@ PART H — HOW THE APP USES THIS YAML
 
 Understanding this helps you design the YAML correctly:
 
-DEPENDENCY LOCKING:
-  When a goal has depends_on, it is locked (blocked) in the app until ALL
-  its dependencies reach "completed" status. The user cannot check off tasks
-  for a blocked goal. Design dependencies so this makes sense in practice.
+DEPENDENCY LOCKING (PHASE GATES):
+  When a goal has depends_on, it is FULLY LOCKED until ALL its dependencies
+  reach "completed" status. This means:
+  
+  • The locked goal's tasks are COMPLETELY HIDDEN — they will NOT appear
+    in the Today tab, Missed tab, or anywhere in the task schedule.
+  • No task completion records are created for locked goals at all.
+  • The locked goal shows as "Blocked" in the goal graph.
+  • This is a hard gate — the user simply cannot interact with Phase 2
+    tasks while Phase 1 is still in progress.
+  
+  When the blocking goal is marked complete:
+  • All dependent goals are automatically UNLOCKED.
+  • The app stamps the current date as the goal's start_date.
+  • Task completion records are generated from that unlock date onward.
+  • Their tasks appear in Today / Upcoming from that point forward.
+  
+  DESIGN IMPLICATION: If Phase 2 has daily tasks, those tasks will only
+  begin appearing after Phase 1 is marked complete — not from the import
+  date. Design task schedules accordingly. Use 'daily' for phase tasks
+  so they automatically generate from the day of unlock onward.
+  
+  Do NOT set depends_on unless the phase truly cannot begin until the
+  prior one is fully done. Parallel work should run simultaneously with
+  no dependency.
+
+START DATE (goal.start_date):
+  Every goal has an internal start date that anchors its task schedule.
+  
+  For goals WITHOUT depends_on:
+  • If you provide start_date in the YAML, tasks begin from that date.
+  • If you omit start_date, tasks begin from today (the import date).
+  • This is useful for goals that will start in the future but have no
+    blocking prerequisite (e.g. "starts in 2 weeks").
+  
+  For goals WITH depends_on:
+  • Do NOT set start_date — it is meaningless and will be ignored.
+  • The app automatically sets start_date = the day the dependency completes.
+  
+  Tasks before startDate are never created. Tasks on or after startDate
+  appear in the schedule up to today+30 days.
 
 PROGRESS CALCULATION:
   Each goal's progress = (tasks completed so far) / (tasks due so far) × 100
   A parent goal's progress includes its sub-goals' progress, weighted by
   their weight values. This means a high-weight sub-goal dominates the parent.
   Design weights to reflect actual importance.
+  Blocked goals contribute 0% progress until they unlock.
 
 TASK SCHEDULING:
-  The app generates task reminders for the next 30 days on each app launch.
-  daily tasks → 30 notification per task per month
-  weekly tasks → ~4 notifications per task per month
-  specific_date tasks → 1 notification total
+  The app generates task reminders for the next 30 days on each app launch,
+  BUT ONLY for goals that are currently unlocked (not blocked).
+  daily tasks → up to 30 reminders per month (only after unlock)
+  weekly tasks → ~4 reminders per month (only after unlock)
+  specific_date tasks → 1 reminder total
   
   Design task schedules around what the user will realistically maintain.
   Avoid scheduling the same type of reminder at the same time for 5 different
@@ -859,6 +925,7 @@ GOAL GRAPH:
   Each goal becomes a node in an interactive graph.
   Dependency arrows point from prerequisite → dependent.
   Sub-goal edges show as dashed lines from parent → child.
+  Blocked goals are visually dimmed in the graph.
   The graph becomes unreadable with more than 15 nodes.
   Keep imports focused and clean.
 
@@ -866,6 +933,8 @@ OVERDUE STATE:
   If a deadline passes without the goal being completed, it enters Overdue
   state. Tasks can still be completed. The user can still mark it done.
   Design deadlines to be ambitious but achievable.
+  Note: a blocked goal cannot go overdue — it remains blocked until unlocked,
+  at which point its deadline is evaluated normally.
 
 ════════════════════════════════════════════════════════════════════════════════
 BEGIN NOW
@@ -1014,7 +1083,7 @@ class _Step3Done extends ConsumerWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                ref.read(pageIndexProvider.notifier).state = 6;
+                ref.read(pageIndexProvider.notifier).state = 5;
               },
               child: const Text('Go to Import Page'),
             ),

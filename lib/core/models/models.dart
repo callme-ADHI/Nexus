@@ -104,11 +104,15 @@ class TaskWithCompletion {
 class YamlImportResult {
   final List<YamlGoalData> validGoals;
   final List<YamlGoalData> conflictGoals; // ids already in DB
+  final List<YamlActivityLogData> activityLogs;
+  final List<YamlSleepLogData> sleepLogs;
   final List<String> errors;
 
   const YamlImportResult({
     required this.validGoals,
     required this.conflictGoals,
+    this.activityLogs = const [],
+    this.sleepLogs = const [],
     required this.errors,
   });
 
@@ -126,6 +130,9 @@ class YamlGoalData {
   final String? parent;
   final List<String> dependsOn;
   final List<YamlTaskData> tasks;
+  /// Optional YAML-specified start date. Null means "start immediately on import."
+  /// For blocked goals this is ignored — startDate is set when dependency completes.
+  final DateTime? startDate;
   // For conflict resolution
   bool skipOnConflict = false;
 
@@ -139,6 +146,7 @@ class YamlGoalData {
     this.parent,
     required this.dependsOn,
     required this.tasks,
+    this.startDate,
   });
 }
 
@@ -155,5 +163,43 @@ class YamlTaskData {
     this.on,
     required this.reminder,
     this.active = true,
+  });
+}
+
+class YamlActivityLogData {
+  final int date;
+  final String category;
+  final String name;
+  final int startTime;
+  final int endTime;
+  final String? notes;
+  final bool isAuto;
+  final int createdAt;
+
+  const YamlActivityLogData({
+    required this.date,
+    required this.category,
+    required this.name,
+    required this.startTime,
+    required this.endTime,
+    this.notes,
+    this.isAuto = false,
+    required this.createdAt,
+  });
+}
+
+class YamlSleepLogData {
+  final int date;
+  final int sleepTime;
+  final int wakeTime;
+  final String? qualityNote;
+  final int createdAt;
+
+  const YamlSleepLogData({
+    required this.date,
+    required this.sleepTime,
+    required this.wakeTime,
+    this.qualityNote,
+    required this.createdAt,
   });
 }

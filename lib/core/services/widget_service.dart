@@ -24,7 +24,7 @@ class WidgetService {
         NexusWidgetUI(tasks: activeTasks, lastUpdated: lastUpdated),
         key: _imageKey,
         logicalSize: const Size(600, 600),
-        pixelRatio: 3.0,
+        pixelRatio: 2.0,
       );
 
       if (path != null) {
@@ -36,6 +36,31 @@ class WidgetService {
       }
     } catch (e) {
       debugPrint('Widget update failed: $e');
+    }
+  }
+  static Future<void> updateProductivityWidget(List<ProductivityCache> caches) async {
+    try {
+      final today = DateTime.now();
+      final days = 28;
+      final startDate = today.subtract(Duration(days: days - 1));
+      final scoreMap = {for (final c in caches) c.date: c.score};
+      
+      final path = await HomeWidget.renderFlutterWidget(
+        ProductivityWidgetUI(startDate: startDate, today: today, days: days, scoreMap: scoreMap),
+        logicalSize: const Size(800, 800),
+        pixelRatio: 2.0,
+        key: 'nexus_productivity_widget_image',
+      );
+      
+      if (path != null) {
+        await HomeWidget.saveWidgetData<String>('nexus_productivity_widget_image', path);
+        await HomeWidget.updateWidget(
+          name: 'NexusProductivityWidget',
+          androidName: 'NexusProductivityWidget',
+        );
+      }
+    } catch (e) {
+      debugPrint('Productivity widget update failed: $e');
     }
   }
 }
@@ -53,7 +78,7 @@ class NexusWidgetUI extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: MediaQuery(
-        data: const MediaQueryData(size: Size(600, 600), devicePixelRatio: 3.0),
+        data: const MediaQueryData(size: Size(600, 600), devicePixelRatio: 2.0),
         child: Container(
           width: 600,
           height: 600,
@@ -184,6 +209,134 @@ class NexusWidgetUI extends StatelessWidget {
                   height: 2,
                   width: 40,
                   color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProductivityWidgetUI extends StatelessWidget {
+  final DateTime startDate;
+  final DateTime today;
+  final int days;
+  final Map<int, double> scoreMap;
+
+  const ProductivityWidgetUI({
+    super.key,
+    required this.startDate,
+    required this.today,
+    required this.days,
+    required this.scoreMap,
+  });
+
+  Color _colorForScore(double score) {
+    if (score == 0) return const Color(0xFF111118);
+    if (score < 45) return const Color(0xFFEF4444);
+    if (score < 75) return const Color(0xFFB45309);
+    return const Color(0xFF22C55E);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final alignStartOffset = startDate.weekday - 1;
+    
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: MediaQuery(
+        data: const MediaQueryData(size: Size(800, 800), devicePixelRatio: 2.0),
+        child: Container(
+          width: 800,
+          height: 800,
+          color: const Color(0xFF000000), // Pitch black background
+          padding: const EdgeInsets.all(48),
+          child: DefaultTextStyle(
+            style: const TextStyle(
+              color: Colors.white,
+              fontFamily: 'Inter',
+              fontSize: 16,
+              decoration: TextDecoration.none,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const NexusLogo(size: 22, color: Colors.white),
+                        const SizedBox(width: 16),
+                        const Text(
+                          'PRODUCTIVITY',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 4,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      DateFormat('HH:mm').format(today),
+                      style: const TextStyle(
+                        color: Color(0xFF333333),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 56),
+                const Text(
+                  '30-DAY INSIGHT', 
+                  style: TextStyle(color: Color(0xFF666666), fontSize: 14, letterSpacing: 2.0, fontWeight: FontWeight.w800)
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: ['M','T','W','T','F','S','S'].map((d) => Expanded(
+                    child: Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: Text(d, style: const TextStyle(color: Color(0xFF3A3A50), fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  )).toList(),
+                ),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: days + alignStartOffset,
+                  itemBuilder: (context, index) {
+                    if (index < alignStartOffset) return const SizedBox.shrink();
+                    final daysOffset = index - alignStartOffset;
+                    if (daysOffset >= days) return const SizedBox.shrink();
+                    
+                    final d = startDate.add(Duration(days: daysOffset));
+                    final ms = DateTime(d.year, d.month, d.day).millisecondsSinceEpoch;
+                    final score = scoreMap[ms] ?? 0;
+                    final isToday = d.year == today.year && d.month == today.month && d.day == today.day;
+                    
+                    return AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _colorForScore(score),
+                          borderRadius: BorderRadius.circular(6),
+                          border: isToday ? Border.all(color: Colors.white, width: 2.5) : null,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

@@ -10,6 +10,7 @@ import '../../core/database/app_database.dart';
 import '../../core/providers/providers.dart';
 import '../../core/services/notification_service.dart';
 import '../yaml_import/yaml_import_page.dart';
+import '../yaml_import/log_import_page.dart';
 import '../yaml_prompt/yaml_prompt_page.dart';
 import 'all_goals_page.dart';
 
@@ -143,14 +144,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ),
                         _DataTile(
                           icon: Icons.upload_rounded,
-                          label: 'Import YAML',
+                          label: 'Import YAML Goals',
                           subtitle: 'Paste or load a YAML goal definition',
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const YamlImportPage())),
                         ),
                         _DataTile(
+                          icon: Icons.history_edu_rounded,
+                          label: 'Import YAML Logs',
+                          subtitle: 'Paste and restore activity & sleep logs',
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogImportPage())),
+                        ),
+                        _DataTile(
                           icon: Icons.download_rounded,
                           label: 'Export Data',
-                          subtitle: 'Save your goals and progress as a YAML file',
+                          subtitle: 'Save your goals, tasks, and tracker logs',
                           onTap: () => _exportData(context, ref),
                         ),
                         _DataTile(
@@ -264,9 +271,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final db = ref.read(databaseProvider);
     final goals = await db.getAllGoals();
     final tasks = await db.getAllTasks();
+    final activityLogs = await db.getAllActivityLogs();
+    final sleepLogs = await db.getAllSleepLogs();
 
     final buf = StringBuffer();
-    buf.writeln('version: "1.0"\n\ngoals:');
+    buf.writeln('version: "1.1"\n\ngoals:');
     for (final g in goals) {
       buf.writeln('  - id: ${g.id}');
       buf.writeln('    name: "${g.name}"');
@@ -287,6 +296,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           buf.writeln('        reminder: "${t.reminderTime}"');
           buf.writeln('        active: ${t.isActive == 1}');
         }
+      }
+    }
+
+    if (activityLogs.isNotEmpty) {
+      buf.writeln('\nactivity_logs:');
+      for (final a in activityLogs) {
+        buf.writeln('  - date: ${a.date}');
+        buf.writeln('    category: "${a.category}"');
+        buf.writeln('    name: "${a.name}"');
+        buf.writeln('    start_time: ${a.startTime}');
+        buf.writeln('    end_time: ${a.endTime}');
+        buf.writeln('    notes: "${a.notes ?? ''}"');
+        buf.writeln('    is_auto: ${a.isAuto == 1}');
+        buf.writeln('    created_at: ${a.createdAt}');
+      }
+    }
+
+    if (sleepLogs.isNotEmpty) {
+      buf.writeln('\nsleep_logs:');
+      for (final s in sleepLogs) {
+        buf.writeln('  - date: ${s.date}');
+        buf.writeln('    sleep_time: ${s.sleepTime}');
+        buf.writeln('    wake_time: ${s.wakeTime}');
+        buf.writeln('    quality_note: "${s.qualityNote ?? ''}"');
+        buf.writeln('    created_at: ${s.createdAt}');
       }
     }
 

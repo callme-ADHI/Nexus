@@ -46,4 +46,11 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    
+    constraints {
+        implementation("androidx.glance:glance-appwidget:1.1.1") {
+            because("1.3.0-alpha01 requires compileSdk 37 and AGP 9.1.0 which breaks Flutter build")
+        }
+        implementation("androidx.glance:glance:1.1.1")
+    }
 }

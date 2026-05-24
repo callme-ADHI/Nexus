@@ -19,6 +19,7 @@ class HomePage extends ConsumerWidget {
     final goalGraph        = ref.watch(goalGraphProvider);
     final todayCompletions = ref.watch(todayCompletionsProvider);
     final allTasks         = ref.watch(allTasksProvider);
+    final blockedIds       = ref.watch(blockedGoalIdsProvider);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -93,31 +94,50 @@ class HomePage extends ConsumerWidget {
                                 return const Center(child: _EmptyState('No tasks for today.'));
                               }
                               final taskMap = {for (final t in tasks) t.id: t};
-                              final sorted = [...completions]..sort((a, b) {
-                                if (a.completedDate != null && b.completedDate == null) return 1;
-                                if (a.completedDate == null && b.completedDate != null) return -1;
-                                return (taskMap[a.taskId]?.reminderTime ?? '').compareTo(taskMap[b.taskId]?.reminderTime ?? '');
-                              });
+                              return blockedIds.when(
+                                data: (blocked) {
+                                  // Show only tasks whose goal is NOT blocked
+                                  final sorted = [...completions]
+                                    ..removeWhere((c) {
+                                      final t = taskMap[c.taskId];
+                                      return t != null &&
+                                          t.goalId != null &&
+                                          blocked.contains(t.goalId);
+                                    })
+                                    ..sort((a, b) {
+                                      if (a.completedDate != null && b.completedDate == null) return 1;
+                                      if (a.completedDate == null && b.completedDate != null) return -1;
+                                      return (taskMap[a.taskId]?.reminderTime ?? '')
+                                          .compareTo(taskMap[b.taskId]?.reminderTime ?? '');
+                                    });
 
-                              return ListView.builder(
-                                padding: EdgeInsets.zero,
-                                itemCount: sorted.length,
-                                itemBuilder: (ctx, i) {
-                                  final c = sorted[i];
-                                  final task = taskMap[c.taskId];
-                                  if (task == null) return const SizedBox.shrink();
-                                  return _MinimalTaskRow(
-                                    completion: c,
-                                    task: task,
-                                    onToggle: (done) {
-                                      if (done) {
-                                        ref.read(taskNotifierProvider.notifier).completeTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
-                                      } else {
-                                        ref.read(taskNotifierProvider.notifier).uncompleteTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
-                                      }
+                                  if (sorted.isEmpty) {
+                                    return const Center(child: _EmptyState('No tasks for today.'));
+                                  }
+
+                                  return ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    itemCount: sorted.length,
+                                    itemBuilder: (ctx, i) {
+                                      final c = sorted[i];
+                                      final task = taskMap[c.taskId];
+                                      if (task == null) return const SizedBox.shrink();
+                                      return _MinimalTaskRow(
+                                        completion: c,
+                                        task: task,
+                                        onToggle: (done) {
+                                          if (done) {
+                                            ref.read(taskNotifierProvider.notifier).completeTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
+                                          } else {
+                                            ref.read(taskNotifierProvider.notifier).uncompleteTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
+                                          }
+                                        },
+                                      );
                                     },
                                   );
                                 },
+                                loading: () => const SizedBox.shrink(),
+                                error: (_, __) => const SizedBox.shrink(),
                               );
                             },
                             loading: () => const SizedBox.shrink(),

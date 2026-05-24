@@ -9,6 +9,13 @@ import '../services/scheduling_service.dart';
 import '../services/status_service.dart';
 import '../services/notification_service.dart';
 import '../services/yaml_parser.dart';
+import '../services/productivity_service.dart';
+
+// ════════════════════════════════════════════════════════════════════════════
+// UI STATE PROVIDERS
+// ════════════════════════════════════════════════════════════════════════════
+
+final navActiveProvider = StateProvider<bool>((ref) => false);
 
 // ════════════════════════════════════════════════════════════════════════════
 // DATABASE PROVIDER
@@ -39,9 +46,31 @@ final allGoalsProvider = StreamProvider<List<Goal>>((ref) {
   return db.watchAllGoals();
 });
 
-final allDependenciesProvider = FutureProvider<List<GoalDependency>>((ref) {
+final allDependenciesProvider = StreamProvider<List<GoalDependency>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.getAllDependencies();
+  return db.watchAllDependencies();
+});
+
+
+/// Provides the set of goal IDs that are currently blocked by incomplete dependencies.
+/// Used by UI layers to filter tasks and show locked state.
+final blockedGoalIdsProvider = FutureProvider<Set<String>>((ref) async {
+  final goals = await ref.watch(allGoalsProvider.future);
+  final deps  = await ref.watch(allDependenciesProvider.future);
+  final goalMap  = {for (final g in goals) g.id: g};
+  final depGraph = <String, List<String>>{};
+  for (final d in deps) {
+    depGraph[d.goalId] ??= [];
+    depGraph[d.goalId]!.add(d.dependsOnId);
+  }
+  final blocked = <String>{};
+  for (final g in goals) {
+    final myDeps = depGraph[g.id] ?? [];
+    if (myDeps.any((id) => goalMap[id]?.status != 'completed')) {
+      blocked.add(g.id);
+    }
+  }
+  return blocked;
 });
 
 /// Full graph model with progress, status, and dependency info
@@ -168,25 +197,31 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
 // TASKS
 // ════════════════════════════════════════════════════════════════════════════
 
-final allTasksProvider = FutureProvider<List<Task>>((ref) {
+final allTasksProvider = StreamProvider<List<Task>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.getAllTasks();
+  return db.watchAllTasks();
 });
 
-final todayCompletionsProvider = FutureProvider<List<TaskCompletion>>((ref) {
+final todayCompletionsProvider = StreamProvider<List<TaskCompletion>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.getTodayCompletions();
+  return db.watchTodayCompletions();
 });
 
-final missedCompletionsProvider = FutureProvider<List<TaskCompletion>>((ref) {
+final missedCompletionsProvider = StreamProvider<List<TaskCompletion>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.getMissedCompletions();
+  return db.watchMissedCompletions();
 });
 
-final completedCompletionsProvider = FutureProvider<List<TaskCompletion>>((ref) {
+final completedCompletionsProvider = StreamProvider<List<TaskCompletion>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.getCompletedCompletions();
+  return db.watchCompletedCompletions();
 });
+
+final pastCompletionsProvider = StreamProvider.family<List<TaskCompletion>, int>((ref, days) {
+  final db = ref.watch(databaseProvider);
+  return db.watchPastCompletions(days);
+});
+
 
 // ════════════════════════════════════════════════════════════════════════════
 // NAVIGATION STATE
@@ -199,10 +234,11 @@ final pageIndexProvider = StateProvider<int>((ref) => 0);
 // ════════════════════════════════════════════════════════════════════════════
 
 class GoalNotifier extends StateNotifier<AsyncValue<void>> {
-  GoalNotifier(this.db, this.ref) : super(const AsyncData(null));
+  GoalNotifier(this.db, this.ref, this.sched) : super(const AsyncData(null));
 
   final AppDatabase db;
   final Ref ref;
+  final SchedulingService sched;
 
   Future<void> createGoal({
     required String id,
@@ -216,7 +252,11 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
   }) async {
     state = const AsyncLoading();
     try {
+      final now      = DateTime.now().millisecondsSinceEpoch;
       final colorIdx = (await db.getGoalCount()) % 8;
+      // Goals with dependencies start with null startDate (stamped on unlock).
+      // Goals without dependencies start immediately from now.
+      final startDate = dependsOn.isEmpty ? Value<int?>(now) : const Value<int?>(null);
       await db.insertGoal(GoalsCompanion.insert(
         id: id,
         parentId: Value(parentId),
@@ -226,7 +266,8 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
         deadline: deadline.millisecondsSinceEpoch,
         weight: Value(weight),
         colorIndex: Value(colorIdx),
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: now,
+        startDate: startDate,
       ));
       for (final dep in dependsOn) {
         await db.insertDependency(GoalDependenciesCompanion.insert(
@@ -236,6 +277,7 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
       }
       ref.invalidate(allGoalsProvider);
       ref.invalidate(goalGraphProvider);
+      ref.invalidate(blockedGoalIdsProvider);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -251,8 +293,17 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
         status: const Value('completed'),
         completedAt: Value(now),
       ));
+
+      // Unlock any goals that were blocked waiting for this one to complete,
+      // and generate their task completion records now.
+      await sched.refreshBlockedTasks();
+
       ref.invalidate(allGoalsProvider);
       ref.invalidate(goalGraphProvider);
+      ref.invalidate(blockedGoalIdsProvider);
+      ref.invalidate(allTasksProvider);
+      ref.invalidate(todayCompletionsProvider);
+      ref.invalidate(missedCompletionsProvider);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -265,6 +316,7 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
       await db.deleteGoal(goalId);
       ref.invalidate(allGoalsProvider);
       ref.invalidate(goalGraphProvider);
+      ref.invalidate(blockedGoalIdsProvider);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -274,8 +326,9 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
 
 final goalNotifierProvider =
     StateNotifierProvider<GoalNotifier, AsyncValue<void>>((ref) {
-  final db = ref.watch(databaseProvider);
-  return GoalNotifier(db, ref);
+  final db   = ref.watch(databaseProvider);
+  final sched = ref.watch(schedulingServiceProvider);
+  return GoalNotifier(db, ref, sched);
 });
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -341,6 +394,9 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
   }) async {
     try {
       await db.completeTask(taskId: taskId, scheduledDate: scheduledDate);
+      await db.invalidateCache(scheduledDate);
+      await ProductivityService.ensureScore(db, scheduledDate);
+
       ref.invalidate(todayCompletionsProvider);
       ref.invalidate(missedCompletionsProvider);
       ref.invalidate(goalGraphProvider);
@@ -355,12 +411,16 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
   }) async {
     try {
       await db.uncompleteTask(taskId: taskId, scheduledDate: scheduledDate);
+      await db.invalidateCache(scheduledDate);
+      await ProductivityService.ensureScore(db, scheduledDate);
+
       ref.invalidate(todayCompletionsProvider);
       ref.invalidate(goalGraphProvider);
     } catch (e, st) {
       state = AsyncError(e, st);
     }
   }
+
 
   Future<void> deleteTask(String taskId) async {
     try {
@@ -430,8 +490,21 @@ class YamlImportNotifier extends StateNotifier<AsyncValue<YamlImportResult?>> {
 
       int colorIdx = await db.getGoalCount();
       for (final gd in goalsToImport) {
-        final deadline =
-            DateTime.parse(gd.deadline).millisecondsSinceEpoch;
+        final deadline = DateTime.parse(gd.deadline).millisecondsSinceEpoch;
+
+        // Determine startDate:
+        //   • Has dependencies → null (will be set when dependency completes)
+        //   • YAML provides start_date → use that
+        //   • Otherwise → now (goal starts immediately on import)
+        int? startDateMs;
+        if (gd.dependsOn.isNotEmpty) {
+          startDateMs = null; // blocked until dependency completes
+        } else if (gd.startDate != null) {
+          startDateMs = gd.startDate!.millisecondsSinceEpoch;
+        } else {
+          startDateMs = now;
+        }
+
         goalCompanions.add(GoalsCompanion.insert(
           id: gd.id,
           parentId: Value(gd.parent),
@@ -442,6 +515,7 @@ class YamlImportNotifier extends StateNotifier<AsyncValue<YamlImportResult?>> {
           weight: Value(gd.weight),
           colorIndex: Value((colorIdx++) % 8),
           createdAt: now,
+          startDate: Value(startDateMs),
         ));
         for (final dep in gd.dependsOn) {
           depCompanions.add(GoalDependenciesCompanion.insert(
@@ -463,10 +537,37 @@ class YamlImportNotifier extends StateNotifier<AsyncValue<YamlImportResult?>> {
         }
       }
 
+      final activityCompanions = <ActivityLogsCompanion>[];
+      for (final a in result.activityLogs) {
+        activityCompanions.add(ActivityLogsCompanion.insert(
+          date: a.date,
+          category: a.category,
+          name: a.name,
+          startTime: a.startTime,
+          endTime: a.endTime,
+          notes: Value(a.notes),
+          isAuto: Value(a.isAuto ? 1 : 0),
+          createdAt: a.createdAt,
+        ));
+      }
+
+      final sleepCompanions = <SleepLogsCompanion>[];
+      for (final s in result.sleepLogs) {
+        sleepCompanions.add(SleepLogsCompanion.insert(
+          date: s.date,
+          sleepTime: s.sleepTime,
+          wakeTime: s.wakeTime,
+          qualityNote: Value(s.qualityNote),
+          createdAt: s.createdAt,
+        ));
+      }
+
       await db.importBatch(
         newGoals: goalCompanions,
         newDeps: depCompanions,
         newTasks: taskCompanions,
+        newActivities: activityCompanions,
+        newSleeps: sleepCompanions,
       );
 
       await sched.generateCompletionWindow();

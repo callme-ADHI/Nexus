@@ -30,6 +30,9 @@ jobs:
           flutter pub get
           cd ios && pod install
 
+      - name: Generate database code
+        run: flutter pub run build_runner build
+
       - name: Build iOS (.app)
         run: flutter build ios --release --no-codesign
 

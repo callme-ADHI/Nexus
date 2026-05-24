@@ -78,6 +78,12 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _startDateMeta =
+      const VerificationMeta('startDate');
+  @override
+  late final GeneratedColumn<int> startDate = GeneratedColumn<int>(
+      'start_date', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -90,7 +96,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         status,
         createdAt,
         completedAt,
-        colorIndex
+        colorIndex,
+        startDate
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -159,6 +166,10 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           colorIndex.isAcceptableOrUnknown(
               data['color_index']!, _colorIndexMeta));
     }
+    if (data.containsKey('start_date')) {
+      context.handle(_startDateMeta,
+          startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta));
+    }
     return context;
   }
 
@@ -190,6 +201,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           .read(DriftSqlType.int, data['${effectivePrefix}completed_at']),
       colorIndex: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}color_index'])!,
+      startDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}start_date']),
     );
   }
 
@@ -211,6 +224,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   final int createdAt;
   final int? completedAt;
   final int colorIndex;
+  final int? startDate;
   const Goal(
       {required this.id,
       this.parentId,
@@ -222,7 +236,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       required this.status,
       required this.createdAt,
       this.completedAt,
-      required this.colorIndex});
+      required this.colorIndex,
+      this.startDate});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -243,6 +258,9 @@ class Goal extends DataClass implements Insertable<Goal> {
       map['completed_at'] = Variable<int>(completedAt);
     }
     map['color_index'] = Variable<int>(colorIndex);
+    if (!nullToAbsent || startDate != null) {
+      map['start_date'] = Variable<int>(startDate);
+    }
     return map;
   }
 
@@ -263,6 +281,9 @@ class Goal extends DataClass implements Insertable<Goal> {
           ? const Value.absent()
           : Value(completedAt),
       colorIndex: Value(colorIndex),
+      startDate: startDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startDate),
     );
   }
 
@@ -281,6 +302,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       createdAt: serializer.fromJson<int>(json['createdAt']),
       completedAt: serializer.fromJson<int?>(json['completedAt']),
       colorIndex: serializer.fromJson<int>(json['colorIndex']),
+      startDate: serializer.fromJson<int?>(json['startDate']),
     );
   }
   @override
@@ -298,6 +320,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       'createdAt': serializer.toJson<int>(createdAt),
       'completedAt': serializer.toJson<int?>(completedAt),
       'colorIndex': serializer.toJson<int>(colorIndex),
+      'startDate': serializer.toJson<int?>(startDate),
     };
   }
 
@@ -312,7 +335,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           String? status,
           int? createdAt,
           Value<int?> completedAt = const Value.absent(),
-          int? colorIndex}) =>
+          int? colorIndex,
+          Value<int?> startDate = const Value.absent()}) =>
       Goal(
         id: id ?? this.id,
         parentId: parentId.present ? parentId.value : this.parentId,
@@ -325,6 +349,7 @@ class Goal extends DataClass implements Insertable<Goal> {
         createdAt: createdAt ?? this.createdAt,
         completedAt: completedAt.present ? completedAt.value : this.completedAt,
         colorIndex: colorIndex ?? this.colorIndex,
+        startDate: startDate.present ? startDate.value : this.startDate,
       );
   Goal copyWithCompanion(GoalsCompanion data) {
     return Goal(
@@ -341,6 +366,7 @@ class Goal extends DataClass implements Insertable<Goal> {
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       colorIndex:
           data.colorIndex.present ? data.colorIndex.value : this.colorIndex,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
     );
   }
 
@@ -357,14 +383,15 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('status: $status, ')
           ..write('createdAt: $createdAt, ')
           ..write('completedAt: $completedAt, ')
-          ..write('colorIndex: $colorIndex')
+          ..write('colorIndex: $colorIndex, ')
+          ..write('startDate: $startDate')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, parentId, name, aim, timeframe, deadline,
-      weight, status, createdAt, completedAt, colorIndex);
+      weight, status, createdAt, completedAt, colorIndex, startDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -379,7 +406,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.status == this.status &&
           other.createdAt == this.createdAt &&
           other.completedAt == this.completedAt &&
-          other.colorIndex == this.colorIndex);
+          other.colorIndex == this.colorIndex &&
+          other.startDate == this.startDate);
 }
 
 class GoalsCompanion extends UpdateCompanion<Goal> {
@@ -394,6 +422,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<int> createdAt;
   final Value<int?> completedAt;
   final Value<int> colorIndex;
+  final Value<int?> startDate;
   final Value<int> rowid;
   const GoalsCompanion({
     this.id = const Value.absent(),
@@ -407,6 +436,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.createdAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.colorIndex = const Value.absent(),
+    this.startDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   GoalsCompanion.insert({
@@ -421,6 +451,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     required int createdAt,
     this.completedAt = const Value.absent(),
     this.colorIndex = const Value.absent(),
+    this.startDate = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -439,6 +470,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<int>? createdAt,
     Expression<int>? completedAt,
     Expression<int>? colorIndex,
+    Expression<int>? startDate,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -453,6 +485,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (createdAt != null) 'created_at': createdAt,
       if (completedAt != null) 'completed_at': completedAt,
       if (colorIndex != null) 'color_index': colorIndex,
+      if (startDate != null) 'start_date': startDate,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -469,6 +502,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       Value<int>? createdAt,
       Value<int?>? completedAt,
       Value<int>? colorIndex,
+      Value<int?>? startDate,
       Value<int>? rowid}) {
     return GoalsCompanion(
       id: id ?? this.id,
@@ -482,6 +516,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
       colorIndex: colorIndex ?? this.colorIndex,
+      startDate: startDate ?? this.startDate,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -522,6 +557,9 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (colorIndex.present) {
       map['color_index'] = Variable<int>(colorIndex.value);
     }
+    if (startDate.present) {
+      map['start_date'] = Variable<int>(startDate.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -542,6 +580,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('createdAt: $createdAt, ')
           ..write('completedAt: $completedAt, ')
           ..write('colorIndex: $colorIndex, ')
+          ..write('startDate: $startDate, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1572,6 +1611,30 @@ class $UserProfilesTable extends UserProfiles
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _defaultWakeTimeMeta =
+      const VerificationMeta('defaultWakeTime');
+  @override
+  late final GeneratedColumn<String> defaultWakeTime = GeneratedColumn<String>(
+      'default_wake_time', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('07:00'));
+  static const VerificationMeta _defaultSleepTimeMeta =
+      const VerificationMeta('defaultSleepTime');
+  @override
+  late final GeneratedColumn<String> defaultSleepTime = GeneratedColumn<String>(
+      'default_sleep_time', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('22:30'));
+  static const VerificationMeta _autoLogTasksMeta =
+      const VerificationMeta('autoLogTasks');
+  @override
+  late final GeneratedColumn<int> autoLogTasks = GeneratedColumn<int>(
+      'auto_log_tasks', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1582,7 +1645,10 @@ class $UserProfilesTable extends UserProfiles
         reducedMotion,
         hapticsEnabled,
         notifsEnabled,
-        onboardingDone
+        onboardingDone,
+        defaultWakeTime,
+        defaultSleepTime,
+        autoLogTasks
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1645,6 +1711,24 @@ class $UserProfilesTable extends UserProfiles
           onboardingDone.isAcceptableOrUnknown(
               data['onboarding_done']!, _onboardingDoneMeta));
     }
+    if (data.containsKey('default_wake_time')) {
+      context.handle(
+          _defaultWakeTimeMeta,
+          defaultWakeTime.isAcceptableOrUnknown(
+              data['default_wake_time']!, _defaultWakeTimeMeta));
+    }
+    if (data.containsKey('default_sleep_time')) {
+      context.handle(
+          _defaultSleepTimeMeta,
+          defaultSleepTime.isAcceptableOrUnknown(
+              data['default_sleep_time']!, _defaultSleepTimeMeta));
+    }
+    if (data.containsKey('auto_log_tasks')) {
+      context.handle(
+          _autoLogTasksMeta,
+          autoLogTasks.isAcceptableOrUnknown(
+              data['auto_log_tasks']!, _autoLogTasksMeta));
+    }
     return context;
   }
 
@@ -1672,6 +1756,12 @@ class $UserProfilesTable extends UserProfiles
           .read(DriftSqlType.int, data['${effectivePrefix}notifs_enabled'])!,
       onboardingDone: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}onboarding_done'])!,
+      defaultWakeTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}default_wake_time'])!,
+      defaultSleepTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}default_sleep_time'])!,
+      autoLogTasks: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}auto_log_tasks'])!,
     );
   }
 
@@ -1691,6 +1781,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
   final int hapticsEnabled;
   final int notifsEnabled;
   final int onboardingDone;
+  final String defaultWakeTime;
+  final String defaultSleepTime;
+  final int autoLogTasks;
   const UserProfile(
       {required this.id,
       required this.displayName,
@@ -1700,7 +1793,10 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       required this.reducedMotion,
       required this.hapticsEnabled,
       required this.notifsEnabled,
-      required this.onboardingDone});
+      required this.onboardingDone,
+      required this.defaultWakeTime,
+      required this.defaultSleepTime,
+      required this.autoLogTasks});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1713,6 +1809,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     map['haptics_enabled'] = Variable<int>(hapticsEnabled);
     map['notifs_enabled'] = Variable<int>(notifsEnabled);
     map['onboarding_done'] = Variable<int>(onboardingDone);
+    map['default_wake_time'] = Variable<String>(defaultWakeTime);
+    map['default_sleep_time'] = Variable<String>(defaultSleepTime);
+    map['auto_log_tasks'] = Variable<int>(autoLogTasks);
     return map;
   }
 
@@ -1727,6 +1826,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       hapticsEnabled: Value(hapticsEnabled),
       notifsEnabled: Value(notifsEnabled),
       onboardingDone: Value(onboardingDone),
+      defaultWakeTime: Value(defaultWakeTime),
+      defaultSleepTime: Value(defaultSleepTime),
+      autoLogTasks: Value(autoLogTasks),
     );
   }
 
@@ -1743,6 +1845,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       hapticsEnabled: serializer.fromJson<int>(json['hapticsEnabled']),
       notifsEnabled: serializer.fromJson<int>(json['notifsEnabled']),
       onboardingDone: serializer.fromJson<int>(json['onboardingDone']),
+      defaultWakeTime: serializer.fromJson<String>(json['defaultWakeTime']),
+      defaultSleepTime: serializer.fromJson<String>(json['defaultSleepTime']),
+      autoLogTasks: serializer.fromJson<int>(json['autoLogTasks']),
     );
   }
   @override
@@ -1758,6 +1863,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       'hapticsEnabled': serializer.toJson<int>(hapticsEnabled),
       'notifsEnabled': serializer.toJson<int>(notifsEnabled),
       'onboardingDone': serializer.toJson<int>(onboardingDone),
+      'defaultWakeTime': serializer.toJson<String>(defaultWakeTime),
+      'defaultSleepTime': serializer.toJson<String>(defaultSleepTime),
+      'autoLogTasks': serializer.toJson<int>(autoLogTasks),
     };
   }
 
@@ -1770,7 +1878,10 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           int? reducedMotion,
           int? hapticsEnabled,
           int? notifsEnabled,
-          int? onboardingDone}) =>
+          int? onboardingDone,
+          String? defaultWakeTime,
+          String? defaultSleepTime,
+          int? autoLogTasks}) =>
       UserProfile(
         id: id ?? this.id,
         displayName: displayName ?? this.displayName,
@@ -1781,6 +1892,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
         hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
         notifsEnabled: notifsEnabled ?? this.notifsEnabled,
         onboardingDone: onboardingDone ?? this.onboardingDone,
+        defaultWakeTime: defaultWakeTime ?? this.defaultWakeTime,
+        defaultSleepTime: defaultSleepTime ?? this.defaultSleepTime,
+        autoLogTasks: autoLogTasks ?? this.autoLogTasks,
       );
   UserProfile copyWithCompanion(UserProfilesCompanion data) {
     return UserProfile(
@@ -1804,6 +1918,15 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       onboardingDone: data.onboardingDone.present
           ? data.onboardingDone.value
           : this.onboardingDone,
+      defaultWakeTime: data.defaultWakeTime.present
+          ? data.defaultWakeTime.value
+          : this.defaultWakeTime,
+      defaultSleepTime: data.defaultSleepTime.present
+          ? data.defaultSleepTime.value
+          : this.defaultSleepTime,
+      autoLogTasks: data.autoLogTasks.present
+          ? data.autoLogTasks.value
+          : this.autoLogTasks,
     );
   }
 
@@ -1818,7 +1941,10 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           ..write('reducedMotion: $reducedMotion, ')
           ..write('hapticsEnabled: $hapticsEnabled, ')
           ..write('notifsEnabled: $notifsEnabled, ')
-          ..write('onboardingDone: $onboardingDone')
+          ..write('onboardingDone: $onboardingDone, ')
+          ..write('defaultWakeTime: $defaultWakeTime, ')
+          ..write('defaultSleepTime: $defaultSleepTime, ')
+          ..write('autoLogTasks: $autoLogTasks')
           ..write(')'))
         .toString();
   }
@@ -1833,7 +1959,10 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       reducedMotion,
       hapticsEnabled,
       notifsEnabled,
-      onboardingDone);
+      onboardingDone,
+      defaultWakeTime,
+      defaultSleepTime,
+      autoLogTasks);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1846,7 +1975,10 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           other.reducedMotion == this.reducedMotion &&
           other.hapticsEnabled == this.hapticsEnabled &&
           other.notifsEnabled == this.notifsEnabled &&
-          other.onboardingDone == this.onboardingDone);
+          other.onboardingDone == this.onboardingDone &&
+          other.defaultWakeTime == this.defaultWakeTime &&
+          other.defaultSleepTime == this.defaultSleepTime &&
+          other.autoLogTasks == this.autoLogTasks);
 }
 
 class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
@@ -1859,6 +1991,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
   final Value<int> hapticsEnabled;
   final Value<int> notifsEnabled;
   final Value<int> onboardingDone;
+  final Value<String> defaultWakeTime;
+  final Value<String> defaultSleepTime;
+  final Value<int> autoLogTasks;
   const UserProfilesCompanion({
     this.id = const Value.absent(),
     this.displayName = const Value.absent(),
@@ -1869,6 +2004,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.hapticsEnabled = const Value.absent(),
     this.notifsEnabled = const Value.absent(),
     this.onboardingDone = const Value.absent(),
+    this.defaultWakeTime = const Value.absent(),
+    this.defaultSleepTime = const Value.absent(),
+    this.autoLogTasks = const Value.absent(),
   });
   UserProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -1880,6 +2018,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.hapticsEnabled = const Value.absent(),
     this.notifsEnabled = const Value.absent(),
     this.onboardingDone = const Value.absent(),
+    this.defaultWakeTime = const Value.absent(),
+    this.defaultSleepTime = const Value.absent(),
+    this.autoLogTasks = const Value.absent(),
   }) : createdAt = Value(createdAt);
   static Insertable<UserProfile> custom({
     Expression<int>? id,
@@ -1891,6 +2032,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     Expression<int>? hapticsEnabled,
     Expression<int>? notifsEnabled,
     Expression<int>? onboardingDone,
+    Expression<String>? defaultWakeTime,
+    Expression<String>? defaultSleepTime,
+    Expression<int>? autoLogTasks,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1902,6 +2046,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       if (hapticsEnabled != null) 'haptics_enabled': hapticsEnabled,
       if (notifsEnabled != null) 'notifs_enabled': notifsEnabled,
       if (onboardingDone != null) 'onboarding_done': onboardingDone,
+      if (defaultWakeTime != null) 'default_wake_time': defaultWakeTime,
+      if (defaultSleepTime != null) 'default_sleep_time': defaultSleepTime,
+      if (autoLogTasks != null) 'auto_log_tasks': autoLogTasks,
     });
   }
 
@@ -1914,7 +2061,10 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       Value<int>? reducedMotion,
       Value<int>? hapticsEnabled,
       Value<int>? notifsEnabled,
-      Value<int>? onboardingDone}) {
+      Value<int>? onboardingDone,
+      Value<String>? defaultWakeTime,
+      Value<String>? defaultSleepTime,
+      Value<int>? autoLogTasks}) {
     return UserProfilesCompanion(
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
@@ -1925,6 +2075,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
       notifsEnabled: notifsEnabled ?? this.notifsEnabled,
       onboardingDone: onboardingDone ?? this.onboardingDone,
+      defaultWakeTime: defaultWakeTime ?? this.defaultWakeTime,
+      defaultSleepTime: defaultSleepTime ?? this.defaultSleepTime,
+      autoLogTasks: autoLogTasks ?? this.autoLogTasks,
     );
   }
 
@@ -1958,6 +2111,15 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     if (onboardingDone.present) {
       map['onboarding_done'] = Variable<int>(onboardingDone.value);
     }
+    if (defaultWakeTime.present) {
+      map['default_wake_time'] = Variable<String>(defaultWakeTime.value);
+    }
+    if (defaultSleepTime.present) {
+      map['default_sleep_time'] = Variable<String>(defaultSleepTime.value);
+    }
+    if (autoLogTasks.present) {
+      map['auto_log_tasks'] = Variable<int>(autoLogTasks.value);
+    }
     return map;
   }
 
@@ -1972,7 +2134,1176 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
           ..write('reducedMotion: $reducedMotion, ')
           ..write('hapticsEnabled: $hapticsEnabled, ')
           ..write('notifsEnabled: $notifsEnabled, ')
-          ..write('onboardingDone: $onboardingDone')
+          ..write('onboardingDone: $onboardingDone, ')
+          ..write('defaultWakeTime: $defaultWakeTime, ')
+          ..write('defaultSleepTime: $defaultSleepTime, ')
+          ..write('autoLogTasks: $autoLogTasks')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ActivityLogsTable extends ActivityLogs
+    with TableInfo<$ActivityLogsTable, ActivityLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ActivityLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<int> date = GeneratedColumn<int>(
+      'date', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
+  @override
+  late final GeneratedColumn<int> startTime = GeneratedColumn<int>(
+      'start_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _endTimeMeta =
+      const VerificationMeta('endTime');
+  @override
+  late final GeneratedColumn<int> endTime = GeneratedColumn<int>(
+      'end_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isAutoMeta = const VerificationMeta('isAuto');
+  @override
+  late final GeneratedColumn<int> isAuto = GeneratedColumn<int>(
+      'is_auto', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, date, category, name, startTime, endTime, notes, isAuto, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'activity_logs';
+  @override
+  VerificationContext validateIntegrity(Insertable<ActivityLog> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(_endTimeMeta,
+          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('is_auto')) {
+      context.handle(_isAutoMeta,
+          isAuto.isAcceptableOrUnknown(data['is_auto']!, _isAutoMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ActivityLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ActivityLog(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}date'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}start_time'])!,
+      endTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}end_time'])!,
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      isAuto: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_auto'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $ActivityLogsTable createAlias(String alias) {
+    return $ActivityLogsTable(attachedDatabase, alias);
+  }
+}
+
+class ActivityLog extends DataClass implements Insertable<ActivityLog> {
+  final int id;
+  final int date;
+  final String category;
+  final String name;
+  final int startTime;
+  final int endTime;
+  final String? notes;
+  final int isAuto;
+  final int createdAt;
+  const ActivityLog(
+      {required this.id,
+      required this.date,
+      required this.category,
+      required this.name,
+      required this.startTime,
+      required this.endTime,
+      this.notes,
+      required this.isAuto,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['date'] = Variable<int>(date);
+    map['category'] = Variable<String>(category);
+    map['name'] = Variable<String>(name);
+    map['start_time'] = Variable<int>(startTime);
+    map['end_time'] = Variable<int>(endTime);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['is_auto'] = Variable<int>(isAuto);
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  ActivityLogsCompanion toCompanion(bool nullToAbsent) {
+    return ActivityLogsCompanion(
+      id: Value(id),
+      date: Value(date),
+      category: Value(category),
+      name: Value(name),
+      startTime: Value(startTime),
+      endTime: Value(endTime),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      isAuto: Value(isAuto),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory ActivityLog.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ActivityLog(
+      id: serializer.fromJson<int>(json['id']),
+      date: serializer.fromJson<int>(json['date']),
+      category: serializer.fromJson<String>(json['category']),
+      name: serializer.fromJson<String>(json['name']),
+      startTime: serializer.fromJson<int>(json['startTime']),
+      endTime: serializer.fromJson<int>(json['endTime']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      isAuto: serializer.fromJson<int>(json['isAuto']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'date': serializer.toJson<int>(date),
+      'category': serializer.toJson<String>(category),
+      'name': serializer.toJson<String>(name),
+      'startTime': serializer.toJson<int>(startTime),
+      'endTime': serializer.toJson<int>(endTime),
+      'notes': serializer.toJson<String?>(notes),
+      'isAuto': serializer.toJson<int>(isAuto),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  ActivityLog copyWith(
+          {int? id,
+          int? date,
+          String? category,
+          String? name,
+          int? startTime,
+          int? endTime,
+          Value<String?> notes = const Value.absent(),
+          int? isAuto,
+          int? createdAt}) =>
+      ActivityLog(
+        id: id ?? this.id,
+        date: date ?? this.date,
+        category: category ?? this.category,
+        name: name ?? this.name,
+        startTime: startTime ?? this.startTime,
+        endTime: endTime ?? this.endTime,
+        notes: notes.present ? notes.value : this.notes,
+        isAuto: isAuto ?? this.isAuto,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  ActivityLog copyWithCompanion(ActivityLogsCompanion data) {
+    return ActivityLog(
+      id: data.id.present ? data.id.value : this.id,
+      date: data.date.present ? data.date.value : this.date,
+      category: data.category.present ? data.category.value : this.category,
+      name: data.name.present ? data.name.value : this.name,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      isAuto: data.isAuto.present ? data.isAuto.value : this.isAuto,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityLog(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('category: $category, ')
+          ..write('name: $name, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('notes: $notes, ')
+          ..write('isAuto: $isAuto, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, date, category, name, startTime, endTime, notes, isAuto, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ActivityLog &&
+          other.id == this.id &&
+          other.date == this.date &&
+          other.category == this.category &&
+          other.name == this.name &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
+          other.notes == this.notes &&
+          other.isAuto == this.isAuto &&
+          other.createdAt == this.createdAt);
+}
+
+class ActivityLogsCompanion extends UpdateCompanion<ActivityLog> {
+  final Value<int> id;
+  final Value<int> date;
+  final Value<String> category;
+  final Value<String> name;
+  final Value<int> startTime;
+  final Value<int> endTime;
+  final Value<String?> notes;
+  final Value<int> isAuto;
+  final Value<int> createdAt;
+  const ActivityLogsCompanion({
+    this.id = const Value.absent(),
+    this.date = const Value.absent(),
+    this.category = const Value.absent(),
+    this.name = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.isAuto = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  ActivityLogsCompanion.insert({
+    this.id = const Value.absent(),
+    required int date,
+    required String category,
+    required String name,
+    required int startTime,
+    required int endTime,
+    this.notes = const Value.absent(),
+    this.isAuto = const Value.absent(),
+    required int createdAt,
+  })  : date = Value(date),
+        category = Value(category),
+        name = Value(name),
+        startTime = Value(startTime),
+        endTime = Value(endTime),
+        createdAt = Value(createdAt);
+  static Insertable<ActivityLog> custom({
+    Expression<int>? id,
+    Expression<int>? date,
+    Expression<String>? category,
+    Expression<String>? name,
+    Expression<int>? startTime,
+    Expression<int>? endTime,
+    Expression<String>? notes,
+    Expression<int>? isAuto,
+    Expression<int>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (date != null) 'date': date,
+      if (category != null) 'category': category,
+      if (name != null) 'name': name,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
+      if (notes != null) 'notes': notes,
+      if (isAuto != null) 'is_auto': isAuto,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  ActivityLogsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? date,
+      Value<String>? category,
+      Value<String>? name,
+      Value<int>? startTime,
+      Value<int>? endTime,
+      Value<String?>? notes,
+      Value<int>? isAuto,
+      Value<int>? createdAt}) {
+    return ActivityLogsCompanion(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      category: category ?? this.category,
+      name: name ?? this.name,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      notes: notes ?? this.notes,
+      isAuto: isAuto ?? this.isAuto,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<int>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<int>(endTime.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (isAuto.present) {
+      map['is_auto'] = Variable<int>(isAuto.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('category: $category, ')
+          ..write('name: $name, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('notes: $notes, ')
+          ..write('isAuto: $isAuto, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SleepLogsTable extends SleepLogs
+    with TableInfo<$SleepLogsTable, SleepLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SleepLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<int> date = GeneratedColumn<int>(
+      'date', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sleepTimeMeta =
+      const VerificationMeta('sleepTime');
+  @override
+  late final GeneratedColumn<int> sleepTime = GeneratedColumn<int>(
+      'sleep_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _wakeTimeMeta =
+      const VerificationMeta('wakeTime');
+  @override
+  late final GeneratedColumn<int> wakeTime = GeneratedColumn<int>(
+      'wake_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _qualityNoteMeta =
+      const VerificationMeta('qualityNote');
+  @override
+  late final GeneratedColumn<String> qualityNote = GeneratedColumn<String>(
+      'quality_note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, date, sleepTime, wakeTime, qualityNote, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sleep_logs';
+  @override
+  VerificationContext validateIntegrity(Insertable<SleepLog> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('sleep_time')) {
+      context.handle(_sleepTimeMeta,
+          sleepTime.isAcceptableOrUnknown(data['sleep_time']!, _sleepTimeMeta));
+    } else if (isInserting) {
+      context.missing(_sleepTimeMeta);
+    }
+    if (data.containsKey('wake_time')) {
+      context.handle(_wakeTimeMeta,
+          wakeTime.isAcceptableOrUnknown(data['wake_time']!, _wakeTimeMeta));
+    } else if (isInserting) {
+      context.missing(_wakeTimeMeta);
+    }
+    if (data.containsKey('quality_note')) {
+      context.handle(
+          _qualityNoteMeta,
+          qualityNote.isAcceptableOrUnknown(
+              data['quality_note']!, _qualityNoteMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SleepLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SleepLog(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}date'])!,
+      sleepTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sleep_time'])!,
+      wakeTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}wake_time'])!,
+      qualityNote: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}quality_note']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $SleepLogsTable createAlias(String alias) {
+    return $SleepLogsTable(attachedDatabase, alias);
+  }
+}
+
+class SleepLog extends DataClass implements Insertable<SleepLog> {
+  final int id;
+  final int date;
+  final int sleepTime;
+  final int wakeTime;
+  final String? qualityNote;
+  final int createdAt;
+  const SleepLog(
+      {required this.id,
+      required this.date,
+      required this.sleepTime,
+      required this.wakeTime,
+      this.qualityNote,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['date'] = Variable<int>(date);
+    map['sleep_time'] = Variable<int>(sleepTime);
+    map['wake_time'] = Variable<int>(wakeTime);
+    if (!nullToAbsent || qualityNote != null) {
+      map['quality_note'] = Variable<String>(qualityNote);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  SleepLogsCompanion toCompanion(bool nullToAbsent) {
+    return SleepLogsCompanion(
+      id: Value(id),
+      date: Value(date),
+      sleepTime: Value(sleepTime),
+      wakeTime: Value(wakeTime),
+      qualityNote: qualityNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(qualityNote),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SleepLog.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SleepLog(
+      id: serializer.fromJson<int>(json['id']),
+      date: serializer.fromJson<int>(json['date']),
+      sleepTime: serializer.fromJson<int>(json['sleepTime']),
+      wakeTime: serializer.fromJson<int>(json['wakeTime']),
+      qualityNote: serializer.fromJson<String?>(json['qualityNote']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'date': serializer.toJson<int>(date),
+      'sleepTime': serializer.toJson<int>(sleepTime),
+      'wakeTime': serializer.toJson<int>(wakeTime),
+      'qualityNote': serializer.toJson<String?>(qualityNote),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  SleepLog copyWith(
+          {int? id,
+          int? date,
+          int? sleepTime,
+          int? wakeTime,
+          Value<String?> qualityNote = const Value.absent(),
+          int? createdAt}) =>
+      SleepLog(
+        id: id ?? this.id,
+        date: date ?? this.date,
+        sleepTime: sleepTime ?? this.sleepTime,
+        wakeTime: wakeTime ?? this.wakeTime,
+        qualityNote: qualityNote.present ? qualityNote.value : this.qualityNote,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  SleepLog copyWithCompanion(SleepLogsCompanion data) {
+    return SleepLog(
+      id: data.id.present ? data.id.value : this.id,
+      date: data.date.present ? data.date.value : this.date,
+      sleepTime: data.sleepTime.present ? data.sleepTime.value : this.sleepTime,
+      wakeTime: data.wakeTime.present ? data.wakeTime.value : this.wakeTime,
+      qualityNote:
+          data.qualityNote.present ? data.qualityNote.value : this.qualityNote,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SleepLog(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('sleepTime: $sleepTime, ')
+          ..write('wakeTime: $wakeTime, ')
+          ..write('qualityNote: $qualityNote, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, date, sleepTime, wakeTime, qualityNote, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SleepLog &&
+          other.id == this.id &&
+          other.date == this.date &&
+          other.sleepTime == this.sleepTime &&
+          other.wakeTime == this.wakeTime &&
+          other.qualityNote == this.qualityNote &&
+          other.createdAt == this.createdAt);
+}
+
+class SleepLogsCompanion extends UpdateCompanion<SleepLog> {
+  final Value<int> id;
+  final Value<int> date;
+  final Value<int> sleepTime;
+  final Value<int> wakeTime;
+  final Value<String?> qualityNote;
+  final Value<int> createdAt;
+  const SleepLogsCompanion({
+    this.id = const Value.absent(),
+    this.date = const Value.absent(),
+    this.sleepTime = const Value.absent(),
+    this.wakeTime = const Value.absent(),
+    this.qualityNote = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  SleepLogsCompanion.insert({
+    this.id = const Value.absent(),
+    required int date,
+    required int sleepTime,
+    required int wakeTime,
+    this.qualityNote = const Value.absent(),
+    required int createdAt,
+  })  : date = Value(date),
+        sleepTime = Value(sleepTime),
+        wakeTime = Value(wakeTime),
+        createdAt = Value(createdAt);
+  static Insertable<SleepLog> custom({
+    Expression<int>? id,
+    Expression<int>? date,
+    Expression<int>? sleepTime,
+    Expression<int>? wakeTime,
+    Expression<String>? qualityNote,
+    Expression<int>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (date != null) 'date': date,
+      if (sleepTime != null) 'sleep_time': sleepTime,
+      if (wakeTime != null) 'wake_time': wakeTime,
+      if (qualityNote != null) 'quality_note': qualityNote,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  SleepLogsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? date,
+      Value<int>? sleepTime,
+      Value<int>? wakeTime,
+      Value<String?>? qualityNote,
+      Value<int>? createdAt}) {
+    return SleepLogsCompanion(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      sleepTime: sleepTime ?? this.sleepTime,
+      wakeTime: wakeTime ?? this.wakeTime,
+      qualityNote: qualityNote ?? this.qualityNote,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
+    }
+    if (sleepTime.present) {
+      map['sleep_time'] = Variable<int>(sleepTime.value);
+    }
+    if (wakeTime.present) {
+      map['wake_time'] = Variable<int>(wakeTime.value);
+    }
+    if (qualityNote.present) {
+      map['quality_note'] = Variable<String>(qualityNote.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SleepLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('sleepTime: $sleepTime, ')
+          ..write('wakeTime: $wakeTime, ')
+          ..write('qualityNote: $qualityNote, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ProductivityCachesTable extends ProductivityCaches
+    with TableInfo<$ProductivityCachesTable, ProductivityCache> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductivityCachesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<int> date = GeneratedColumn<int>(
+      'date', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<double> score = GeneratedColumn<double>(
+      'score', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _coveragePctMeta =
+      const VerificationMeta('coveragePct');
+  @override
+  late final GeneratedColumn<double> coveragePct = GeneratedColumn<double>(
+      'coverage_pct', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _sleepHoursMeta =
+      const VerificationMeta('sleepHours');
+  @override
+  late final GeneratedColumn<double> sleepHours = GeneratedColumn<double>(
+      'sleep_hours', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _topCategoryMeta =
+      const VerificationMeta('topCategory');
+  @override
+  late final GeneratedColumn<String> topCategory = GeneratedColumn<String>(
+      'top_category', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+      'label', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _invalidatedMeta =
+      const VerificationMeta('invalidated');
+  @override
+  late final GeneratedColumn<int> invalidated = GeneratedColumn<int>(
+      'invalidated', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [date, score, coveragePct, sleepHours, topCategory, label, invalidated];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'productivity_caches';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProductivityCache> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+          _scoreMeta, score.isAcceptableOrUnknown(data['score']!, _scoreMeta));
+    } else if (isInserting) {
+      context.missing(_scoreMeta);
+    }
+    if (data.containsKey('coverage_pct')) {
+      context.handle(
+          _coveragePctMeta,
+          coveragePct.isAcceptableOrUnknown(
+              data['coverage_pct']!, _coveragePctMeta));
+    } else if (isInserting) {
+      context.missing(_coveragePctMeta);
+    }
+    if (data.containsKey('sleep_hours')) {
+      context.handle(
+          _sleepHoursMeta,
+          sleepHours.isAcceptableOrUnknown(
+              data['sleep_hours']!, _sleepHoursMeta));
+    }
+    if (data.containsKey('top_category')) {
+      context.handle(
+          _topCategoryMeta,
+          topCategory.isAcceptableOrUnknown(
+              data['top_category']!, _topCategoryMeta));
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+          _labelMeta, label.isAcceptableOrUnknown(data['label']!, _labelMeta));
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('invalidated')) {
+      context.handle(
+          _invalidatedMeta,
+          invalidated.isAcceptableOrUnknown(
+              data['invalidated']!, _invalidatedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {date};
+  @override
+  ProductivityCache map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProductivityCache(
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}date'])!,
+      score: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}score'])!,
+      coveragePct: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}coverage_pct'])!,
+      sleepHours: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}sleep_hours']),
+      topCategory: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}top_category']),
+      label: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
+      invalidated: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}invalidated'])!,
+    );
+  }
+
+  @override
+  $ProductivityCachesTable createAlias(String alias) {
+    return $ProductivityCachesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductivityCache extends DataClass
+    implements Insertable<ProductivityCache> {
+  final int date;
+  final double score;
+  final double coveragePct;
+  final double? sleepHours;
+  final String? topCategory;
+  final String label;
+  final int invalidated;
+  const ProductivityCache(
+      {required this.date,
+      required this.score,
+      required this.coveragePct,
+      this.sleepHours,
+      this.topCategory,
+      required this.label,
+      required this.invalidated});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date'] = Variable<int>(date);
+    map['score'] = Variable<double>(score);
+    map['coverage_pct'] = Variable<double>(coveragePct);
+    if (!nullToAbsent || sleepHours != null) {
+      map['sleep_hours'] = Variable<double>(sleepHours);
+    }
+    if (!nullToAbsent || topCategory != null) {
+      map['top_category'] = Variable<String>(topCategory);
+    }
+    map['label'] = Variable<String>(label);
+    map['invalidated'] = Variable<int>(invalidated);
+    return map;
+  }
+
+  ProductivityCachesCompanion toCompanion(bool nullToAbsent) {
+    return ProductivityCachesCompanion(
+      date: Value(date),
+      score: Value(score),
+      coveragePct: Value(coveragePct),
+      sleepHours: sleepHours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sleepHours),
+      topCategory: topCategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(topCategory),
+      label: Value(label),
+      invalidated: Value(invalidated),
+    );
+  }
+
+  factory ProductivityCache.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductivityCache(
+      date: serializer.fromJson<int>(json['date']),
+      score: serializer.fromJson<double>(json['score']),
+      coveragePct: serializer.fromJson<double>(json['coveragePct']),
+      sleepHours: serializer.fromJson<double?>(json['sleepHours']),
+      topCategory: serializer.fromJson<String?>(json['topCategory']),
+      label: serializer.fromJson<String>(json['label']),
+      invalidated: serializer.fromJson<int>(json['invalidated']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'date': serializer.toJson<int>(date),
+      'score': serializer.toJson<double>(score),
+      'coveragePct': serializer.toJson<double>(coveragePct),
+      'sleepHours': serializer.toJson<double?>(sleepHours),
+      'topCategory': serializer.toJson<String?>(topCategory),
+      'label': serializer.toJson<String>(label),
+      'invalidated': serializer.toJson<int>(invalidated),
+    };
+  }
+
+  ProductivityCache copyWith(
+          {int? date,
+          double? score,
+          double? coveragePct,
+          Value<double?> sleepHours = const Value.absent(),
+          Value<String?> topCategory = const Value.absent(),
+          String? label,
+          int? invalidated}) =>
+      ProductivityCache(
+        date: date ?? this.date,
+        score: score ?? this.score,
+        coveragePct: coveragePct ?? this.coveragePct,
+        sleepHours: sleepHours.present ? sleepHours.value : this.sleepHours,
+        topCategory: topCategory.present ? topCategory.value : this.topCategory,
+        label: label ?? this.label,
+        invalidated: invalidated ?? this.invalidated,
+      );
+  ProductivityCache copyWithCompanion(ProductivityCachesCompanion data) {
+    return ProductivityCache(
+      date: data.date.present ? data.date.value : this.date,
+      score: data.score.present ? data.score.value : this.score,
+      coveragePct:
+          data.coveragePct.present ? data.coveragePct.value : this.coveragePct,
+      sleepHours:
+          data.sleepHours.present ? data.sleepHours.value : this.sleepHours,
+      topCategory:
+          data.topCategory.present ? data.topCategory.value : this.topCategory,
+      label: data.label.present ? data.label.value : this.label,
+      invalidated:
+          data.invalidated.present ? data.invalidated.value : this.invalidated,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductivityCache(')
+          ..write('date: $date, ')
+          ..write('score: $score, ')
+          ..write('coveragePct: $coveragePct, ')
+          ..write('sleepHours: $sleepHours, ')
+          ..write('topCategory: $topCategory, ')
+          ..write('label: $label, ')
+          ..write('invalidated: $invalidated')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      date, score, coveragePct, sleepHours, topCategory, label, invalidated);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductivityCache &&
+          other.date == this.date &&
+          other.score == this.score &&
+          other.coveragePct == this.coveragePct &&
+          other.sleepHours == this.sleepHours &&
+          other.topCategory == this.topCategory &&
+          other.label == this.label &&
+          other.invalidated == this.invalidated);
+}
+
+class ProductivityCachesCompanion extends UpdateCompanion<ProductivityCache> {
+  final Value<int> date;
+  final Value<double> score;
+  final Value<double> coveragePct;
+  final Value<double?> sleepHours;
+  final Value<String?> topCategory;
+  final Value<String> label;
+  final Value<int> invalidated;
+  const ProductivityCachesCompanion({
+    this.date = const Value.absent(),
+    this.score = const Value.absent(),
+    this.coveragePct = const Value.absent(),
+    this.sleepHours = const Value.absent(),
+    this.topCategory = const Value.absent(),
+    this.label = const Value.absent(),
+    this.invalidated = const Value.absent(),
+  });
+  ProductivityCachesCompanion.insert({
+    this.date = const Value.absent(),
+    required double score,
+    required double coveragePct,
+    this.sleepHours = const Value.absent(),
+    this.topCategory = const Value.absent(),
+    required String label,
+    this.invalidated = const Value.absent(),
+  })  : score = Value(score),
+        coveragePct = Value(coveragePct),
+        label = Value(label);
+  static Insertable<ProductivityCache> custom({
+    Expression<int>? date,
+    Expression<double>? score,
+    Expression<double>? coveragePct,
+    Expression<double>? sleepHours,
+    Expression<String>? topCategory,
+    Expression<String>? label,
+    Expression<int>? invalidated,
+  }) {
+    return RawValuesInsertable({
+      if (date != null) 'date': date,
+      if (score != null) 'score': score,
+      if (coveragePct != null) 'coverage_pct': coveragePct,
+      if (sleepHours != null) 'sleep_hours': sleepHours,
+      if (topCategory != null) 'top_category': topCategory,
+      if (label != null) 'label': label,
+      if (invalidated != null) 'invalidated': invalidated,
+    });
+  }
+
+  ProductivityCachesCompanion copyWith(
+      {Value<int>? date,
+      Value<double>? score,
+      Value<double>? coveragePct,
+      Value<double?>? sleepHours,
+      Value<String?>? topCategory,
+      Value<String>? label,
+      Value<int>? invalidated}) {
+    return ProductivityCachesCompanion(
+      date: date ?? this.date,
+      score: score ?? this.score,
+      coveragePct: coveragePct ?? this.coveragePct,
+      sleepHours: sleepHours ?? this.sleepHours,
+      topCategory: topCategory ?? this.topCategory,
+      label: label ?? this.label,
+      invalidated: invalidated ?? this.invalidated,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (date.present) {
+      map['date'] = Variable<int>(date.value);
+    }
+    if (score.present) {
+      map['score'] = Variable<double>(score.value);
+    }
+    if (coveragePct.present) {
+      map['coverage_pct'] = Variable<double>(coveragePct.value);
+    }
+    if (sleepHours.present) {
+      map['sleep_hours'] = Variable<double>(sleepHours.value);
+    }
+    if (topCategory.present) {
+      map['top_category'] = Variable<String>(topCategory.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (invalidated.present) {
+      map['invalidated'] = Variable<int>(invalidated.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductivityCachesCompanion(')
+          ..write('date: $date, ')
+          ..write('score: $score, ')
+          ..write('coveragePct: $coveragePct, ')
+          ..write('sleepHours: $sleepHours, ')
+          ..write('topCategory: $topCategory, ')
+          ..write('label: $label, ')
+          ..write('invalidated: $invalidated')
           ..write(')'))
         .toString();
   }
@@ -1988,12 +3319,24 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TaskCompletionsTable taskCompletions =
       $TaskCompletionsTable(this);
   late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
+  late final $ActivityLogsTable activityLogs = $ActivityLogsTable(this);
+  late final $SleepLogsTable sleepLogs = $SleepLogsTable(this);
+  late final $ProductivityCachesTable productivityCaches =
+      $ProductivityCachesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [goals, goalDependencies, tasks, taskCompletions, userProfiles];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        goals,
+        goalDependencies,
+        tasks,
+        taskCompletions,
+        userProfiles,
+        activityLogs,
+        sleepLogs,
+        productivityCaches
+      ];
 }
 
 typedef $$GoalsTableCreateCompanionBuilder = GoalsCompanion Function({
@@ -2008,6 +3351,7 @@ typedef $$GoalsTableCreateCompanionBuilder = GoalsCompanion Function({
   required int createdAt,
   Value<int?> completedAt,
   Value<int> colorIndex,
+  Value<int?> startDate,
   Value<int> rowid,
 });
 typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
@@ -2022,6 +3366,7 @@ typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
   Value<int> createdAt,
   Value<int?> completedAt,
   Value<int> colorIndex,
+  Value<int?> startDate,
   Value<int> rowid,
 });
 
@@ -2095,6 +3440,9 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<int> get colorIndex => $composableBuilder(
       column: $table.colorIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get startDate => $composableBuilder(
+      column: $table.startDate, builder: (column) => ColumnFilters(column));
 
   $$GoalsTableFilterComposer get parentId {
     final $$GoalsTableFilterComposer composer = $composerBuilder(
@@ -2177,6 +3525,9 @@ class $$GoalsTableOrderingComposer
   ColumnOrderings<int> get colorIndex => $composableBuilder(
       column: $table.colorIndex, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get startDate => $composableBuilder(
+      column: $table.startDate, builder: (column) => ColumnOrderings(column));
+
   $$GoalsTableOrderingComposer get parentId {
     final $$GoalsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -2236,6 +3587,9 @@ class $$GoalsTableAnnotationComposer
 
   GeneratedColumn<int> get colorIndex => $composableBuilder(
       column: $table.colorIndex, builder: (column) => column);
+
+  GeneratedColumn<int> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
 
   $$GoalsTableAnnotationComposer get parentId {
     final $$GoalsTableAnnotationComposer composer = $composerBuilder(
@@ -2313,6 +3667,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             Value<int> createdAt = const Value.absent(),
             Value<int?> completedAt = const Value.absent(),
             Value<int> colorIndex = const Value.absent(),
+            Value<int?> startDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               GoalsCompanion(
@@ -2327,6 +3682,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             completedAt: completedAt,
             colorIndex: colorIndex,
+            startDate: startDate,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -2341,6 +3697,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             required int createdAt,
             Value<int?> completedAt = const Value.absent(),
             Value<int> colorIndex = const Value.absent(),
+            Value<int?> startDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               GoalsCompanion.insert(
@@ -2355,6 +3712,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             createdAt: createdAt,
             completedAt: completedAt,
             colorIndex: colorIndex,
+            startDate: startDate,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -3403,6 +4761,9 @@ typedef $$UserProfilesTableCreateCompanionBuilder = UserProfilesCompanion
   Value<int> hapticsEnabled,
   Value<int> notifsEnabled,
   Value<int> onboardingDone,
+  Value<String> defaultWakeTime,
+  Value<String> defaultSleepTime,
+  Value<int> autoLogTasks,
 });
 typedef $$UserProfilesTableUpdateCompanionBuilder = UserProfilesCompanion
     Function({
@@ -3415,6 +4776,9 @@ typedef $$UserProfilesTableUpdateCompanionBuilder = UserProfilesCompanion
   Value<int> hapticsEnabled,
   Value<int> notifsEnabled,
   Value<int> onboardingDone,
+  Value<String> defaultWakeTime,
+  Value<String> defaultSleepTime,
+  Value<int> autoLogTasks,
 });
 
 class $$UserProfilesTableFilterComposer
@@ -3454,6 +4818,17 @@ class $$UserProfilesTableFilterComposer
   ColumnFilters<int> get onboardingDone => $composableBuilder(
       column: $table.onboardingDone,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get defaultWakeTime => $composableBuilder(
+      column: $table.defaultWakeTime,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get defaultSleepTime => $composableBuilder(
+      column: $table.defaultSleepTime,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get autoLogTasks => $composableBuilder(
+      column: $table.autoLogTasks, builder: (column) => ColumnFilters(column));
 }
 
 class $$UserProfilesTableOrderingComposer
@@ -3495,6 +4870,18 @@ class $$UserProfilesTableOrderingComposer
   ColumnOrderings<int> get onboardingDone => $composableBuilder(
       column: $table.onboardingDone,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get defaultWakeTime => $composableBuilder(
+      column: $table.defaultWakeTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get defaultSleepTime => $composableBuilder(
+      column: $table.defaultSleepTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get autoLogTasks => $composableBuilder(
+      column: $table.autoLogTasks,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$UserProfilesTableAnnotationComposer
@@ -3532,6 +4919,15 @@ class $$UserProfilesTableAnnotationComposer
 
   GeneratedColumn<int> get onboardingDone => $composableBuilder(
       column: $table.onboardingDone, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultWakeTime => $composableBuilder(
+      column: $table.defaultWakeTime, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultSleepTime => $composableBuilder(
+      column: $table.defaultSleepTime, builder: (column) => column);
+
+  GeneratedColumn<int> get autoLogTasks => $composableBuilder(
+      column: $table.autoLogTasks, builder: (column) => column);
 }
 
 class $$UserProfilesTableTableManager extends RootTableManager<
@@ -3569,6 +4965,9 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             Value<int> hapticsEnabled = const Value.absent(),
             Value<int> notifsEnabled = const Value.absent(),
             Value<int> onboardingDone = const Value.absent(),
+            Value<String> defaultWakeTime = const Value.absent(),
+            Value<String> defaultSleepTime = const Value.absent(),
+            Value<int> autoLogTasks = const Value.absent(),
           }) =>
               UserProfilesCompanion(
             id: id,
@@ -3580,6 +4979,9 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             hapticsEnabled: hapticsEnabled,
             notifsEnabled: notifsEnabled,
             onboardingDone: onboardingDone,
+            defaultWakeTime: defaultWakeTime,
+            defaultSleepTime: defaultSleepTime,
+            autoLogTasks: autoLogTasks,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -3591,6 +4993,9 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             Value<int> hapticsEnabled = const Value.absent(),
             Value<int> notifsEnabled = const Value.absent(),
             Value<int> onboardingDone = const Value.absent(),
+            Value<String> defaultWakeTime = const Value.absent(),
+            Value<String> defaultSleepTime = const Value.absent(),
+            Value<int> autoLogTasks = const Value.absent(),
           }) =>
               UserProfilesCompanion.insert(
             id: id,
@@ -3602,6 +5007,9 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             hapticsEnabled: hapticsEnabled,
             notifsEnabled: notifsEnabled,
             onboardingDone: onboardingDone,
+            defaultWakeTime: defaultWakeTime,
+            defaultSleepTime: defaultSleepTime,
+            autoLogTasks: autoLogTasks,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -3625,6 +5033,606 @@ typedef $$UserProfilesTableProcessedTableManager = ProcessedTableManager<
     ),
     UserProfile,
     PrefetchHooks Function()>;
+typedef $$ActivityLogsTableCreateCompanionBuilder = ActivityLogsCompanion
+    Function({
+  Value<int> id,
+  required int date,
+  required String category,
+  required String name,
+  required int startTime,
+  required int endTime,
+  Value<String?> notes,
+  Value<int> isAuto,
+  required int createdAt,
+});
+typedef $$ActivityLogsTableUpdateCompanionBuilder = ActivityLogsCompanion
+    Function({
+  Value<int> id,
+  Value<int> date,
+  Value<String> category,
+  Value<String> name,
+  Value<int> startTime,
+  Value<int> endTime,
+  Value<String?> notes,
+  Value<int> isAuto,
+  Value<int> createdAt,
+});
+
+class $$ActivityLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $ActivityLogsTable> {
+  $$ActivityLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get startTime => $composableBuilder(
+      column: $table.startTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isAuto => $composableBuilder(
+      column: $table.isAuto, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ActivityLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ActivityLogsTable> {
+  $$ActivityLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get startTime => $composableBuilder(
+      column: $table.startTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isAuto => $composableBuilder(
+      column: $table.isAuto, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ActivityLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ActivityLogsTable> {
+  $$ActivityLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<int> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get isAuto =>
+      $composableBuilder(column: $table.isAuto, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$ActivityLogsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ActivityLogsTable,
+    ActivityLog,
+    $$ActivityLogsTableFilterComposer,
+    $$ActivityLogsTableOrderingComposer,
+    $$ActivityLogsTableAnnotationComposer,
+    $$ActivityLogsTableCreateCompanionBuilder,
+    $$ActivityLogsTableUpdateCompanionBuilder,
+    (
+      ActivityLog,
+      BaseReferences<_$AppDatabase, $ActivityLogsTable, ActivityLog>
+    ),
+    ActivityLog,
+    PrefetchHooks Function()> {
+  $$ActivityLogsTableTableManager(_$AppDatabase db, $ActivityLogsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ActivityLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ActivityLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ActivityLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> date = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int> startTime = const Value.absent(),
+            Value<int> endTime = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<int> isAuto = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+          }) =>
+              ActivityLogsCompanion(
+            id: id,
+            date: date,
+            category: category,
+            name: name,
+            startTime: startTime,
+            endTime: endTime,
+            notes: notes,
+            isAuto: isAuto,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int date,
+            required String category,
+            required String name,
+            required int startTime,
+            required int endTime,
+            Value<String?> notes = const Value.absent(),
+            Value<int> isAuto = const Value.absent(),
+            required int createdAt,
+          }) =>
+              ActivityLogsCompanion.insert(
+            id: id,
+            date: date,
+            category: category,
+            name: name,
+            startTime: startTime,
+            endTime: endTime,
+            notes: notes,
+            isAuto: isAuto,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ActivityLogsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ActivityLogsTable,
+    ActivityLog,
+    $$ActivityLogsTableFilterComposer,
+    $$ActivityLogsTableOrderingComposer,
+    $$ActivityLogsTableAnnotationComposer,
+    $$ActivityLogsTableCreateCompanionBuilder,
+    $$ActivityLogsTableUpdateCompanionBuilder,
+    (
+      ActivityLog,
+      BaseReferences<_$AppDatabase, $ActivityLogsTable, ActivityLog>
+    ),
+    ActivityLog,
+    PrefetchHooks Function()>;
+typedef $$SleepLogsTableCreateCompanionBuilder = SleepLogsCompanion Function({
+  Value<int> id,
+  required int date,
+  required int sleepTime,
+  required int wakeTime,
+  Value<String?> qualityNote,
+  required int createdAt,
+});
+typedef $$SleepLogsTableUpdateCompanionBuilder = SleepLogsCompanion Function({
+  Value<int> id,
+  Value<int> date,
+  Value<int> sleepTime,
+  Value<int> wakeTime,
+  Value<String?> qualityNote,
+  Value<int> createdAt,
+});
+
+class $$SleepLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $SleepLogsTable> {
+  $$SleepLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sleepTime => $composableBuilder(
+      column: $table.sleepTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get wakeTime => $composableBuilder(
+      column: $table.wakeTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get qualityNote => $composableBuilder(
+      column: $table.qualityNote, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SleepLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SleepLogsTable> {
+  $$SleepLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sleepTime => $composableBuilder(
+      column: $table.sleepTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get wakeTime => $composableBuilder(
+      column: $table.wakeTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get qualityNote => $composableBuilder(
+      column: $table.qualityNote, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SleepLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SleepLogsTable> {
+  $$SleepLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<int> get sleepTime =>
+      $composableBuilder(column: $table.sleepTime, builder: (column) => column);
+
+  GeneratedColumn<int> get wakeTime =>
+      $composableBuilder(column: $table.wakeTime, builder: (column) => column);
+
+  GeneratedColumn<String> get qualityNote => $composableBuilder(
+      column: $table.qualityNote, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SleepLogsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SleepLogsTable,
+    SleepLog,
+    $$SleepLogsTableFilterComposer,
+    $$SleepLogsTableOrderingComposer,
+    $$SleepLogsTableAnnotationComposer,
+    $$SleepLogsTableCreateCompanionBuilder,
+    $$SleepLogsTableUpdateCompanionBuilder,
+    (SleepLog, BaseReferences<_$AppDatabase, $SleepLogsTable, SleepLog>),
+    SleepLog,
+    PrefetchHooks Function()> {
+  $$SleepLogsTableTableManager(_$AppDatabase db, $SleepLogsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SleepLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SleepLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SleepLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> date = const Value.absent(),
+            Value<int> sleepTime = const Value.absent(),
+            Value<int> wakeTime = const Value.absent(),
+            Value<String?> qualityNote = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+          }) =>
+              SleepLogsCompanion(
+            id: id,
+            date: date,
+            sleepTime: sleepTime,
+            wakeTime: wakeTime,
+            qualityNote: qualityNote,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int date,
+            required int sleepTime,
+            required int wakeTime,
+            Value<String?> qualityNote = const Value.absent(),
+            required int createdAt,
+          }) =>
+              SleepLogsCompanion.insert(
+            id: id,
+            date: date,
+            sleepTime: sleepTime,
+            wakeTime: wakeTime,
+            qualityNote: qualityNote,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SleepLogsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SleepLogsTable,
+    SleepLog,
+    $$SleepLogsTableFilterComposer,
+    $$SleepLogsTableOrderingComposer,
+    $$SleepLogsTableAnnotationComposer,
+    $$SleepLogsTableCreateCompanionBuilder,
+    $$SleepLogsTableUpdateCompanionBuilder,
+    (SleepLog, BaseReferences<_$AppDatabase, $SleepLogsTable, SleepLog>),
+    SleepLog,
+    PrefetchHooks Function()>;
+typedef $$ProductivityCachesTableCreateCompanionBuilder
+    = ProductivityCachesCompanion Function({
+  Value<int> date,
+  required double score,
+  required double coveragePct,
+  Value<double?> sleepHours,
+  Value<String?> topCategory,
+  required String label,
+  Value<int> invalidated,
+});
+typedef $$ProductivityCachesTableUpdateCompanionBuilder
+    = ProductivityCachesCompanion Function({
+  Value<int> date,
+  Value<double> score,
+  Value<double> coveragePct,
+  Value<double?> sleepHours,
+  Value<String?> topCategory,
+  Value<String> label,
+  Value<int> invalidated,
+});
+
+class $$ProductivityCachesTableFilterComposer
+    extends Composer<_$AppDatabase, $ProductivityCachesTable> {
+  $$ProductivityCachesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get score => $composableBuilder(
+      column: $table.score, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get coveragePct => $composableBuilder(
+      column: $table.coveragePct, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get sleepHours => $composableBuilder(
+      column: $table.sleepHours, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get topCategory => $composableBuilder(
+      column: $table.topCategory, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get invalidated => $composableBuilder(
+      column: $table.invalidated, builder: (column) => ColumnFilters(column));
+}
+
+class $$ProductivityCachesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProductivityCachesTable> {
+  $$ProductivityCachesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get score => $composableBuilder(
+      column: $table.score, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get coveragePct => $composableBuilder(
+      column: $table.coveragePct, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get sleepHours => $composableBuilder(
+      column: $table.sleepHours, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get topCategory => $composableBuilder(
+      column: $table.topCategory, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get invalidated => $composableBuilder(
+      column: $table.invalidated, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ProductivityCachesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProductivityCachesTable> {
+  $$ProductivityCachesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<double> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<double> get coveragePct => $composableBuilder(
+      column: $table.coveragePct, builder: (column) => column);
+
+  GeneratedColumn<double> get sleepHours => $composableBuilder(
+      column: $table.sleepHours, builder: (column) => column);
+
+  GeneratedColumn<String> get topCategory => $composableBuilder(
+      column: $table.topCategory, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<int> get invalidated => $composableBuilder(
+      column: $table.invalidated, builder: (column) => column);
+}
+
+class $$ProductivityCachesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ProductivityCachesTable,
+    ProductivityCache,
+    $$ProductivityCachesTableFilterComposer,
+    $$ProductivityCachesTableOrderingComposer,
+    $$ProductivityCachesTableAnnotationComposer,
+    $$ProductivityCachesTableCreateCompanionBuilder,
+    $$ProductivityCachesTableUpdateCompanionBuilder,
+    (
+      ProductivityCache,
+      BaseReferences<_$AppDatabase, $ProductivityCachesTable, ProductivityCache>
+    ),
+    ProductivityCache,
+    PrefetchHooks Function()> {
+  $$ProductivityCachesTableTableManager(
+      _$AppDatabase db, $ProductivityCachesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProductivityCachesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProductivityCachesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProductivityCachesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> date = const Value.absent(),
+            Value<double> score = const Value.absent(),
+            Value<double> coveragePct = const Value.absent(),
+            Value<double?> sleepHours = const Value.absent(),
+            Value<String?> topCategory = const Value.absent(),
+            Value<String> label = const Value.absent(),
+            Value<int> invalidated = const Value.absent(),
+          }) =>
+              ProductivityCachesCompanion(
+            date: date,
+            score: score,
+            coveragePct: coveragePct,
+            sleepHours: sleepHours,
+            topCategory: topCategory,
+            label: label,
+            invalidated: invalidated,
+          ),
+          createCompanionCallback: ({
+            Value<int> date = const Value.absent(),
+            required double score,
+            required double coveragePct,
+            Value<double?> sleepHours = const Value.absent(),
+            Value<String?> topCategory = const Value.absent(),
+            required String label,
+            Value<int> invalidated = const Value.absent(),
+          }) =>
+              ProductivityCachesCompanion.insert(
+            date: date,
+            score: score,
+            coveragePct: coveragePct,
+            sleepHours: sleepHours,
+            topCategory: topCategory,
+            label: label,
+            invalidated: invalidated,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ProductivityCachesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ProductivityCachesTable,
+    ProductivityCache,
+    $$ProductivityCachesTableFilterComposer,
+    $$ProductivityCachesTableOrderingComposer,
+    $$ProductivityCachesTableAnnotationComposer,
+    $$ProductivityCachesTableCreateCompanionBuilder,
+    $$ProductivityCachesTableUpdateCompanionBuilder,
+    (
+      ProductivityCache,
+      BaseReferences<_$AppDatabase, $ProductivityCachesTable, ProductivityCache>
+    ),
+    ProductivityCache,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3639,4 +5647,10 @@ class $AppDatabaseManager {
       $$TaskCompletionsTableTableManager(_db, _db.taskCompletions);
   $$UserProfilesTableTableManager get userProfiles =>
       $$UserProfilesTableTableManager(_db, _db.userProfiles);
+  $$ActivityLogsTableTableManager get activityLogs =>
+      $$ActivityLogsTableTableManager(_db, _db.activityLogs);
+  $$SleepLogsTableTableManager get sleepLogs =>
+      $$SleepLogsTableTableManager(_db, _db.sleepLogs);
+  $$ProductivityCachesTableTableManager get productivityCaches =>
+      $$ProductivityCachesTableTableManager(_db, _db.productivityCaches);
 }

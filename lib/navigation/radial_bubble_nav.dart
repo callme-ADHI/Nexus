@@ -28,10 +28,10 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
     _NavTarget(icon: Icons.home_outlined, label: 'DASHBOARD'),
     _NavTarget(icon: Icons.query_stats_outlined, label: 'VISION'),
     _NavTarget(icon: Icons.checklist_outlined, label: 'TASKS'),
-    _NavTarget(icon: Icons.speed_outlined, label: 'PROGRESS'),
-    _NavTarget(icon: Icons.person_outline, label: 'PROFILE'),
     _NavTarget(icon: Icons.auto_graph_outlined, label: 'PRODUCTIVITY'),
+    _NavTarget(icon: Icons.speed_outlined, label: 'PROGRESS'),
     _NavTarget(icon: Icons.file_upload_outlined, label: 'MANAGE'),
+    _NavTarget(icon: Icons.person_outline, label: 'PROFILE'),
   ];
 
   @override
@@ -62,6 +62,7 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
         final size = MediaQuery.of(context).size;
         setState(() {
           _active = true;
+          ref.read(navActiveProvider.notifier).state = true;
           _centerPos = Offset(size.width / 2, size.height - 40);
           _selectedIndex = -1;
         });
@@ -137,6 +138,7 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
       if (mounted) {
         setState(() {
           _active = false;
+          ref.read(navActiveProvider.notifier).state = false;
           _selectedIndex = -1;
         });
       }
@@ -159,8 +161,12 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
               // Dimmed backdrop
               FadeTransition(
                 opacity: _ctrl,
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.75),
+                child: GestureDetector(
+                  onVerticalDragUpdate: (_) {},
+                  onHorizontalDragUpdate: (_) {},
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.75),
+                  ),
                 ),
               ),
               

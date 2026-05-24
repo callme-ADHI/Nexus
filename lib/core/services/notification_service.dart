@@ -50,6 +50,12 @@ class NotificationService {
     importance: Importance.high,
   );
 
+  static const _chProductivity = AndroidNotificationChannel(
+    'productivity_reminder', 'Productivity Reminder',
+    description: 'End-of-day reminder to log your activities',
+    importance: Importance.defaultImportance,
+  );
+
   // ─── INIT ─────────────────────────────────────────────────────────────────
 
   static Future<void> initialize() async {
@@ -171,6 +177,22 @@ class NotificationService {
           title: 'Deadline in 3 days',
           body: '${goal.name} — push through the final stretch.',
           when: warnAt,
+        );
+      }
+    }
+
+    // ── Productivity Log Reminders ─────────────────────────────────────────
+    // Schedule for next 7 days at 21:30
+    for (int d = 0; d < 7 && notifId < 9900; d++) {
+      final prodDate = now.add(Duration(days: d));
+      final prodAt = _atTime(prodDate, 21, 30);
+      if (prodAt.isAfter(now)) {
+        await _schedule(
+          id: notifId++,
+          channelId: _chProductivity.id,
+          title: 'Log your day',
+          body: 'Tap to map your productivity before bed.',
+          when: prodAt,
         );
       }
     }

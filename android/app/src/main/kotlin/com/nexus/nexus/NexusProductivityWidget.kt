@@ -10,7 +10,7 @@ import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
 import java.io.File
 
-class NexusWidget : HomeWidgetProvider() {
+class NexusProductivityWidget : HomeWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -18,8 +18,8 @@ class NexusWidget : HomeWidgetProvider() {
         widgetData: SharedPreferences
     ) {
         for (appWidgetId in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.nexus_widget).apply {
-                val imageName = widgetData.getString("nexus_widget_image", null)
+            val views = RemoteViews(context.packageName, R.layout.nexus_productivity_widget).apply {
+                val imageName = widgetData.getString("nexus_productivity_widget_image", null)
                 if (imageName != null) {
                     val file = File(imageName)
                     if (file.exists()) {
@@ -31,7 +31,7 @@ class NexusWidget : HomeWidgetProvider() {
                 val pendingIntent = es.antonborri.home_widget.HomeWidgetLaunchIntent.getActivity(
                     context,
                     MainActivity::class.java,
-                    android.net.Uri.parse("nexus://tasks")
+                    android.net.Uri.parse("nexus://productivity")
                 )
                 setOnClickPendingIntent(R.id.widget_image, pendingIntent)
             }

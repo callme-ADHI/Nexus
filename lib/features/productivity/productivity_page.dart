@@ -10,12 +10,12 @@ import 'package:audioplayers/audioplayers.dart';
 
 import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/nexus_logo.dart';
+import 'productivity_providers.dart';
+import 'log_tab.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
-// PRODUCTIVITY PAGE — Ultra-Premium Hub
+// PRODUCTIVITY PAGE — Tabbed Hub with Date Navigation
 // ════════════════════════════════════════════════════════════════════════════
-
-
 
 class ProductivityPage extends ConsumerStatefulWidget {
   const ProductivityPage({super.key});
@@ -27,7 +27,6 @@ class ProductivityPage extends ConsumerStatefulWidget {
 class _ProductivityPageState extends ConsumerState<ProductivityPage> {
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -41,15 +40,13 @@ class _ProductivityPageState extends ConsumerState<ProductivityPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FadeIn(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('PRODUCTIVITY', style: AppTypography.sectionHeader.copyWith(letterSpacing: 10, fontSize: 10, fontWeight: FontWeight.w900)),
-                        const SizedBox(height: 12),
-                        Text('ENGINE STATUS: OPTIMIZED', style: AppTypography.caption.copyWith(fontSize: 8, letterSpacing: 1, color: Colors.white24)),
-                      ],
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('PRODUCTIVITY', style: AppTypography.sectionHeader.copyWith(letterSpacing: 10, fontSize: 10, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 12),
+                      Text('ENGINE STATUS: OPTIMIZED', style: AppTypography.caption.copyWith(fontSize: 8, letterSpacing: 1, color: Colors.white24)),
+                    ],
                   ),
                   const NexusLogo(size: 18, color: Colors.white12),
                 ],
@@ -70,6 +67,12 @@ class _ProductivityPageState extends ConsumerState<ProductivityPage> {
                     icon: Icons.timer_sharp,
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FocusTimerPage())),
                   ),
+                  _HubItem(
+                    title: 'ACTIVITY LOGGER',
+                    subtitle: 'Log and map your time blocks',
+                    icon: Icons.add_circle_outline,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogPage())),
+                  ),
                 ],
               ),
             ),
@@ -78,11 +81,9 @@ class _ProductivityPageState extends ConsumerState<ProductivityPage> {
       ),
     );
   }
-
 }
 
-
-
+// (Keep existing _PeekValue and _HubItem unused but harmless — they're below)
 class _PeekValue extends StatelessWidget {
   final String label;
   final String value;

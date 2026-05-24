@@ -7,6 +7,7 @@ import '../../core/providers/providers.dart';
 import '../../core/database/app_database.dart';
 import '../../core/models/models.dart';
 import '../graph/goal_detail_sheet.dart';
+import 'productivity_insights.dart';
 
 class ProgressPage extends ConsumerWidget {
   const ProgressPage({super.key});
@@ -123,6 +124,9 @@ class ProgressPage extends ConsumerWidget {
               error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
 
+            // ── Productivity Insights ────────────────────────────────────
+            const SliverToBoxAdapter(child: ProductivityInsights()),
+
             const SliverToBoxAdapter(child: SizedBox(height: 120)),
           ],
         ),
@@ -142,110 +146,99 @@ class ProgressPage extends ConsumerWidget {
 
 // ── Activity Bar Chart ──────────────────────────────────────────────────────
 
-class _ActivityBarChart extends ConsumerStatefulWidget {
+class _ActivityBarChart extends ConsumerWidget {
   const _ActivityBarChart();
-  @override
-  ConsumerState<_ActivityBarChart> createState() => _ActivityBarChartState();
-}
-
-class _ActivityBarChartState extends ConsumerState<_ActivityBarChart> {
-  List<TaskCompletion>? _completions;
 
   @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final completionsAsync = ref.watch(pastCompletionsProvider(6));
 
-  Future<void> _loadData() async {
-    final db = ref.read(databaseProvider);
-    final data = await db.getPastCompletions(6);
-    if (mounted) setState(() => _completions = data);
-  }
+    return completionsAsync.when(
+      data: (completions) {
+        // Group by day (0 = 6 days ago, 6 = today)
+        final now = DateTime.now();
+        final todayMidnight = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+        final msPerDay = 86400000;
 
-  @override
-  Widget build(BuildContext context) {
-    if (_completions == null) return const SizedBox(height: 200);
-
-    // Group by day (0 = 6 days ago, 6 = today)
-    final now = DateTime.now();
-    final todayMidnight = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
-    final msPerDay = 86400000;
-
-    final counts = List.filled(7, 0);
-    for (final c in _completions!) {
-      if (c.completedDate != null) {
-        final daysAgo = (todayMidnight - c.scheduledDate) ~/ msPerDay;
-        if (daysAgo >= 0 && daysAgo <= 6) {
-          counts[6 - daysAgo]++;
+        final counts = List.filled(7, 0);
+        for (final c in completions) {
+          if (c.completedDate != null) {
+            final daysAgo = (todayMidnight - c.scheduledDate) ~/ msPerDay;
+            if (daysAgo >= 0 && daysAgo <= 6) {
+              counts[6 - daysAgo]++;
+            }
+          }
         }
-      }
-    }
 
-    double maxCount = counts.reduce((a, b) => a > b ? a : b).toDouble();
-    if (maxCount < 5) maxCount = 5;
+        double maxCount = counts.reduce((a, b) => a > b ? a : b).toDouble();
+        if (maxCount < 5) maxCount = 5;
 
-    return Container(
-      height: 200,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: maxCount,
-          barTouchData: BarTouchData(enabled: false),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final daysAgo = 6 - value.toInt();
-                  final date = now.subtract(Duration(days: daysAgo));
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(
-                      DateFormat('E').format(date).toUpperCase(),
-                      style: const TextStyle(
-                        color: Color(0xFF666666),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            getDrawingHorizontalLine: (value) => const FlLine(
-              color: Color(0xFF1A1A1A),
-              strokeWidth: 1,
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          barGroups: List.generate(7, (i) {
-            return BarChartGroupData(
-              x: i,
-              barRods: [
-                BarChartRodData(
-                  toY: counts[i].toDouble(),
-                  color: i == 6 ? Colors.white : const Color(0xFF333333),
-                  width: 12,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+        return Container(
+          height: 200,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceAround,
+              maxY: maxCount,
+              barTouchData: BarTouchData(enabled: false),
+              titlesData: FlTitlesData(
+                show: true,
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final daysAgo = 6 - value.toInt();
+                      final date = now.subtract(Duration(days: daysAgo));
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          DateFormat('E').format(date).toUpperCase(),
+                          style: const TextStyle(
+                            color: Color(0xFF666666),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ],
-            );
-          }),
-        ),
-      ),
+                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) => const FlLine(
+                  color: Color(0xFF1A1A1A),
+                  strokeWidth: 1,
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: List.generate(7, (i) {
+                return BarChartGroupData(
+                  x: i,
+                  barRods: [
+                    BarChartRodData(
+                      toY: counts[i].toDouble(),
+                      color: i == 6 ? Colors.white : const Color(0xFF333333),
+                      width: 12,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox(height: 200),
+      error: (_, __) => const SizedBox(height: 200),
     );
   }
 }
+
 
 // ── Goal Distribution Pie Chart ─────────────────────────────────────────────
 

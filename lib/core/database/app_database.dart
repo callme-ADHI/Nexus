@@ -21,6 +21,10 @@ class Goals extends Table {
   IntColumn get completedAt => integer().nullable()();
   // Color palette index 0–7 for visual differentiation in graph
   IntColumn get colorIndex => integer().withDefault(const Constant(0))();
+  // The date from which tasks begin scheduling.
+  // null for blocked goals (set to unlock timestamp when dependency completes).
+  // For non-blocked goals, set to createdAt or the YAML-specified start_date.
+  IntColumn get startDate => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -78,24 +82,76 @@ class UserProfiles extends Table {
       integer().withDefault(const Constant(1))();
   IntColumn get onboardingDone =>
       integer().withDefault(const Constant(0))();
+  // Productivity settings
+  TextColumn get defaultWakeTime =>
+      text().withDefault(const Constant('07:00'))();
+  TextColumn get defaultSleepTime =>
+      text().withDefault(const Constant('22:30'))();
+  IntColumn get autoLogTasks =>
+      integer().withDefault(const Constant(1))();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// ACTIVITY LOGS
+// ════════════════════════════════════════════════════════════════════════════
 
+class ActivityLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get date => integer()();         // midnight unix ms
+  TextColumn get category => text()();       // deep_work|exercise|learning|goal_tasks|social|routine|leisure|sleep
+  TextColumn get name => text()();           // user label
+  IntColumn get startTime => integer()();    // unix ms
+  IntColumn get endTime => integer()();      // unix ms
+  TextColumn get notes => text().nullable()();
+  IntColumn get isAuto => integer().withDefault(const Constant(0))();
+  IntColumn get createdAt => integer()();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SLEEP LOGS
+// ════════════════════════════════════════════════════════════════════════════
+
+class SleepLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get date => integer()();         // midnight unix ms of wake date
+  IntColumn get sleepTime => integer()();    // unix ms
+  IntColumn get wakeTime => integer()();     // unix ms
+  TextColumn get qualityNote => text().nullable()();
+  IntColumn get createdAt => integer()();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PRODUCTIVITY CACHE
+// ════════════════════════════════════════════════════════════════════════════
+
+class ProductivityCaches extends Table {
+  IntColumn get date => integer()();         // midnight unix ms
+  RealColumn get score => real()();          // 0.0–100.0
+  RealColumn get coveragePct => real()();    // 0.0–100.0
+  RealColumn get sleepHours => real().nullable()();
+  TextColumn get topCategory => text().nullable()();
+  TextColumn get label => text()();          // "Peak Day" etc.
+  IntColumn get invalidated => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {date};
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // DATABASE
 // ════════════════════════════════════════════════════════════════════════════
 
 @DriftDatabase(
-    tables: [Goals, GoalDependencies, Tasks, TaskCompletions, UserProfiles])
+    tables: [Goals, GoalDependencies, Tasks, TaskCompletions, UserProfiles,
+             ActivityLogs, SleepLogs, ProductivityCaches])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -108,6 +164,33 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 3) {
             await m.alterTable(TableMigration(tasks));
+          }
+          if (from < 4) {
+            await m.createTable(activityLogs);
+            await m.createTable(sleepLogs);
+            await m.createTable(productivityCaches);
+            await m.addColumn(userProfiles, userProfiles.defaultWakeTime);
+            await m.addColumn(userProfiles, userProfiles.defaultSleepTime);
+            await m.addColumn(userProfiles, userProfiles.autoLogTasks);
+          }
+          if (from < 5) {
+            // Add startDate to Goals — the date from which tasks begin scheduling.
+            // Existing goals get startDate = createdAt so their history is preserved.
+            await m.addColumn(goals, goals.startDate);
+            await customStatement(
+              'UPDATE goals SET start_date = created_at WHERE start_date IS NULL',
+            );
+          }
+          if (from < 6) {
+            // Clear any old mock records on the device/emulator to allow a clean startup.
+            await customStatement('DELETE FROM task_completions');
+            await customStatement('DELETE FROM tasks');
+            await customStatement('DELETE FROM goal_dependencies');
+            await customStatement('DELETE FROM goals');
+            await customStatement('DELETE FROM activity_logs');
+            await customStatement('DELETE FROM sleep_logs');
+            await customStatement('DELETE FROM productivity_caches');
+            await customStatement('DELETE FROM user_profiles');
           }
         },
       );
@@ -175,6 +258,10 @@ class AppDatabase extends _$AppDatabase {
   Future<List<GoalDependency>> getAllDependencies() =>
       select(goalDependencies).get();
 
+  Stream<List<GoalDependency>> watchAllDependencies() =>
+      select(goalDependencies).watch();
+
+
   Future<void> insertDependency(GoalDependenciesCompanion companion) =>
       into(goalDependencies)
           .insert(companion, mode: InsertMode.insertOrIgnore);
@@ -195,6 +282,9 @@ class AppDatabase extends _$AppDatabase {
       (select(tasks)..where((t) => t.goalId.equals(goalId))).watch();
 
   Future<List<Task>> getAllTasks() => select(tasks).get();
+
+  Stream<List<Task>> watchAllTasks() => select(tasks).watch();
+
 
   Future<List<Task>> getActiveTasksForGoal(String goalId) =>
       (select(tasks)
@@ -233,12 +323,30 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Stream<List<TaskCompletion>> watchMissedCompletions() {
+    final todayMidnight = _todayMidnightMs();
+    return (select(taskCompletions)
+          ..where((t) =>
+              t.scheduledDate.isSmallerThanValue(todayMidnight) &
+              t.completedDate.isNull()))
+        .watch();
+  }
+
+
   Future<List<TaskCompletion>> getTodayCompletions() {
     final todayMidnight = _todayMidnightMs();
     return (select(taskCompletions)
           ..where((t) => t.scheduledDate.equals(todayMidnight)))
         .get();
   }
+
+  Stream<List<TaskCompletion>> watchTodayCompletions() {
+    final todayMidnight = _todayMidnightMs();
+    return (select(taskCompletions)
+          ..where((t) => t.scheduledDate.equals(todayMidnight)))
+        .watch();
+  }
+
 
   Future<List<TaskCompletion>> getPastCompletions(int days) {
     final todayMidnight = _todayMidnightMs();
@@ -247,6 +355,15 @@ class AppDatabase extends _$AppDatabase {
           ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight)))
         .get();
   }
+
+  Stream<List<TaskCompletion>> watchPastCompletions(int days) {
+    final todayMidnight = _todayMidnightMs();
+    final past = todayMidnight - (days * 86400000);
+    return (select(taskCompletions)
+          ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight)))
+        .watch();
+  }
+
 
   Future<List<TaskCompletion>> getUpcomingCompletions(int untilMs) {
     final todayMidnight = _todayMidnightMs();
@@ -264,6 +381,14 @@ class AppDatabase extends _$AppDatabase {
           ..orderBy([(t) => OrderingTerm.desc(t.completedDate)]))
         .get();
   }
+
+  Stream<List<TaskCompletion>> watchCompletedCompletions() {
+    return (select(taskCompletions)
+          ..where((t) => t.completedDate.isNotNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.completedDate)]))
+        .watch();
+  }
+
 
   Future<void> upsertCompletion(TaskCompletionsCompanion companion) =>
       into(taskCompletions)
@@ -315,6 +440,8 @@ class AppDatabase extends _$AppDatabase {
     required List<GoalsCompanion> newGoals,
     required List<GoalDependenciesCompanion> newDeps,
     required List<TasksCompanion> newTasks,
+    List<ActivityLogsCompanion> newActivities = const [],
+    List<SleepLogsCompanion> newSleeps = const [],
   }) async {
     await transaction(() async {
       for (final g in newGoals) {
@@ -327,6 +454,12 @@ class AppDatabase extends _$AppDatabase {
       for (final t in newTasks) {
         await into(tasks).insert(t, mode: InsertMode.insertOrReplace);
       }
+      for (final a in newActivities) {
+        await into(activityLogs).insert(a);
+      }
+      for (final s in newSleeps) {
+        await into(sleepLogs).insert(s);
+      }
     });
   }
 
@@ -336,7 +469,21 @@ class AppDatabase extends _$AppDatabase {
       await delete(tasks).go();
       await delete(goalDependencies).go();
       await delete(goals).go();
+      await delete(activityLogs).go();
+      await delete(sleepLogs).go();
+      await delete(productivityCaches).go();
+      await delete(userProfiles).go();
+      await into(userProfiles).insert(UserProfilesCompanion.insert(
+        id: const Value(1),
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+      ));
     });
+  }
+
+  Future<void> clearAllLogs() async {
+    await delete(activityLogs).go();
+    await delete(sleepLogs).go();
+    await delete(productivityCaches).go();
   }
 
   Future<void> clearFutureData() async {
@@ -345,6 +492,115 @@ class AppDatabase extends _$AppDatabase {
           ..where((t) => t.scheduledDate.isBiggerThanValue(todayMidnight)))
         .go();
   }
+
+  // ── ACTIVITY LOGS ─────────────────────────────────────────────────────────
+
+  Future<List<ActivityLog>> getAllActivityLogs() => select(activityLogs).get();
+
+  Future<List<ActivityLog>> getActivitiesForDate(int dateMidnight) =>
+      (select(activityLogs)
+            ..where((t) => t.date.equals(dateMidnight))
+            ..orderBy([(t) => OrderingTerm.asc(t.startTime)]))
+          .get();
+
+  Stream<List<ActivityLog>> watchActivitiesForDate(int dateMidnight) =>
+      (select(activityLogs)
+            ..where((t) => t.date.equals(dateMidnight))
+            ..orderBy([(t) => OrderingTerm.asc(t.startTime)]))
+          .watch();
+
+  Future<List<ActivityLog>> getActivitiesInRange(int startMs, int endMs) =>
+      (select(activityLogs)
+            ..where((t) => t.date.isBiggerOrEqualValue(startMs) & t.date.isSmallerOrEqualValue(endMs))
+            ..orderBy([(t) => OrderingTerm.asc(t.startTime)]))
+          .get();
+
+  Stream<List<ActivityLog>> watchActivitiesInRange(int startMs, int endMs) =>
+      (select(activityLogs)
+            ..where((t) => t.date.isBiggerOrEqualValue(startMs) & t.date.isSmallerOrEqualValue(endMs))
+            ..orderBy([(t) => OrderingTerm.asc(t.startTime)]))
+          .watch();
+
+
+  Future<int> insertActivity(ActivityLogsCompanion companion) =>
+      into(activityLogs).insert(companion);
+
+  Future<void> updateActivity(ActivityLogsCompanion companion) =>
+      (update(activityLogs)..where((t) => t.id.equals(companion.id.value)))
+          .write(companion);
+
+  Future<void> deleteActivity(int id) =>
+      (delete(activityLogs)..where((t) => t.id.equals(id))).go();
+
+  // ── SLEEP LOGS ────────────────────────────────────────────────────────────
+
+  Future<List<SleepLog>> getAllSleepLogs() => select(sleepLogs).get();
+
+  Future<SleepLog?> getSleepForDate(int dateMidnight) =>
+      (select(sleepLogs)
+            ..where((t) => t.date.equals(dateMidnight))
+            ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
+            ..limit(1))
+          .getSingleOrNull();
+
+  Stream<SleepLog?> watchSleepForDate(int dateMidnight) =>
+      (select(sleepLogs)
+            ..where((t) => t.date.equals(dateMidnight))
+            ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
+            ..limit(1))
+          .watchSingleOrNull();
+
+  Future<List<SleepLog>> getSleepInRange(int startMs, int endMs) =>
+      (select(sleepLogs)
+            ..where((t) => t.date.isBiggerOrEqualValue(startMs) & t.date.isSmallerOrEqualValue(endMs))
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .get();
+
+  Stream<List<SleepLog>> watchSleepInRange(int startMs, int endMs) =>
+      (select(sleepLogs)
+            ..where((t) => t.date.isBiggerOrEqualValue(startMs) & t.date.isSmallerOrEqualValue(endMs))
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .watch();
+
+
+  Future<int> insertSleep(SleepLogsCompanion companion) =>
+      into(sleepLogs).insert(companion);
+
+  Future<void> updateSleep(SleepLogsCompanion companion) =>
+      (update(sleepLogs)..where((t) => t.id.equals(companion.id.value)))
+          .write(companion);
+
+  Future<void> deleteSleep(int id) =>
+      (delete(sleepLogs)..where((t) => t.id.equals(id))).go();
+
+  Future<void> deleteSleepForDate(int dateMidnight) =>
+      (delete(sleepLogs)..where((t) => t.date.equals(dateMidnight))).go();
+
+  // ── PRODUCTIVITY CACHE ────────────────────────────────────────────────────
+
+  Future<ProductivityCache?> getCachedScore(int dateMidnight) =>
+      (select(productivityCaches)..where((t) => t.date.equals(dateMidnight)))
+          .getSingleOrNull();
+
+  Future<List<ProductivityCache>> getCachedScoresInRange(int startMs, int endMs) =>
+      (select(productivityCaches)
+            ..where((t) => t.date.isBiggerOrEqualValue(startMs) & t.date.isSmallerOrEqualValue(endMs))
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .get();
+
+  Stream<List<ProductivityCache>> watchCachedScoresInRange(int startMs, int endMs) =>
+      (select(productivityCaches)
+            ..where((t) => t.date.isBiggerOrEqualValue(startMs) & t.date.isSmallerOrEqualValue(endMs))
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .watch();
+
+
+  Future<void> upsertCache(ProductivityCachesCompanion companion) =>
+      into(productivityCaches).insert(companion, mode: InsertMode.insertOrReplace);
+
+  Future<void> invalidateCache(int dateMidnight) =>
+      (update(productivityCaches)..where((t) => t.date.equals(dateMidnight)))
+          .write(const ProductivityCachesCompanion(invalidated: Value(1)));
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
 

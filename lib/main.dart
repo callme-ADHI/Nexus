@@ -15,6 +15,7 @@ import 'features/productivity/productivity_page.dart';
 import 'features/manage/manage_page.dart';
 import 'navigation/radial_bubble_nav.dart';
 import 'core/services/widget_service.dart';
+import 'package:home_widget/home_widget.dart';
 
 import 'shared/theme/app_theme.dart';
 import 'splash_screen.dart';
@@ -71,7 +72,21 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    HomeWidget.widgetClicked.listen((Uri? uri) {
+      if (uri != null) _handleDeepLink(uri);
+    });
+
     _initialize();
+  }
+
+  void _handleDeepLink(Uri uri) {
+    if (!mounted) return;
+    if (uri.host == 'tasks') {
+      ref.read(pageIndexProvider.notifier).state = 2; // TasksPage
+    } else if (uri.host == 'productivity') {
+      ref.read(pageIndexProvider.notifier).state = 3; // ProductivityPage
+    }
   }
 
   @override
@@ -87,6 +102,11 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
 
   Future<void> _initialize() async {
     try {
+      final uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+      if (uri != null) {
+        _handleDeepLink(uri);
+      }
+
       final db = ref.read(databaseProvider);
       await db.ensureProfile();
 
@@ -116,6 +136,8 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
           await NotificationService.requestPermissions();
           await NotificationService.rescheduleAll(db);
         } catch (_) {}
+
+        _updateProductivityWidget();
       });
     } catch (e) {
       if (mounted) {
@@ -127,6 +149,18 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
     }
   }
 
+  Future<void> _updateProductivityWidget() async {
+    try {
+      final db = ref.read(databaseProvider);
+      final today = DateTime.now();
+      final startDate = today.subtract(const Duration(days: 27)); // 28 days
+      final rangeStart = DateTime(startDate.year, startDate.month, startDate.day).millisecondsSinceEpoch;
+      final rangeEnd = DateTime(today.year, today.month, today.day).millisecondsSinceEpoch;
+      final caches = await db.getCachedScoresInRange(rangeStart, rangeEnd);
+      await WidgetService.updateProductivityWidget(caches);
+    } catch (_) {}
+  }
+
   Future<void> _onResume() async {
     final db = ref.read(databaseProvider);
     final sched = SchedulingService(db);
@@ -135,6 +169,7 @@ class _AppBootstrapState extends ConsumerState<_AppBootstrap>
     ref.invalidate(todayCompletionsProvider);
     ref.invalidate(missedCompletionsProvider);
     ref.invalidate(goalGraphProvider);
+    _updateProductivityWidget();
   }
 
   @override
@@ -178,15 +213,16 @@ class _MainShell extends ConsumerWidget {
     const HomePage(),
     const GraphPage(),
     const TasksPage(),
-    const ProgressPage(),
-    const ProfilePage(),
     const ProductivityPage(),
+    const ProgressPage(),
     const ManagePage(),
+    const ProfilePage(),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pageIndex = ref.watch(pageIndexProvider);
+    final navActive = ref.watch(navActiveProvider);
 
     return PopScope(
       canPop: pageIndex == 0,
@@ -200,9 +236,12 @@ class _MainShell extends ConsumerWidget {
         backgroundColor: AppColors.background,
         body: Stack(
           children: [
-            IndexedStack(
-              index: pageIndex,
-              children: _pages,
+            IgnorePointer(
+              ignoring: navActive,
+              child: IndexedStack(
+                index: pageIndex,
+                children: _pages,
+              ),
             ),
             const RadialNavOverlay(),
           ],
