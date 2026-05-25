@@ -115,7 +115,17 @@ class NotificationService {
     final end   = now.add(const Duration(days: 7));
     final tasks = await db.getAllTasks();
     final goals = await db.getAllGoals();
+    final deps  = await db.getAllGoalDependencies();
     final goalMap = {for (final g in goals) g.id: g};
+
+    // Compute blocked goal IDs
+    final completedIds = goals.where((g) => g.status == 'completed').map((g) => g.id).toSet();
+    final blockedGoalIds = <String>{};
+    for (final dep in deps) {
+      if (!completedIds.contains(dep.dependencyId)) {
+        blockedGoalIds.add(dep.goalId);
+      }
+    }
 
     int notifId = 1000;
 
@@ -123,6 +133,11 @@ class NotificationService {
       if (task.isActive == 0) continue;
       final goal = goalMap[task.goalId];
       if (goal == null) continue;
+
+      // Skip scheduling if the goal/task is blocked
+      if (goal.startDate == null || (task.goalId != null && blockedGoalIds.contains(task.goalId))) {
+        continue;
+      }
 
       final schedule = task.schedule;
 
