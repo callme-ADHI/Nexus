@@ -5,8 +5,34 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/database/app_database.dart';
 import '../../core/models/models.dart';
 import '../../core/providers/providers.dart';
-import '../../shared/theme/app_theme.dart';
 import '../graph/goal_detail_sheet.dart';
+
+abstract final class LuxuryTheme {
+  // Active/In Progress: Champagne Gold
+  static const goldText = Color(0xFFD4AF37);
+  static const goldBg = Color(0xFF0F0E0B);
+  static const goldBorder = Color(0xFF2C2718);
+
+  // Completed: Emerald Jade
+  static const emeraldText = Color(0xFF50C878);
+  static const emeraldBg = Color(0xFF08120B);
+  static const emeraldBorder = Color(0xFF162B1D);
+
+  // Blocked: Warm Bronze/Brass
+  static const bronzeText = Color(0xFFC5A059);
+  static const bronzeBg = Color(0xFF0D0D0C);
+  static const bronzeBorder = Color(0xFF232320);
+
+  // Overdue: Burgundy Rose
+  static const burgundyText = Color(0xFFB76E79);
+  static const burgundyBg = Color(0xFF120C0D);
+  static const burgundyBorder = Color(0xFF2A1C1D);
+
+  // Not Started: Platinum Silver
+  static const platinumText = Color(0xFFB0B5BC);
+  static const platinumBg = Color(0xFF0A0A0A);
+  static const platinumBorder = Color(0xFF1E2022);
+}
 
 class AllGoalsPage extends ConsumerStatefulWidget {
   const AllGoalsPage({super.key});
@@ -41,19 +67,19 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'ALL GOALS',
+          'GOALS DIRECTORY',
           style: GoogleFonts.inter(
             color: Colors.white,
             fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 2.0,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 2.5,
           ),
         ),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Colors.white.withValues(alpha: 0.05),
             height: 1,
           ),
         ),
@@ -65,7 +91,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
               return _buildContent(goals, tasks);
             },
             loading: () => const Center(
-              child: CircularProgressIndicator(color: Colors.white24, strokeWidth: 1),
+              child: CircularProgressIndicator(color: LuxuryTheme.goldText, strokeWidth: 1.5),
             ),
             error: (e, _) => Center(
               child: Text('Error: $e', style: GoogleFonts.inter(color: Colors.red)),
@@ -73,7 +99,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: Colors.white24, strokeWidth: 1),
+          child: CircularProgressIndicator(color: LuxuryTheme.goldText, strokeWidth: 1.5),
         ),
         error: (e, _) => Center(
           child: Text('Error: $e', style: GoogleFonts.inter(color: Colors.red)),
@@ -150,7 +176,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
                   label: 'ALL GOALS',
                   count: totalCount,
                   icon: Icons.grid_view_rounded,
-                  color: AppColors.accentBlue,
+                  color: LuxuryTheme.platinumText,
                   isSelected: _selectedStatusFilter == null,
                   onTap: () => setState(() => _selectedStatusFilter = null),
                 ),
@@ -158,7 +184,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
                   label: 'ACTIVE',
                   count: inProgressCount,
                   icon: Icons.play_circle_fill_rounded,
-                  color: AppColors.nodeBorderInProgress,
+                  color: LuxuryTheme.goldText,
                   isSelected: _selectedStatusFilter == GoalStatus.inProgress,
                   onTap: () => setState(() => _selectedStatusFilter = GoalStatus.inProgress),
                 ),
@@ -166,7 +192,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
                   label: 'BLOCKED',
                   count: blockedCount,
                   icon: Icons.lock_rounded,
-                  color: Colors.amber,
+                  color: LuxuryTheme.bronzeText,
                   isSelected: _selectedStatusFilter == GoalStatus.blocked,
                   onTap: () => setState(() => _selectedStatusFilter = GoalStatus.blocked),
                 ),
@@ -174,7 +200,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
                   label: 'OVERDUE',
                   count: overdueCount,
                   icon: Icons.error_rounded,
-                  color: AppColors.nodeBorderOverdue,
+                  color: LuxuryTheme.burgundyText,
                   isSelected: _selectedStatusFilter == GoalStatus.overdue,
                   onTap: () => setState(() => _selectedStatusFilter = GoalStatus.overdue),
                 ),
@@ -182,7 +208,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
                   label: 'COMPLETED',
                   count: completedCount,
                   icon: Icons.check_circle_rounded,
-                  color: AppColors.nodeBorderCompleted,
+                  color: LuxuryTheme.emeraldText,
                   isSelected: _selectedStatusFilter == GoalStatus.completed,
                   onTap: () => setState(() => _selectedStatusFilter = GoalStatus.completed),
                 ),
@@ -200,9 +226,20 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
               onChanged: (val) => setState(() => _searchQuery = val),
               style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
               decoration: InputDecoration(
+                filled: true,
+                fillColor: const Color(0xFF080808),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 18),
+                prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 16),
                 hintText: 'Search goals...',
+                hintStyle: GoogleFonts.inter(color: Colors.white38, fontSize: 13),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFF151515), width: 1),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: LuxuryTheme.goldBorder, width: 1),
+                ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? GestureDetector(
                         onTap: () {
@@ -225,15 +262,15 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    _searchQuery.isNotEmpty ? Icons.search_off_rounded : Icons.assignment_outlined,
-                    color: Colors.white24,
-                    size: 48,
+                  const Icon(
+                    Icons.assignment_outlined,
+                    color: Colors.white12,
+                    size: 40,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     _searchQuery.isNotEmpty ? 'No goals match your search.' : 'No goals in this category.',
-                    style: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
+                    style: GoogleFonts.inter(color: Colors.white38, fontSize: 13, letterSpacing: 0.5),
                   ),
                 ],
               ),
@@ -292,26 +329,17 @@ class _StatCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         width: 105,
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.15) : AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? color.withValues(alpha: 0.08) : const Color(0xFF050505),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? color : AppColors.border,
-            width: isSelected ? 1.5 : 1.0,
+            color: isSelected ? color.withValues(alpha: 0.5) : const Color(0xFF121212),
+            width: 1.0,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  )
-                ]
-              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,12 +348,12 @@ class _StatCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: color, size: 16),
+                Icon(icon, color: color, size: 14),
                 Text(
                   '$count',
                   style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 16,
+                    color: isSelected ? color : Colors.white70,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -335,9 +363,9 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               style: GoogleFonts.inter(
-                color: isSelected ? Colors.white : Colors.white38,
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
+                color: isSelected ? color.withValues(alpha: 0.9) : Colors.white38,
+                fontSize: 8.5,
+                fontWeight: FontWeight.w700,
                 letterSpacing: 0.5,
               ),
             ),
@@ -389,16 +417,16 @@ class _GoalCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: statusBg,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: statusBorder.withValues(alpha: 0.35),
-            width: 1.0,
+            color: statusBorder,
+            width: 0.75,
           ),
           boxShadow: [
             BoxShadow(
-              color: statusBorder.withValues(alpha: 0.04),
+              color: statusColor.withValues(alpha: 0.01),
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              spreadRadius: 1,
             ),
           ],
         ),
@@ -418,21 +446,21 @@ class _GoalCard extends StatelessWidget {
                         goal.name.toUpperCase(),
                         style: GoogleFonts.inter(
                           color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
                         ),
                       ),
                       if (goal.aim != null && goal.aim!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           goal.aim!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
-                            color: Colors.white60,
-                            fontSize: 12,
-                            height: 1.3,
+                            color: Colors.white54,
+                            fontSize: 11.5,
+                            height: 1.35,
                           ),
                         ),
                       ],
@@ -451,12 +479,12 @@ class _GoalCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(2),
                     child: LinearProgressIndicator(
                       value: gwp.effectiveProgress / 100,
-                      backgroundColor: Colors.white.withValues(alpha: 0.04),
+                      backgroundColor: Colors.white.withValues(alpha: 0.02),
                       valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                      minHeight: 6,
+                      minHeight: 4,
                     ),
                   ),
                 ),
@@ -464,9 +492,9 @@ class _GoalCard extends StatelessWidget {
                 Text(
                   '${gwp.effectiveProgress.round()}%',
                   style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    color: statusColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -481,15 +509,15 @@ class _GoalCard extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined, color: Colors.white38, size: 12),
+                      Icon(Icons.calendar_today_outlined, color: Colors.white.withValues(alpha: 0.2), size: 11),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           '${goal.timeframe} · Ends ${_formatDate(goal.deadline)}',
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
-                            color: Colors.white38,
-                            fontSize: 10.5,
+                            color: Colors.white24,
+                            fontSize: 10,
                           ),
                         ),
                       ),
@@ -502,14 +530,14 @@ class _GoalCard extends StatelessWidget {
                 if (taskCount > 0) ...[
                   Row(
                     children: [
-                      const Icon(Icons.assignment_outlined, color: Colors.white38, size: 12),
+                      Icon(Icons.assignment_outlined, color: Colors.white.withValues(alpha: 0.2), size: 11),
                       const SizedBox(width: 4),
                       Text(
                         '$taskCount',
                         style: GoogleFonts.inter(
-                          color: Colors.white38,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.white24,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -521,14 +549,14 @@ class _GoalCard extends StatelessWidget {
                 if (subGoalsCount > 0)
                   Row(
                     children: [
-                      const Icon(Icons.account_tree_outlined, color: Colors.white38, size: 12),
+                      Icon(Icons.account_tree_outlined, color: Colors.white.withValues(alpha: 0.2), size: 11),
                       const SizedBox(width: 4),
                       Text(
                         '$subGoalsCount',
                         style: GoogleFonts.inter(
-                          color: Colors.white38,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.white24,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -543,17 +571,17 @@ class _GoalCard extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 14),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.02),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white.withValues(alpha: 0.01),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: Colors.amber.withValues(alpha: 0.15),
-                    width: 1.0,
+                    color: LuxuryTheme.bronzeBorder,
+                    width: 0.75,
                   ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.lock_outline_rounded, color: Colors.amber, size: 14),
+                    const Icon(Icons.lock_outline_rounded, color: LuxuryTheme.bronzeText, size: 13),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -562,8 +590,8 @@ class _GoalCard extends StatelessWidget {
                           Text(
                             'BLOCKED BY DEPENDENCY',
                             style: GoogleFonts.inter(
-                              color: Colors.amber,
-                              fontSize: 8,
+                              color: LuxuryTheme.bronzeText,
+                              fontSize: 7.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
@@ -572,9 +600,9 @@ class _GoalCard extends StatelessWidget {
                           Text(
                             incompleteDeps.join(', '),
                             style: GoogleFonts.inter(
-                              color: Colors.white70,
-                              fontSize: 11,
-                              height: 1.2,
+                              color: Colors.white60,
+                              fontSize: 10.5,
+                              height: 1.25,
                             ),
                           ),
                         ],
@@ -591,31 +619,31 @@ class _GoalCard extends StatelessWidget {
 
   Color _getStatusColor(GoalStatus status) {
     switch (status) {
-      case GoalStatus.completed: return AppColors.nodeBorderCompleted;
-      case GoalStatus.inProgress: return AppColors.nodeBorderInProgress;
-      case GoalStatus.blocked: return Colors.amber;
-      case GoalStatus.overdue: return AppColors.nodeBorderOverdue;
-      case GoalStatus.notStarted: return Colors.white38;
+      case GoalStatus.completed: return LuxuryTheme.emeraldText;
+      case GoalStatus.inProgress: return LuxuryTheme.goldText;
+      case GoalStatus.blocked: return LuxuryTheme.bronzeText;
+      case GoalStatus.overdue: return LuxuryTheme.burgundyText;
+      case GoalStatus.notStarted: return LuxuryTheme.platinumText;
     }
   }
 
   Color _getStatusBg(GoalStatus status) {
     switch (status) {
-      case GoalStatus.completed: return AppColors.nodeCompleted;
-      case GoalStatus.inProgress: return AppColors.nodeInProgress;
-      case GoalStatus.blocked: return AppColors.nodeBlocked;
-      case GoalStatus.overdue: return AppColors.nodeOverdue;
-      case GoalStatus.notStarted: return AppColors.nodeNotStarted;
+      case GoalStatus.completed: return LuxuryTheme.emeraldBg;
+      case GoalStatus.inProgress: return LuxuryTheme.goldBg;
+      case GoalStatus.blocked: return LuxuryTheme.bronzeBg;
+      case GoalStatus.overdue: return LuxuryTheme.burgundyBg;
+      case GoalStatus.notStarted: return LuxuryTheme.platinumBg;
     }
   }
 
   Color _getStatusBorder(GoalStatus status) {
     switch (status) {
-      case GoalStatus.completed: return AppColors.nodeBorderCompleted;
-      case GoalStatus.inProgress: return AppColors.nodeBorderInProgress;
-      case GoalStatus.blocked: return AppColors.nodeBorderBlocked;
-      case GoalStatus.overdue: return AppColors.nodeBorderOverdue;
-      case GoalStatus.notStarted: return AppColors.nodeBorderNotStarted;
+      case GoalStatus.completed: return LuxuryTheme.emeraldBorder;
+      case GoalStatus.inProgress: return LuxuryTheme.goldBorder;
+      case GoalStatus.blocked: return LuxuryTheme.bronzeBorder;
+      case GoalStatus.overdue: return LuxuryTheme.burgundyBorder;
+      case GoalStatus.notStarted: return LuxuryTheme.platinumBorder;
     }
   }
 
@@ -639,25 +667,25 @@ class _StatusBadge extends StatelessWidget {
     final icon = _getStatusIcon(status);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: color.withValues(alpha: 0.25),
-          width: 1.0,
+          color: color.withValues(alpha: 0.2),
+          width: 0.75,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 10),
+          Icon(icon, color: color, size: 9),
           const SizedBox(width: 4),
           Text(
             label,
             style: GoogleFonts.inter(
               color: color,
-              fontSize: 9,
+              fontSize: 8,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,
             ),
@@ -669,11 +697,11 @@ class _StatusBadge extends StatelessWidget {
 
   Color _getStatusColor(GoalStatus status) {
     switch (status) {
-      case GoalStatus.completed: return AppColors.nodeBorderCompleted;
-      case GoalStatus.inProgress: return AppColors.nodeBorderInProgress;
-      case GoalStatus.blocked: return Colors.amber;
-      case GoalStatus.overdue: return AppColors.nodeBorderOverdue;
-      case GoalStatus.notStarted: return Colors.white38;
+      case GoalStatus.completed: return LuxuryTheme.emeraldText;
+      case GoalStatus.inProgress: return LuxuryTheme.goldText;
+      case GoalStatus.blocked: return LuxuryTheme.bronzeText;
+      case GoalStatus.overdue: return LuxuryTheme.burgundyText;
+      case GoalStatus.notStarted: return LuxuryTheme.platinumText;
     }
   }
 
@@ -683,7 +711,7 @@ class _StatusBadge extends StatelessWidget {
       case GoalStatus.inProgress: return 'ACTIVE';
       case GoalStatus.blocked: return 'BLOCKED';
       case GoalStatus.overdue: return 'OVERDUE';
-      case GoalStatus.notStarted: return 'NOT STARTED';
+      case GoalStatus.notStarted: return 'PENDING';
     }
   }
 
