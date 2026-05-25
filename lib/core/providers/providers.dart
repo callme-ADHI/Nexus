@@ -53,8 +53,8 @@ final allDependenciesProvider = StreamProvider<List<GoalDependency>>((ref) {
 
 
 /// Provides the set of goal IDs that are currently blocked by incomplete dependencies.
-/// Used by UI layers to filter tasks and show locked state.
-final blockedGoalIdsProvider = FutureProvider<Set<String>>((ref) async {
+/// Reactive: re-evaluates whenever goals or dependencies change (StreamProvider).
+final blockedGoalIdsProvider = StreamProvider<Set<String>>((ref) async* {
   final goals = await ref.watch(allGoalsProvider.future);
   final deps  = await ref.watch(allDependenciesProvider.future);
   final goalMap  = {for (final g in goals) g.id: g};
@@ -70,7 +70,7 @@ final blockedGoalIdsProvider = FutureProvider<Set<String>>((ref) async {
       blocked.add(g.id);
     }
   }
-  return blocked;
+  yield blocked;
 });
 
 /// Full graph model with progress, status, and dependency info
@@ -399,6 +399,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
 
       ref.invalidate(todayCompletionsProvider);
       ref.invalidate(missedCompletionsProvider);
+      ref.invalidate(completedCompletionsProvider);
       ref.invalidate(goalGraphProvider);
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -415,6 +416,8 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
       await ProductivityService.ensureScore(db, scheduledDate);
 
       ref.invalidate(todayCompletionsProvider);
+      ref.invalidate(missedCompletionsProvider);
+      ref.invalidate(completedCompletionsProvider);
       ref.invalidate(goalGraphProvider);
     } catch (e, st) {
       state = AsyncError(e, st);

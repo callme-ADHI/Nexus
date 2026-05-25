@@ -438,6 +438,14 @@ class _MissedSection extends StatelessWidget {
               return true;
             }).toList();
 
+            // Sort: pending (undone) first, then completed missed last
+            filtered.sort((a, b) {
+              final aDone = a.completedDate != null ? 1 : 0;
+              final bDone = b.completedDate != null ? 1 : 0;
+              if (aDone != bDone) return aDone.compareTo(bDone);
+              return b.scheduledDate.compareTo(a.scheduledDate); // most recent first
+            });
+
             if (filtered.isEmpty) return const _EmptyState('No missed tasks.');
 
             return ListView.builder(
@@ -446,13 +454,19 @@ class _MissedSection extends StatelessWidget {
                 final c = filtered[i];
                 final t = taskMap[c.taskId]!;
                 final d = DateTime.fromMillisecondsSinceEpoch(c.scheduledDate);
+                final isDone = c.completedDate != null;
                 return _MinimalTaskRow(
                   title: t.name,
-                  subtitle: 'Missed on ${d.month}/${d.day}',
-                  isDone: false,
+                  subtitle: isDone
+                      ? 'Made up on ${d.month}/${d.day}'
+                      : 'Missed on ${d.month}/${d.day}',
+                  isDone: isDone,
                   onToggle: (done) {
                     if (done) {
                       ref.read(taskNotifierProvider.notifier).completeTask(
+                          taskId: c.taskId, scheduledDate: c.scheduledDate);
+                    } else {
+                      ref.read(taskNotifierProvider.notifier).uncompleteTask(
                           taskId: c.taskId, scheduledDate: c.scheduledDate);
                     }
                   },
