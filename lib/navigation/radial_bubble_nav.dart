@@ -67,7 +67,10 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
           _selectedIndex = -1;
         });
         _ctrl.forward();
-        HapticFeedback.heavyImpact();
+        final hapticsOn = (ref.read(profileProvider).value?.hapticsEnabled ?? 1) == 1;
+        if (hapticsOn) {
+          HapticFeedback.heavyImpact();
+        }
       }
     });
   }
@@ -121,7 +124,10 @@ class _RadialNavOverlayState extends ConsumerState<RadialNavOverlay>
 
     if (newIndex != _selectedIndex) {
       setState(() => _selectedIndex = newIndex);
-      HapticFeedback.selectionClick();
+      final hapticsOn = (ref.read(profileProvider).value?.hapticsEnabled ?? 1) == 1;
+      if (hapticsOn) {
+        HapticFeedback.selectionClick();
+      }
     }
   }
 

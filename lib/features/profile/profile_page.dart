@@ -608,10 +608,10 @@ class _SettingsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifsOn = profile?.notifsEnabled == 1;
-    final hapticsOn = profile?.hapticsEnabled == 1;
-    final reducedMotion = profile?.reducedMotion == 1;
-    final bubbleSide = profile?.bubbleSide ?? 'right';
+    final activeProfile = ref.watch(profileProvider).value ?? profile;
+    final notifsOn = activeProfile?.notifsEnabled == 1;
+    final hapticsOn = activeProfile?.hapticsEnabled == 1;
+    final navStyle = activeProfile?.navStyle ?? 'radial';
 
     return Container(
       decoration: BoxDecoration(
@@ -670,28 +670,22 @@ class _SettingsSheet extends ConsumerWidget {
           ),
           const Divider(color: Colors.white10, height: 24),
           _SettingRow(
-            label: 'Reduced Motion',
-            description: 'Simplify app-wide animations',
-            trailing: Switch(
-              value: reducedMotion,
-              activeColor: Colors.white,
-              activeTrackColor: Colors.white24,
-              inactiveThumbColor: Colors.white54,
-              inactiveTrackColor: Colors.transparent,
-              trackOutlineColor: WidgetStateProperty.resolveWith((states) => Colors.white24),
-              onChanged: (v) => _update(ref, reducedMotion: v),
-            ),
-          ),
-          const Divider(color: Colors.white10, height: 24),
-          _SettingRow(
-            label: 'Navigation Side',
-            description: 'Placement of the control bubble',
+            label: 'Navigation Style',
+            description: 'Hidden bubble menu or bottom navigation bar',
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _MiniToggle(label: 'L', selected: bubbleSide == 'left', onTap: () => _update(ref, bubbleSide: 'left')),
+                _TextToggle(
+                  label: 'Hidden Bubble',
+                  selected: navStyle == 'radial',
+                  onTap: () => _update(ref, navStyle: 'radial'),
+                ),
                 const SizedBox(width: 8),
-                _MiniToggle(label: 'R', selected: bubbleSide == 'right', onTap: () => _update(ref, bubbleSide: 'right')),
+                _TextToggle(
+                  label: 'Bottom Bar',
+                  selected: navStyle == 'bottom',
+                  onTap: () => _update(ref, navStyle: 'bottom'),
+                ),
               ],
             ),
           ),
@@ -714,14 +708,17 @@ class _SettingsSheet extends ConsumerWidget {
     );
   }
 
-  Future<void> _update(WidgetRef ref, {bool? notifsEnabled, bool? hapticsEnabled, bool? reducedMotion, String? bubbleSide}) async {
-    await ref.read(databaseProvider).updateProfile(UserProfilesCompanion(
+  Future<void> _update(WidgetRef ref, {bool? notifsEnabled, bool? hapticsEnabled, String? bubbleSide, String? navStyle}) async {
+    final db = ref.read(databaseProvider);
+    await db.updateProfile(UserProfilesCompanion(
       notifsEnabled: notifsEnabled != null ? Value(notifsEnabled ? 1 : 0) : const Value.absent(),
       hapticsEnabled: hapticsEnabled != null ? Value(hapticsEnabled ? 1 : 0) : const Value.absent(),
-      reducedMotion: reducedMotion != null ? Value(reducedMotion ? 1 : 0) : const Value.absent(),
       bubbleSide: bubbleSide != null ? Value(bubbleSide) : const Value.absent(),
+      navStyle: navStyle != null ? Value(navStyle) : const Value.absent(),
     ));
-    ref.invalidate(profileProvider);
+    if (notifsEnabled != null) {
+      await NotificationService.rescheduleAll(db);
+    }
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, String type, Future<void> Function() action) {
@@ -817,6 +814,38 @@ class _MiniToggle extends StatelessWidget {
           style: GoogleFonts.inter(
             color: selected ? Colors.black : Colors.white54,
             fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TextToggle extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _TextToggle({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: selected ? Colors.white : Colors.white24),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            color: selected ? Colors.black : Colors.white54,
+            fontSize: 10,
             fontWeight: FontWeight.w700,
           ),
         ),

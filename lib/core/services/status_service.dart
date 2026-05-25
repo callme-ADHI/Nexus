@@ -23,6 +23,7 @@ class StatusService {
     required Goal goal,
     required Map<String, Goal> allGoalsMap,
     required double effectiveProgress,
+    required List<TaskCompletion> completions,
   }) {
     final nowMs = DateTime.now().millisecondsSinceEpoch;
 
@@ -45,7 +46,15 @@ class StatusService {
     final sd = goal.startDate;
     if (sd != null && sd > nowMs) return GoalStatus.notStarted;
 
-    // 5. Active vs Not Started based on actual task completion progress
+    // 5. Pending: Goal has started, but has missed tasks.
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todayMs = today.millisecondsSinceEpoch;
+    final hasMissedTasks = completions.any((c) =>
+        c.scheduledDate < todayMs && c.completedDate == null);
+    if (hasMissedTasks) return GoalStatus.pending;
+
+    // 6. Active vs Not Started based on actual task completion progress
     if (effectiveProgress > 0) return GoalStatus.inProgress;
     return GoalStatus.notStarted;
   }

@@ -5,7 +5,8 @@ enum GoalStatus {
   notStarted,
   inProgress,
   completed,
-  overdue;
+  overdue,
+  pending;
 
   static GoalStatus fromString(String s) => switch (s) {
     'blocked'     => blocked,
@@ -13,6 +14,7 @@ enum GoalStatus {
     'in_progress' => inProgress,
     'completed'   => completed,
     'overdue'     => overdue,
+    'pending'     => pending,
     _             => notStarted,
   };
 
@@ -22,6 +24,7 @@ enum GoalStatus {
     inProgress => 'in_progress',
     completed  => 'completed',
     overdue    => 'overdue',
+    pending    => 'pending',
   };
 }
 
@@ -133,6 +136,7 @@ class YamlGoalData {
   /// Optional YAML-specified start date. Null means "start immediately on import."
   /// For blocked goals this is ignored — startDate is set when dependency completes.
   final DateTime? startDate;
+  final bool hasStrictDeadline;
   // For conflict resolution
   bool skipOnConflict = false;
 
@@ -147,6 +151,7 @@ class YamlGoalData {
     required this.dependsOn,
     required this.tasks,
     this.startDate,
+    this.hasStrictDeadline = false,
   });
 }
 

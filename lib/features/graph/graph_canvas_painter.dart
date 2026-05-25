@@ -279,6 +279,10 @@ class GraphCanvasPainter extends CustomPainter {
         fillColor = const Color(0xFF0A0A0A);
         borderColor = color.withValues(alpha: node.isDimmed ? 0.15 : 0.55);
         borderWidth = 1.5;
+      case GoalStatus.pending:
+        fillColor = const Color(0xFF0A0A0A);
+        borderColor = color.withValues(alpha: node.isDimmed ? 0.15 : 0.55);
+        borderWidth = 1.5;
       case GoalStatus.inProgress:
         fillColor = color.withValues(alpha: node.isDimmed ? 0.04 : 0.12);
         borderColor = color.withValues(alpha: node.isDimmed ? 0.2 : 0.85);

@@ -223,6 +223,12 @@ class _MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pageIndex = ref.watch(pageIndexProvider);
     final navActive = ref.watch(navActiveProvider);
+    final profileAsync = ref.watch(profileProvider);
+
+    final showBottomNav = profileAsync.maybeWhen(
+      data: (p) => p?.navStyle == 'bottom',
+      orElse: () => false,
+    );
 
     return PopScope(
       canPop: pageIndex == 0,
@@ -237,15 +243,91 @@ class _MainShell extends ConsumerWidget {
         body: Stack(
           children: [
             IgnorePointer(
-              ignoring: navActive,
+              ignoring: !showBottomNav && navActive,
               child: IndexedStack(
                 index: pageIndex,
                 children: _pages,
               ),
             ),
-            const RadialNavOverlay(),
+            if (!showBottomNav) const RadialNavOverlay(),
           ],
         ),
+        bottomNavigationBar: showBottomNav
+            ? _PremiumBottomNavBar(
+                pageIndex: pageIndex,
+                onTap: (index) {
+                  ref.read(pageIndexProvider.notifier).state = index;
+                },
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+class _PremiumBottomNavBar extends StatelessWidget {
+  final int pageIndex;
+  final ValueChanged<int> onTap;
+
+  const _PremiumBottomNavBar({
+    required this.pageIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tabs = [
+      (icon: Icons.home_outlined, activeIcon: Icons.home, label: 'DASHBOARD', page: 0),
+      (icon: Icons.query_stats_outlined, activeIcon: Icons.query_stats, label: 'VISION', page: 1),
+      (icon: Icons.auto_graph_outlined, activeIcon: Icons.auto_graph, label: 'PRODUCTIVITY', page: 3),
+      (icon: Icons.speed_outlined, activeIcon: Icons.speed, label: 'PROGRESS', page: 4),
+      (icon: Icons.person_outline, activeIcon: Icons.person, label: 'PROFILE', page: 6),
+    ];
+
+    return Container(
+      height: 64 + MediaQuery.of(context).padding.bottom,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        border: Border(
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
+        ),
+      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: tabs.map((tab) {
+          final isSelected = pageIndex == tab.page;
+          return Expanded(
+            child: InkWell(
+              onTap: () => onTap(tab.page),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedScale(
+                    duration: const Duration(milliseconds: 150),
+                    scale: isSelected ? 1.15 : 1.0,
+                    child: Icon(
+                      isSelected ? tab.activeIcon : tab.icon,
+                      color: isSelected ? Colors.white : Colors.white54,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    tab.label,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 8,
+                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
+                      letterSpacing: 1.1,
+                      color: isSelected ? Colors.white : Colors.white38,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

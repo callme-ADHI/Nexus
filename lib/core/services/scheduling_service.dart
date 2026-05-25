@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show Value, InsertMode;
 
 import '../database/app_database.dart';
 
@@ -19,36 +19,58 @@ class SchedulingService {
   /// Call on app launch or after a bulk import.
   /// Skips blocked goals entirely; for unblocked goals uses goal.startDate
   /// as the window start so historical task slots are also generated.
+  /// Always generates TODAY's record regardless of startDate so pending
+  /// goals' tasks always appear in the Today tab.
   Future<void> generateCompletionWindow() async {
     final tasks     = await db.getAllTasks();
     final goals     = await db.getAllGoals();
     final deps      = await db.getAllDependencies();
     final now       = DateTime.now();
+    final today     = DateTime(now.year, now.month, now.day); // midnight
     final windowEnd = now.add(const Duration(days: 30));
 
     final blockedIds = _computeBlockedGoalIds(goals, deps);
     final goalMap    = {for (final g in goals) g.id: g};
 
     for (final task in tasks) {
-      if (task.goalId != null && blockedIds.contains(task.goalId)) continue;
       final from = _goalStartDate(task, goalMap, fallback: now);
-      await _generateForTaskInternal(task, from, windowEnd);
+      // Always cover TODAY even if the goal's official startDate is in the future.
+      // This ensures pending goals with future start dates still show in Today tab.
+      final effectiveFrom = from.isAfter(today) ? today : from;
+
+      var to = windowEnd;
+      if (task.goalId != null) {
+        final goal = goalMap[task.goalId];
+        if (goal != null && goal.hasStrictDeadline) {
+          final goalDeadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
+          if (goalDeadline.isAfter(to)) {
+            to = goalDeadline;
+          }
+        }
+      }
+
+      await _generateForTaskInternal(task, effectiveFrom, to);
     }
   }
 
-  /// Call when a single task is created or modified.
-  /// Respects goal.startDate so the task's first slot matches when the goal began.
   Future<void> generateForTask(Task task, {Set<String>? blockedGoalIds}) async {
-    if (task.goalId != null) {
-      final ids = blockedGoalIds ?? await _loadBlockedGoalIds();
-      if (ids.contains(task.goalId)) return; // goal is blocked — do not schedule
-    }
     final now       = DateTime.now();
+    final today     = DateTime(now.year, now.month, now.day);
     final windowEnd = now.add(const Duration(days: 30));
+    var to = windowEnd;
     Goal? goal;
-    if (task.goalId != null) goal = await db.getGoalById(task.goalId!);
+    if (task.goalId != null) {
+      goal = await db.getGoalById(task.goalId!);
+      if (goal != null && goal.hasStrictDeadline) {
+        final goalDeadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
+        if (goalDeadline.isAfter(to)) {
+          to = goalDeadline;
+        }
+      }
+    }
     final from = _startDateFromGoal(goal, fallback: now);
-    await _generateForTaskInternal(task, from, windowEnd);
+    final effectiveFrom = from.isAfter(today) ? today : from;
+    await _generateForTaskInternal(task, effectiveFrom, to);
   }
 
   /// Call after marking a goal as complete, so its dependents can unlock.
@@ -95,12 +117,24 @@ class SchedulingService {
             completedAt: goal.completedAt,
             colorIndex: goal.colorIndex,
             startDate: nowMs,
+            hasStrictDeadline: goal.hasStrictDeadline,
           );
         }
       }
 
+      var to = windowEnd;
+      if (task.goalId != null) {
+        final goal = goalMap[task.goalId];
+        if (goal != null && goal.hasStrictDeadline) {
+          final goalDeadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
+          if (goalDeadline.isAfter(to)) {
+            to = goalDeadline;
+          }
+        }
+      }
+
       final from = _goalStartDate(task, goalMap, fallback: now);
-      await _generateForTaskInternal(task, from, windowEnd);
+      await _generateForTaskInternal(task, from, to);
     }
   }
 
@@ -115,12 +149,19 @@ class SchedulingService {
   ) async {
     if (task.isActive == 0) return;
     final dates = _scheduledDates(task, from, to);
-    for (final date in dates) {
-      await db.upsertCompletion(TaskCompletionsCompanion(
-        taskId: Value(task.id),
-        scheduledDate: Value(date),
-      ));
-    }
+    if (dates.isEmpty) return;
+    await db.batch((batch) {
+      for (final date in dates) {
+        batch.insert(
+          db.taskCompletions,
+          TaskCompletionsCompanion(
+            taskId: Value(task.id),
+            scheduledDate: Value(date),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+      }
+    });
   }
 
   // ── Dependency helpers ────────────────────────────────────────────────────

@@ -331,7 +331,10 @@ class _ActivityFormState extends ConsumerState<_ActivityForm> {
     ));
     await db.invalidateCache(midnight.millisecondsSinceEpoch);
     await ProductivityService.ensureScore(db, midnight.millisecondsSinceEpoch);
-    HapticFeedback.mediumImpact();
+    final hapticsOn = (ref.read(profileProvider).value?.hapticsEnabled ?? 1) == 1;
+    if (hapticsOn) {
+      HapticFeedback.mediumImpact();
+    }
     
     setState(() {
       _nameCtrl.clear();
@@ -624,7 +627,10 @@ class _SleepLogFormState extends ConsumerState<_SleepLogForm> {
     }
     await db.invalidateCache(midnight.millisecondsSinceEpoch);
     await ProductivityService.ensureScore(db, midnight.millisecondsSinceEpoch);
-    HapticFeedback.mediumImpact();
+    final hapticsOn = (ref.read(profileProvider).value?.hapticsEnabled ?? 1) == 1;
+    if (hapticsOn) {
+      HapticFeedback.mediumImpact();
+    }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

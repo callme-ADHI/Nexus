@@ -121,6 +121,7 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
     // 2. Count goals per status
     final totalCount = goals.length;
     final inProgressCount = goals.where((g) => g.status == GoalStatus.inProgress).length;
+    final pendingCount = goals.where((g) => g.status == GoalStatus.pending).length;
     final blockedCount = goals.where((g) => g.status == GoalStatus.blocked).length;
     final overdueCount = goals.where((g) => g.status == GoalStatus.overdue).length;
     final completedCount = goals.where((g) => g.status == GoalStatus.completed).length;
@@ -142,18 +143,19 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
       }).toList();
     }
 
-    // 5. Sort filtered goals: Overdue first, then Blocked, then In Progress, then Not Started, then Completed.
+    // 5. Sort filtered goals: Overdue first, Active, Pending, Not Started, Blocked, then Completed.
     // Within same status, sort by weight descending.
     filteredGoals = List<GoalWithProgress>.from(filteredGoals)..sort((a, b) {
       final order = {
         GoalStatus.overdue: 0,
-        GoalStatus.blocked: 1,
-        GoalStatus.inProgress: 2,
+        GoalStatus.inProgress: 1,
+        GoalStatus.pending: 2,
         GoalStatus.notStarted: 3,
-        GoalStatus.completed: 4,
+        GoalStatus.blocked: 4,
+        GoalStatus.completed: 5,
       };
-      final weightA = order[a.status] ?? 5;
-      final weightB = order[b.status] ?? 5;
+      final weightA = order[a.status] ?? 6;
+      final weightB = order[b.status] ?? 6;
       if (weightA != weightB) return weightA.compareTo(weightB);
       
       final goalA = a.goal as Goal;
@@ -187,6 +189,14 @@ class _AllGoalsPageState extends ConsumerState<AllGoalsPage> {
                   color: LuxuryTheme.goldText,
                   isSelected: _selectedStatusFilter == GoalStatus.inProgress,
                   onTap: () => setState(() => _selectedStatusFilter = GoalStatus.inProgress),
+                ),
+                _StatCard(
+                  label: 'PENDING',
+                  count: pendingCount,
+                  icon: Icons.pending_actions_rounded,
+                  color: LuxuryTheme.platinumText,
+                  isSelected: _selectedStatusFilter == GoalStatus.pending,
+                  onTap: () => setState(() => _selectedStatusFilter = GoalStatus.pending),
                 ),
                 _StatCard(
                   label: 'BLOCKED',
@@ -621,6 +631,7 @@ class _GoalCard extends StatelessWidget {
     switch (status) {
       case GoalStatus.completed: return LuxuryTheme.emeraldText;
       case GoalStatus.inProgress: return LuxuryTheme.goldText;
+      case GoalStatus.pending: return LuxuryTheme.platinumText;
       case GoalStatus.blocked: return LuxuryTheme.bronzeText;
       case GoalStatus.overdue: return LuxuryTheme.burgundyText;
       case GoalStatus.notStarted: return LuxuryTheme.platinumText;
@@ -631,6 +642,7 @@ class _GoalCard extends StatelessWidget {
     switch (status) {
       case GoalStatus.completed: return LuxuryTheme.emeraldBg;
       case GoalStatus.inProgress: return LuxuryTheme.goldBg;
+      case GoalStatus.pending: return LuxuryTheme.platinumBg;
       case GoalStatus.blocked: return LuxuryTheme.bronzeBg;
       case GoalStatus.overdue: return LuxuryTheme.burgundyBg;
       case GoalStatus.notStarted: return LuxuryTheme.platinumBg;
@@ -641,6 +653,7 @@ class _GoalCard extends StatelessWidget {
     switch (status) {
       case GoalStatus.completed: return LuxuryTheme.emeraldBorder;
       case GoalStatus.inProgress: return LuxuryTheme.goldBorder;
+      case GoalStatus.pending: return LuxuryTheme.platinumBorder;
       case GoalStatus.blocked: return LuxuryTheme.bronzeBorder;
       case GoalStatus.overdue: return LuxuryTheme.burgundyBorder;
       case GoalStatus.notStarted: return LuxuryTheme.platinumBorder;
@@ -699,6 +712,7 @@ class _StatusBadge extends StatelessWidget {
     switch (status) {
       case GoalStatus.completed: return LuxuryTheme.emeraldText;
       case GoalStatus.inProgress: return LuxuryTheme.goldText;
+      case GoalStatus.pending: return LuxuryTheme.platinumText;
       case GoalStatus.blocked: return LuxuryTheme.bronzeText;
       case GoalStatus.overdue: return LuxuryTheme.burgundyText;
       case GoalStatus.notStarted: return LuxuryTheme.platinumText;
@@ -709,9 +723,10 @@ class _StatusBadge extends StatelessWidget {
     switch (status) {
       case GoalStatus.completed: return 'COMPLETED';
       case GoalStatus.inProgress: return 'ACTIVE';
+      case GoalStatus.pending: return 'PENDING';
       case GoalStatus.blocked: return 'BLOCKED';
       case GoalStatus.overdue: return 'OVERDUE';
-      case GoalStatus.notStarted: return 'PENDING';
+      case GoalStatus.notStarted: return 'NOT STARTED';
     }
   }
 
@@ -719,9 +734,10 @@ class _StatusBadge extends StatelessWidget {
     switch (status) {
       case GoalStatus.completed: return Icons.check_circle_rounded;
       case GoalStatus.inProgress: return Icons.play_arrow_rounded;
+      case GoalStatus.pending: return Icons.warning_amber_rounded;
       case GoalStatus.blocked: return Icons.lock_rounded;
       case GoalStatus.overdue: return Icons.error_rounded;
-      case GoalStatus.notStarted: return Icons.help_outline_rounded;
+      case GoalStatus.notStarted: return Icons.hourglass_empty_rounded;
     }
   }
 }

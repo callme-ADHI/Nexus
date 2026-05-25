@@ -84,6 +84,16 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
   late final GeneratedColumn<int> startDate = GeneratedColumn<int>(
       'start_date', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _hasStrictDeadlineMeta =
+      const VerificationMeta('hasStrictDeadline');
+  @override
+  late final GeneratedColumn<bool> hasStrictDeadline = GeneratedColumn<bool>(
+      'has_strict_deadline', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("has_strict_deadline" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -97,7 +107,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         createdAt,
         completedAt,
         colorIndex,
-        startDate
+        startDate,
+        hasStrictDeadline
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -170,6 +181,12 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
       context.handle(_startDateMeta,
           startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta));
     }
+    if (data.containsKey('has_strict_deadline')) {
+      context.handle(
+          _hasStrictDeadlineMeta,
+          hasStrictDeadline.isAcceptableOrUnknown(
+              data['has_strict_deadline']!, _hasStrictDeadlineMeta));
+    }
     return context;
   }
 
@@ -203,6 +220,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
           .read(DriftSqlType.int, data['${effectivePrefix}color_index'])!,
       startDate: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}start_date']),
+      hasStrictDeadline: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}has_strict_deadline'])!,
     );
   }
 
@@ -225,6 +244,7 @@ class Goal extends DataClass implements Insertable<Goal> {
   final int? completedAt;
   final int colorIndex;
   final int? startDate;
+  final bool hasStrictDeadline;
   const Goal(
       {required this.id,
       this.parentId,
@@ -237,7 +257,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       required this.createdAt,
       this.completedAt,
       required this.colorIndex,
-      this.startDate});
+      this.startDate,
+      required this.hasStrictDeadline});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -261,6 +282,7 @@ class Goal extends DataClass implements Insertable<Goal> {
     if (!nullToAbsent || startDate != null) {
       map['start_date'] = Variable<int>(startDate);
     }
+    map['has_strict_deadline'] = Variable<bool>(hasStrictDeadline);
     return map;
   }
 
@@ -284,6 +306,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       startDate: startDate == null && nullToAbsent
           ? const Value.absent()
           : Value(startDate),
+      hasStrictDeadline: Value(hasStrictDeadline),
     );
   }
 
@@ -303,6 +326,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       completedAt: serializer.fromJson<int?>(json['completedAt']),
       colorIndex: serializer.fromJson<int>(json['colorIndex']),
       startDate: serializer.fromJson<int?>(json['startDate']),
+      hasStrictDeadline: serializer.fromJson<bool>(json['hasStrictDeadline']),
     );
   }
   @override
@@ -321,6 +345,7 @@ class Goal extends DataClass implements Insertable<Goal> {
       'completedAt': serializer.toJson<int?>(completedAt),
       'colorIndex': serializer.toJson<int>(colorIndex),
       'startDate': serializer.toJson<int?>(startDate),
+      'hasStrictDeadline': serializer.toJson<bool>(hasStrictDeadline),
     };
   }
 
@@ -336,7 +361,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           int? createdAt,
           Value<int?> completedAt = const Value.absent(),
           int? colorIndex,
-          Value<int?> startDate = const Value.absent()}) =>
+          Value<int?> startDate = const Value.absent(),
+          bool? hasStrictDeadline}) =>
       Goal(
         id: id ?? this.id,
         parentId: parentId.present ? parentId.value : this.parentId,
@@ -350,6 +376,7 @@ class Goal extends DataClass implements Insertable<Goal> {
         completedAt: completedAt.present ? completedAt.value : this.completedAt,
         colorIndex: colorIndex ?? this.colorIndex,
         startDate: startDate.present ? startDate.value : this.startDate,
+        hasStrictDeadline: hasStrictDeadline ?? this.hasStrictDeadline,
       );
   Goal copyWithCompanion(GoalsCompanion data) {
     return Goal(
@@ -367,6 +394,9 @@ class Goal extends DataClass implements Insertable<Goal> {
       colorIndex:
           data.colorIndex.present ? data.colorIndex.value : this.colorIndex,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      hasStrictDeadline: data.hasStrictDeadline.present
+          ? data.hasStrictDeadline.value
+          : this.hasStrictDeadline,
     );
   }
 
@@ -384,14 +414,27 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('createdAt: $createdAt, ')
           ..write('completedAt: $completedAt, ')
           ..write('colorIndex: $colorIndex, ')
-          ..write('startDate: $startDate')
+          ..write('startDate: $startDate, ')
+          ..write('hasStrictDeadline: $hasStrictDeadline')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, parentId, name, aim, timeframe, deadline,
-      weight, status, createdAt, completedAt, colorIndex, startDate);
+  int get hashCode => Object.hash(
+      id,
+      parentId,
+      name,
+      aim,
+      timeframe,
+      deadline,
+      weight,
+      status,
+      createdAt,
+      completedAt,
+      colorIndex,
+      startDate,
+      hasStrictDeadline);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -407,7 +450,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.createdAt == this.createdAt &&
           other.completedAt == this.completedAt &&
           other.colorIndex == this.colorIndex &&
-          other.startDate == this.startDate);
+          other.startDate == this.startDate &&
+          other.hasStrictDeadline == this.hasStrictDeadline);
 }
 
 class GoalsCompanion extends UpdateCompanion<Goal> {
@@ -423,6 +467,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<int?> completedAt;
   final Value<int> colorIndex;
   final Value<int?> startDate;
+  final Value<bool> hasStrictDeadline;
   final Value<int> rowid;
   const GoalsCompanion({
     this.id = const Value.absent(),
@@ -437,6 +482,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.completedAt = const Value.absent(),
     this.colorIndex = const Value.absent(),
     this.startDate = const Value.absent(),
+    this.hasStrictDeadline = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   GoalsCompanion.insert({
@@ -452,6 +498,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.completedAt = const Value.absent(),
     this.colorIndex = const Value.absent(),
     this.startDate = const Value.absent(),
+    this.hasStrictDeadline = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -471,6 +518,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<int>? completedAt,
     Expression<int>? colorIndex,
     Expression<int>? startDate,
+    Expression<bool>? hasStrictDeadline,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -486,6 +534,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (completedAt != null) 'completed_at': completedAt,
       if (colorIndex != null) 'color_index': colorIndex,
       if (startDate != null) 'start_date': startDate,
+      if (hasStrictDeadline != null) 'has_strict_deadline': hasStrictDeadline,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -503,6 +552,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       Value<int?>? completedAt,
       Value<int>? colorIndex,
       Value<int?>? startDate,
+      Value<bool>? hasStrictDeadline,
       Value<int>? rowid}) {
     return GoalsCompanion(
       id: id ?? this.id,
@@ -517,6 +567,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       completedAt: completedAt ?? this.completedAt,
       colorIndex: colorIndex ?? this.colorIndex,
       startDate: startDate ?? this.startDate,
+      hasStrictDeadline: hasStrictDeadline ?? this.hasStrictDeadline,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -560,6 +611,9 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (startDate.present) {
       map['start_date'] = Variable<int>(startDate.value);
     }
+    if (hasStrictDeadline.present) {
+      map['has_strict_deadline'] = Variable<bool>(hasStrictDeadline.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -581,6 +635,7 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('completedAt: $completedAt, ')
           ..write('colorIndex: $colorIndex, ')
           ..write('startDate: $startDate, ')
+          ..write('hasStrictDeadline: $hasStrictDeadline, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1635,6 +1690,14 @@ class $UserProfilesTable extends UserProfiles
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(1));
+  static const VerificationMeta _navStyleMeta =
+      const VerificationMeta('navStyle');
+  @override
+  late final GeneratedColumn<String> navStyle = GeneratedColumn<String>(
+      'nav_style', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('radial'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1648,7 +1711,8 @@ class $UserProfilesTable extends UserProfiles
         onboardingDone,
         defaultWakeTime,
         defaultSleepTime,
-        autoLogTasks
+        autoLogTasks,
+        navStyle
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1729,6 +1793,10 @@ class $UserProfilesTable extends UserProfiles
           autoLogTasks.isAcceptableOrUnknown(
               data['auto_log_tasks']!, _autoLogTasksMeta));
     }
+    if (data.containsKey('nav_style')) {
+      context.handle(_navStyleMeta,
+          navStyle.isAcceptableOrUnknown(data['nav_style']!, _navStyleMeta));
+    }
     return context;
   }
 
@@ -1762,6 +1830,8 @@ class $UserProfilesTable extends UserProfiles
           DriftSqlType.string, data['${effectivePrefix}default_sleep_time'])!,
       autoLogTasks: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}auto_log_tasks'])!,
+      navStyle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nav_style'])!,
     );
   }
 
@@ -1784,6 +1854,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
   final String defaultWakeTime;
   final String defaultSleepTime;
   final int autoLogTasks;
+  final String navStyle;
   const UserProfile(
       {required this.id,
       required this.displayName,
@@ -1796,7 +1867,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       required this.onboardingDone,
       required this.defaultWakeTime,
       required this.defaultSleepTime,
-      required this.autoLogTasks});
+      required this.autoLogTasks,
+      required this.navStyle});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1812,6 +1884,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     map['default_wake_time'] = Variable<String>(defaultWakeTime);
     map['default_sleep_time'] = Variable<String>(defaultSleepTime);
     map['auto_log_tasks'] = Variable<int>(autoLogTasks);
+    map['nav_style'] = Variable<String>(navStyle);
     return map;
   }
 
@@ -1829,6 +1902,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       defaultWakeTime: Value(defaultWakeTime),
       defaultSleepTime: Value(defaultSleepTime),
       autoLogTasks: Value(autoLogTasks),
+      navStyle: Value(navStyle),
     );
   }
 
@@ -1848,6 +1922,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       defaultWakeTime: serializer.fromJson<String>(json['defaultWakeTime']),
       defaultSleepTime: serializer.fromJson<String>(json['defaultSleepTime']),
       autoLogTasks: serializer.fromJson<int>(json['autoLogTasks']),
+      navStyle: serializer.fromJson<String>(json['navStyle']),
     );
   }
   @override
@@ -1866,6 +1941,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       'defaultWakeTime': serializer.toJson<String>(defaultWakeTime),
       'defaultSleepTime': serializer.toJson<String>(defaultSleepTime),
       'autoLogTasks': serializer.toJson<int>(autoLogTasks),
+      'navStyle': serializer.toJson<String>(navStyle),
     };
   }
 
@@ -1881,7 +1957,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           int? onboardingDone,
           String? defaultWakeTime,
           String? defaultSleepTime,
-          int? autoLogTasks}) =>
+          int? autoLogTasks,
+          String? navStyle}) =>
       UserProfile(
         id: id ?? this.id,
         displayName: displayName ?? this.displayName,
@@ -1895,6 +1972,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
         defaultWakeTime: defaultWakeTime ?? this.defaultWakeTime,
         defaultSleepTime: defaultSleepTime ?? this.defaultSleepTime,
         autoLogTasks: autoLogTasks ?? this.autoLogTasks,
+        navStyle: navStyle ?? this.navStyle,
       );
   UserProfile copyWithCompanion(UserProfilesCompanion data) {
     return UserProfile(
@@ -1927,6 +2005,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       autoLogTasks: data.autoLogTasks.present
           ? data.autoLogTasks.value
           : this.autoLogTasks,
+      navStyle: data.navStyle.present ? data.navStyle.value : this.navStyle,
     );
   }
 
@@ -1944,7 +2023,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           ..write('onboardingDone: $onboardingDone, ')
           ..write('defaultWakeTime: $defaultWakeTime, ')
           ..write('defaultSleepTime: $defaultSleepTime, ')
-          ..write('autoLogTasks: $autoLogTasks')
+          ..write('autoLogTasks: $autoLogTasks, ')
+          ..write('navStyle: $navStyle')
           ..write(')'))
         .toString();
   }
@@ -1962,7 +2042,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       onboardingDone,
       defaultWakeTime,
       defaultSleepTime,
-      autoLogTasks);
+      autoLogTasks,
+      navStyle);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1978,7 +2059,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           other.onboardingDone == this.onboardingDone &&
           other.defaultWakeTime == this.defaultWakeTime &&
           other.defaultSleepTime == this.defaultSleepTime &&
-          other.autoLogTasks == this.autoLogTasks);
+          other.autoLogTasks == this.autoLogTasks &&
+          other.navStyle == this.navStyle);
 }
 
 class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
@@ -1994,6 +2076,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
   final Value<String> defaultWakeTime;
   final Value<String> defaultSleepTime;
   final Value<int> autoLogTasks;
+  final Value<String> navStyle;
   const UserProfilesCompanion({
     this.id = const Value.absent(),
     this.displayName = const Value.absent(),
@@ -2007,6 +2090,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.defaultWakeTime = const Value.absent(),
     this.defaultSleepTime = const Value.absent(),
     this.autoLogTasks = const Value.absent(),
+    this.navStyle = const Value.absent(),
   });
   UserProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -2021,6 +2105,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.defaultWakeTime = const Value.absent(),
     this.defaultSleepTime = const Value.absent(),
     this.autoLogTasks = const Value.absent(),
+    this.navStyle = const Value.absent(),
   }) : createdAt = Value(createdAt);
   static Insertable<UserProfile> custom({
     Expression<int>? id,
@@ -2035,6 +2120,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     Expression<String>? defaultWakeTime,
     Expression<String>? defaultSleepTime,
     Expression<int>? autoLogTasks,
+    Expression<String>? navStyle,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2049,6 +2135,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       if (defaultWakeTime != null) 'default_wake_time': defaultWakeTime,
       if (defaultSleepTime != null) 'default_sleep_time': defaultSleepTime,
       if (autoLogTasks != null) 'auto_log_tasks': autoLogTasks,
+      if (navStyle != null) 'nav_style': navStyle,
     });
   }
 
@@ -2064,7 +2151,8 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       Value<int>? onboardingDone,
       Value<String>? defaultWakeTime,
       Value<String>? defaultSleepTime,
-      Value<int>? autoLogTasks}) {
+      Value<int>? autoLogTasks,
+      Value<String>? navStyle}) {
     return UserProfilesCompanion(
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
@@ -2078,6 +2166,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       defaultWakeTime: defaultWakeTime ?? this.defaultWakeTime,
       defaultSleepTime: defaultSleepTime ?? this.defaultSleepTime,
       autoLogTasks: autoLogTasks ?? this.autoLogTasks,
+      navStyle: navStyle ?? this.navStyle,
     );
   }
 
@@ -2120,6 +2209,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     if (autoLogTasks.present) {
       map['auto_log_tasks'] = Variable<int>(autoLogTasks.value);
     }
+    if (navStyle.present) {
+      map['nav_style'] = Variable<String>(navStyle.value);
+    }
     return map;
   }
 
@@ -2137,7 +2229,8 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
           ..write('onboardingDone: $onboardingDone, ')
           ..write('defaultWakeTime: $defaultWakeTime, ')
           ..write('defaultSleepTime: $defaultSleepTime, ')
-          ..write('autoLogTasks: $autoLogTasks')
+          ..write('autoLogTasks: $autoLogTasks, ')
+          ..write('navStyle: $navStyle')
           ..write(')'))
         .toString();
   }
@@ -3352,6 +3445,7 @@ typedef $$GoalsTableCreateCompanionBuilder = GoalsCompanion Function({
   Value<int?> completedAt,
   Value<int> colorIndex,
   Value<int?> startDate,
+  Value<bool> hasStrictDeadline,
   Value<int> rowid,
 });
 typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
@@ -3367,6 +3461,7 @@ typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
   Value<int?> completedAt,
   Value<int> colorIndex,
   Value<int?> startDate,
+  Value<bool> hasStrictDeadline,
   Value<int> rowid,
 });
 
@@ -3443,6 +3538,10 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<int> get startDate => $composableBuilder(
       column: $table.startDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get hasStrictDeadline => $composableBuilder(
+      column: $table.hasStrictDeadline,
+      builder: (column) => ColumnFilters(column));
 
   $$GoalsTableFilterComposer get parentId {
     final $$GoalsTableFilterComposer composer = $composerBuilder(
@@ -3528,6 +3627,10 @@ class $$GoalsTableOrderingComposer
   ColumnOrderings<int> get startDate => $composableBuilder(
       column: $table.startDate, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get hasStrictDeadline => $composableBuilder(
+      column: $table.hasStrictDeadline,
+      builder: (column) => ColumnOrderings(column));
+
   $$GoalsTableOrderingComposer get parentId {
     final $$GoalsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -3590,6 +3693,9 @@ class $$GoalsTableAnnotationComposer
 
   GeneratedColumn<int> get startDate =>
       $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasStrictDeadline => $composableBuilder(
+      column: $table.hasStrictDeadline, builder: (column) => column);
 
   $$GoalsTableAnnotationComposer get parentId {
     final $$GoalsTableAnnotationComposer composer = $composerBuilder(
@@ -3668,6 +3774,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             Value<int?> completedAt = const Value.absent(),
             Value<int> colorIndex = const Value.absent(),
             Value<int?> startDate = const Value.absent(),
+            Value<bool> hasStrictDeadline = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               GoalsCompanion(
@@ -3683,6 +3790,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             completedAt: completedAt,
             colorIndex: colorIndex,
             startDate: startDate,
+            hasStrictDeadline: hasStrictDeadline,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -3698,6 +3806,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             Value<int?> completedAt = const Value.absent(),
             Value<int> colorIndex = const Value.absent(),
             Value<int?> startDate = const Value.absent(),
+            Value<bool> hasStrictDeadline = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               GoalsCompanion.insert(
@@ -3713,6 +3822,7 @@ class $$GoalsTableTableManager extends RootTableManager<
             completedAt: completedAt,
             colorIndex: colorIndex,
             startDate: startDate,
+            hasStrictDeadline: hasStrictDeadline,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -4764,6 +4874,7 @@ typedef $$UserProfilesTableCreateCompanionBuilder = UserProfilesCompanion
   Value<String> defaultWakeTime,
   Value<String> defaultSleepTime,
   Value<int> autoLogTasks,
+  Value<String> navStyle,
 });
 typedef $$UserProfilesTableUpdateCompanionBuilder = UserProfilesCompanion
     Function({
@@ -4779,6 +4890,7 @@ typedef $$UserProfilesTableUpdateCompanionBuilder = UserProfilesCompanion
   Value<String> defaultWakeTime,
   Value<String> defaultSleepTime,
   Value<int> autoLogTasks,
+  Value<String> navStyle,
 });
 
 class $$UserProfilesTableFilterComposer
@@ -4829,6 +4941,9 @@ class $$UserProfilesTableFilterComposer
 
   ColumnFilters<int> get autoLogTasks => $composableBuilder(
       column: $table.autoLogTasks, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get navStyle => $composableBuilder(
+      column: $table.navStyle, builder: (column) => ColumnFilters(column));
 }
 
 class $$UserProfilesTableOrderingComposer
@@ -4882,6 +4997,9 @@ class $$UserProfilesTableOrderingComposer
   ColumnOrderings<int> get autoLogTasks => $composableBuilder(
       column: $table.autoLogTasks,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get navStyle => $composableBuilder(
+      column: $table.navStyle, builder: (column) => ColumnOrderings(column));
 }
 
 class $$UserProfilesTableAnnotationComposer
@@ -4928,6 +5046,9 @@ class $$UserProfilesTableAnnotationComposer
 
   GeneratedColumn<int> get autoLogTasks => $composableBuilder(
       column: $table.autoLogTasks, builder: (column) => column);
+
+  GeneratedColumn<String> get navStyle =>
+      $composableBuilder(column: $table.navStyle, builder: (column) => column);
 }
 
 class $$UserProfilesTableTableManager extends RootTableManager<
@@ -4968,6 +5089,7 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             Value<String> defaultWakeTime = const Value.absent(),
             Value<String> defaultSleepTime = const Value.absent(),
             Value<int> autoLogTasks = const Value.absent(),
+            Value<String> navStyle = const Value.absent(),
           }) =>
               UserProfilesCompanion(
             id: id,
@@ -4982,6 +5104,7 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             defaultWakeTime: defaultWakeTime,
             defaultSleepTime: defaultSleepTime,
             autoLogTasks: autoLogTasks,
+            navStyle: navStyle,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -4996,6 +5119,7 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             Value<String> defaultWakeTime = const Value.absent(),
             Value<String> defaultSleepTime = const Value.absent(),
             Value<int> autoLogTasks = const Value.absent(),
+            Value<String> navStyle = const Value.absent(),
           }) =>
               UserProfilesCompanion.insert(
             id: id,
@@ -5010,6 +5134,7 @@ class $$UserProfilesTableTableManager extends RootTableManager<
             defaultWakeTime: defaultWakeTime,
             defaultSleepTime: defaultSleepTime,
             autoLogTasks: autoLogTasks,
+            navStyle: navStyle,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

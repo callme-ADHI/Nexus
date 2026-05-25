@@ -105,6 +105,10 @@ class NotificationService {
   static Future<void> rescheduleAll(AppDatabase db) async {
     try {
       await _plugin.cancelAll();
+      final profile = await db.getProfile();
+      if (profile != null && profile.notifsEnabled == 0) {
+        return; // Notifications are disabled by user preference
+      }
       await _createChannels();
     } catch (_) {
       return; // notifications not supported on this device/emulator

@@ -12,9 +12,9 @@ class YamlParser {
     final validGoals = <YamlGoalData>[];
     final conflictGoals = <YamlGoalData>[];
 
-    dynamic doc;
+    List<YamlDocument> documents;
     try {
-      doc = loadYaml(yamlText);
+      documents = loadYamlDocuments(yamlText);
     } catch (e) {
       return YamlImportResult(
         validGoals: [], conflictGoals: [],
@@ -22,26 +22,46 @@ class YamlParser {
       );
     }
 
-    if (doc is! Map) {
-      return YamlImportResult(
-        validGoals: [], conflictGoals: [],
-        errors: ['Root must be a YAML map.'],
-      );
+    final mergedGoalsYaml = [];
+    final mergedActivityLogsYaml = [];
+    final mergedSleepLogsYaml = [];
+
+    for (final document in documents) {
+      final doc = document.contents.value;
+      if (doc is! Map) {
+        errors.add('A document root must be a YAML map.');
+        continue;
+      }
+
+      // Check version
+      final version = doc['version']?.toString();
+      if (version != '1.0' && version != '1.1') {
+        errors.add('version must be "1.0" or "1.1". Got: $version');
+      }
+
+      final goals = doc['goals'];
+      if (goals != null && goals is List) {
+        mergedGoalsYaml.addAll(goals);
+      }
+
+      final activityLogs = doc['activity_logs'];
+      if (activityLogs != null && activityLogs is List) {
+        mergedActivityLogsYaml.addAll(activityLogs);
+      }
+
+      final sleepLogs = doc['sleep_logs'];
+      if (sleepLogs != null && sleepLogs is List) {
+        mergedSleepLogsYaml.addAll(sleepLogs);
+      }
     }
 
-    // Check version
-    final version = doc['version']?.toString();
-    if (version != '1.0' && version != '1.1') {
-      errors.add('version must be "1.0" or "1.1". Got: $version');
-    }
+    final goalsYaml = mergedGoalsYaml;
+    final activityLogsYaml = mergedActivityLogsYaml;
+    final sleepLogsYaml = mergedSleepLogsYaml;
 
-    final goalsYaml = doc['goals'];
-    final activityLogsYaml = doc['activity_logs'];
-    final sleepLogsYaml = doc['sleep_logs'];
-
-    final hasGoals = goalsYaml != null && goalsYaml is List;
-    final hasActivity = activityLogsYaml != null && activityLogsYaml is List;
-    final hasSleep = sleepLogsYaml != null && sleepLogsYaml is List;
+    final hasGoals = goalsYaml.isNotEmpty;
+    final hasActivity = activityLogsYaml.isNotEmpty;
+    final hasSleep = sleepLogsYaml.isNotEmpty;
 
     if (!hasGoals && !hasActivity && !hasSleep) {
       return YamlImportResult(
@@ -261,6 +281,8 @@ class YamlParser {
           continue;
         }
 
+        final hasStrictDeadline = raw['has_strict_deadline'] is bool ? raw['has_strict_deadline'] as bool : false;
+
         final goalData = YamlGoalData(
           id: id,
           name: name!,
@@ -272,6 +294,7 @@ class YamlParser {
           dependsOn: dependsOn,
           tasks: parsedTasks,
           startDate: startDate,
+          hasStrictDeadline: hasStrictDeadline,
         );
 
         if (existingIds.contains(id)) {

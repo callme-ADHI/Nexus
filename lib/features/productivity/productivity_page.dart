@@ -10,6 +10,7 @@ import 'package:audioplayers/audioplayers.dart';
 
 import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/nexus_logo.dart';
+import '../../core/providers/providers.dart';
 import 'productivity_providers.dart';
 import 'log_tab.dart';
 
@@ -153,14 +154,14 @@ class _HubItem extends StatelessWidget {
 
 enum TimerModel { digital, analog, sand }
 
-class FocusTimerPage extends StatefulWidget {
+class FocusTimerPage extends ConsumerStatefulWidget {
   const FocusTimerPage({super.key});
 
   @override
-  State<FocusTimerPage> createState() => _FocusTimerPageState();
+  ConsumerState<FocusTimerPage> createState() => _FocusTimerPageState();
 }
 
-class _FocusTimerPageState extends State<FocusTimerPage> with TickerProviderStateMixin {
+class _FocusTimerPageState extends ConsumerState<FocusTimerPage> with TickerProviderStateMixin {
   int _secondsRemaining = 25 * 60;
   int _totalSeconds = 25 * 60;
   bool _isRunning = false;
@@ -225,8 +226,15 @@ class _FocusTimerPageState extends State<FocusTimerPage> with TickerProviderStat
     });
   }
 
+  void _triggerHaptic(void Function() feedbackFn) {
+    final hapticsOn = (ref.read(profileProvider).value?.hapticsEnabled ?? 1) == 1;
+    if (hapticsOn) {
+      feedbackFn();
+    }
+  }
+
   void _onComplete() async {
-    HapticFeedback.heavyImpact();
+    _triggerHaptic(HapticFeedback.heavyImpact);
     // Try playing a formal system sound
     try {
       await _audio.play(AssetSource('sounds/complete.mp3')); // If exists
@@ -259,14 +267,14 @@ class _FocusTimerPageState extends State<FocusTimerPage> with TickerProviderStat
       _totalSeconds = (minutes * 60).clamp(60, 180 * 60);
       _secondsRemaining = _totalSeconds;
     });
-    HapticFeedback.lightImpact();
+    _triggerHaptic(HapticFeedback.lightImpact);
   }
 
   // ── Dial Logic ─────────────────────────────────────────────────────────────
 
   void _onDialStart(Offset localPos) {
     if (_isRunning) return;
-    HapticFeedback.mediumImpact();
+    _triggerHaptic(HapticFeedback.mediumImpact);
     setState(() {
       _isDialing = true;
       _startAngle = _calculateAngle(localPos);
@@ -293,14 +301,14 @@ class _FocusTimerPageState extends State<FocusTimerPage> with TickerProviderStat
         _secondsRemaining = _totalSeconds;
         _currentAngle = newAngle;
       });
-      if (_totalSeconds % 60 == 0) HapticFeedback.selectionClick();
+      if (_totalSeconds % 60 == 0) _triggerHaptic(HapticFeedback.selectionClick);
     }
   }
 
   void _onDialEnd() {
     setState(() => _isDialing = false);
     _dialAnim.reverse();
-    HapticFeedback.lightImpact();
+    _triggerHaptic(HapticFeedback.lightImpact);
   }
 
   double _calculateAngle(Offset localPos) {

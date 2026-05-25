@@ -82,20 +82,19 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
   final tasks = await db.getAllTasks();
   final allCompletions = <String, List<TaskCompletion>>{};
 
-  for (final t in tasks) {
-    if (t.goalId != null) {
-      allCompletions[t.goalId!] ??= [];
-    }
+  // Optimize: Fetch all completions in one query instead of loop (fixes UI freeze/lag)
+  final completions = await db.select(db.taskCompletions).get();
+  final taskCompletionsMap = <String, List<TaskCompletion>>{};
+  for (final c in completions) {
+    taskCompletionsMap[c.taskId] ??= [];
+    taskCompletionsMap[c.taskId]!.add(c);
   }
 
-  // Fetch all completions
   for (final t in tasks) {
     if (t.goalId == null) continue;
-    final comps = await db.getCompletionsForTask(t.id);
-    allCompletions[t.goalId!] = [
-      ...(allCompletions[t.goalId!] ?? []),
-      ...comps,
-    ];
+    final comps = taskCompletionsMap[t.id] ?? [];
+    allCompletions[t.goalId!] ??= [];
+    allCompletions[t.goalId!]!.addAll(comps);
   }
 
   final goalMap = {for (final g in goals) g.id: g};
@@ -142,6 +141,7 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
             return (goal: Goal(
             id: sid, name: '', timeframe: '', deadline: 0, weight: 1,
             status: 'not_started', createdAt: 0, colorIndex: 0,
+            hasStrictDeadline: false,
           ), progress: 0.0);
           }
           return (goal: sg, progress: progressMap[sid] ?? 0.0);
@@ -163,7 +163,7 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
               goal: goalMap[did] ?? Goal(
                 id: did, name: '', timeframe: '', deadline: 0,
                 weight: 1, status: 'not_started', createdAt: 0,
-                colorIndex: 0,
+                colorIndex: 0, hasStrictDeadline: false,
               ),
               effectiveProgress: progressMap[did] ?? 0.0,
             ))
@@ -179,6 +179,7 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
       goal: g,
       allGoalsMap: goalMap,
       effectiveProgress: ep,
+      completions: allCompletions[g.id] ?? [],
     );
 
     return GoalWithProgress(
@@ -258,6 +259,7 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
     required DateTime deadline,
     int weight = 1,
     List<String> dependsOn = const [],
+    bool hasStrictDeadline = false,
   }) async {
     state = const AsyncLoading();
     try {
@@ -277,6 +279,7 @@ class GoalNotifier extends StateNotifier<AsyncValue<void>> {
         colorIndex: Value(colorIdx),
         createdAt: now,
         startDate: startDate,
+        hasStrictDeadline: Value(hasStrictDeadline),
       ));
       for (final dep in dependsOn) {
         await db.insertDependency(GoalDependenciesCompanion.insert(
@@ -528,6 +531,7 @@ class YamlImportNotifier extends StateNotifier<AsyncValue<YamlImportResult?>> {
           colorIndex: Value((colorIdx++) % 8),
           createdAt: now,
           startDate: Value(startDateMs),
+          hasStrictDeadline: Value(gd.hasStrictDeadline),
         ));
         for (final dep in gd.dependsOn) {
           depCompanions.add(GoalDependenciesCompanion.insert(

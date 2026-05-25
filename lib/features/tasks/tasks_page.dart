@@ -16,6 +16,8 @@ class _TasksPageState extends ConsumerState<TasksPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
   String? _filterGoalId;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
 
   @override
   void dispose() {
+    _searchController.dispose();
     _tabCtrl.dispose();
     super.dispose();
   }
@@ -46,7 +49,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
           children: [
             // ── Minimal Header ──────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -70,6 +73,41 @@ class _TasksPageState extends ConsumerState<TasksPage>
                     child: const Icon(Icons.add, color: Colors.white, size: 24),
                   ),
                 ],
+              ),
+            ),
+
+            // ── Lux Search Bar ──────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (val) => setState(() => _searchQuery = val),
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'Inter'),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFF0A0A0A),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 16),
+                  hintText: 'Search by goal name...',
+                  hintStyle: const TextStyle(color: Colors.white38, fontSize: 13, fontFamily: 'Inter'),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFD4AF37), width: 1), // champagne gold
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                          child: const Icon(Icons.close, color: Colors.white38, size: 16),
+                        )
+                      : null,
+                ),
               ),
             ),
 
@@ -141,23 +179,32 @@ class _TasksPageState extends ConsumerState<TasksPage>
                     allGoals: allGoals,
                     blockedIds: blockedIds,
                     filterGoalId: _filterGoalId,
+                    searchQuery: _searchQuery,
                     ref: ref,
                   ),
                   _MissedSection(
                     completions: missedCompletions,
                     allTasks: allTasks,
+                    allGoals: allGoals,
                     blockedIds: blockedIds,
                     filterGoalId: _filterGoalId,
+                    searchQuery: _searchQuery,
                     ref: ref,
                   ),
                   _UpcomingSection(
                     allTasks: allTasks,
+                    allGoals: allGoals,
+                    blockedIds: blockedIds,
                     filterGoalId: _filterGoalId,
+                    searchQuery: _searchQuery,
                     ref: ref,
                   ),
                   _AllSection(
                     allTasks: allTasks,
+                    allGoals: allGoals,
+                    blockedIds: blockedIds,
                     filterGoalId: _filterGoalId,
+                    searchQuery: _searchQuery,
                     ref: ref,
                   ),
                   _CompletedSection(
@@ -165,6 +212,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
                     allTasks: allTasks,
                     allGoals: allGoals,
                     filterGoalId: _filterGoalId,
+                    searchQuery: _searchQuery,
                     ref: ref,
                   ),
                 ],
@@ -235,6 +283,8 @@ class _MinimalTaskRow extends StatelessWidget {
   final bool isDone;
   final ValueChanged<bool>? onToggle;
   final VoidCallback? onLongPress;
+  final bool isLocked;
+  final VoidCallback? onLockedTap;
 
   const _MinimalTaskRow({
     required this.title,
@@ -242,12 +292,18 @@ class _MinimalTaskRow extends StatelessWidget {
     this.isDone = false,
     this.onToggle,
     this.onLongPress,
+    this.isLocked = false,
+    this.onLockedTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final VoidCallback? activeTap = isLocked
+        ? onLockedTap
+        : (onToggle == null ? null : () => onToggle!(!isDone));
+
     return InkWell(
-      onTap: onToggle == null ? null : () => onToggle!(!isDone),
+      onTap: activeTap,
       onLongPress: onLongPress,
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
@@ -256,7 +312,10 @@ class _MinimalTaskRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (onToggle != null) ...[
+            if (isLocked) ...[
+              const Icon(Icons.lock_outline, size: 18, color: Color(0xFF555555)),
+              const SizedBox(width: 16),
+            ] else if (onToggle != null) ...[
               Container(
                 width: 18,
                 height: 18,
@@ -284,7 +343,9 @@ class _MinimalTaskRow extends StatelessWidget {
                       fontFamily: 'Inter',
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
-                      color: isDone ? const Color(0xFF555555) : Colors.white,
+                      color: isLocked
+                          ? const Color(0xFF555555)
+                          : (isDone ? const Color(0xFF555555) : Colors.white),
                       decoration: isDone ? TextDecoration.lineThrough : null,
                       decorationColor: const Color(0xFF555555),
                     ),
@@ -295,7 +356,9 @@ class _MinimalTaskRow extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
-                      color: isDone ? const Color(0xFF444444) : const Color(0xFF888888),
+                      color: isLocked
+                          ? const Color(0xFF444444)
+                          : (isDone ? const Color(0xFF444444) : const Color(0xFF888888)),
                     ),
                   ),
                 ],
@@ -316,6 +379,7 @@ class _TodaySection extends StatelessWidget {
   final AsyncValue<List<Goal>> allGoals;
   final AsyncValue<Set<String>> blockedIds;
   final String? filterGoalId;
+  final String searchQuery;
   final WidgetRef ref;
 
   const _TodaySection({
@@ -324,8 +388,38 @@ class _TodaySection extends StatelessWidget {
     required this.allGoals,
     required this.blockedIds,
     this.filterGoalId,
+    required this.searchQuery,
     required this.ref,
   });
+
+  Widget _buildGroupHeader(String title, Color color) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 12,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -337,43 +431,51 @@ class _TodaySection extends StatelessWidget {
               final taskMap = {for (final t in tasks) t.id: t};
               final goalMap = {for (final g in goals) g.id: g};
 
-              // Unblocked completions
-              var active = comps.where((c) {
+              // Filter Today completions by goal filter, and search query
+              final filteredComps = comps.where((c) {
                 final t = taskMap[c.taskId];
                 if (t == null) return false;
                 if (filterGoalId != null && t.goalId != filterGoalId) return false;
-                if (t.goalId != null && blocked.contains(t.goalId)) return false;
+                if (searchQuery.isNotEmpty) {
+                  final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
+                  final matchesGoal = gName.toLowerCase().contains(searchQuery.toLowerCase());
+                  final matchesTask = t.name.toLowerCase().contains(searchQuery.toLowerCase());
+                  if (!matchesGoal && !matchesTask) return false;
+                }
                 return true;
               }).toList();
 
-              active.sort((a, b) {
+              final unblockedComps = <TaskCompletion>[];
+
+              for (final c in filteredComps) {
+                final t = taskMap[c.taskId]!;
+                final isBlocked = t.goalId != null && blocked.contains(t.goalId);
+                if (!isBlocked) {
+                  unblockedComps.add(c);
+                }
+              }
+
+              // Sort list
+              unblockedComps.sort((a, b) {
                 if (a.completedDate != null && b.completedDate == null) return 1;
                 if (a.completedDate == null && b.completedDate != null) return -1;
                 return (taskMap[a.taskId]?.reminderTime ?? '')
                     .compareTo(taskMap[b.taskId]?.reminderTime ?? '');
               });
 
-              // Collect names of blocked goals that have tasks today
-              final blockedGoalNames = <String>{};
-              for (final c in comps) {
-                final t = taskMap[c.taskId];
-                if (t == null) continue;
-                if (filterGoalId != null && t.goalId != filterGoalId) continue;
-                if (t.goalId != null && blocked.contains(t.goalId)) {
-                  final name = goalMap[t.goalId]?.name;
-                  if (name != null) blockedGoalNames.add(name);
-                }
+              if (unblockedComps.isEmpty) {
+                return const _EmptyState('No tasks for today.');
               }
 
               return ListView(
                 children: [
-                  if (active.isEmpty && blockedGoalNames.isEmpty)
-                    const _EmptyState('No tasks for today.'),
-                  ...active.map((c) {
+                  ...unblockedComps.map((c) {
                     final t = taskMap[c.taskId]!;
+                    final gName = t.goalId != null ? goalMap[t.goalId]?.name : null;
+                    final subtitle = gName != null ? '${t.reminderTime} · $gName' : t.reminderTime;
                     return _MinimalTaskRow(
                       title: t.name,
-                      subtitle: t.reminderTime,
+                      subtitle: subtitle,
                       isDone: c.completedDate != null,
                       onToggle: (done) {
                         if (done) {
@@ -387,8 +489,6 @@ class _TodaySection extends StatelessWidget {
                       onLongPress: () => _showTaskOptions(context, ref, t),
                     );
                   }),
-                  if (blockedGoalNames.isNotEmpty)
-                    _LockedGoalsBanner(goalNames: blockedGoalNames.toList()),
                 ],
               );
             },
@@ -410,15 +510,19 @@ class _TodaySection extends StatelessWidget {
 class _MissedSection extends StatelessWidget {
   final AsyncValue<List<TaskCompletion>> completions;
   final AsyncValue<List<Task>> allTasks;
+  final AsyncValue<List<Goal>> allGoals;
   final AsyncValue<Set<String>> blockedIds;
   final String? filterGoalId;
+  final String searchQuery;
   final WidgetRef ref;
 
   const _MissedSection({
     required this.completions,
     required this.allTasks,
+    required this.allGoals,
     required this.blockedIds,
     this.filterGoalId,
+    required this.searchQuery,
     required this.ref,
   });
 
@@ -426,17 +530,26 @@ class _MissedSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return completions.when(
       data: (comps) => allTasks.when(
-        data: (tasks) => blockedIds.when(
-          data: (blocked) {
-            final taskMap = {for (final t in tasks) t.id: t};
-            // Exclude tasks from blocked goals - they were not supposed to run
-            var filtered = comps.where((c) {
-              final t = taskMap[c.taskId];
-              if (t == null) return false;
-              if (filterGoalId != null && t.goalId != filterGoalId) return false;
-              if (t.goalId != null && blocked.contains(t.goalId)) return false;
-              return true;
-            }).toList();
+        data: (tasks) => allGoals.when(
+          data: (goals) => blockedIds.when(
+            data: (blocked) {
+              final taskMap = {for (final t in tasks) t.id: t};
+              final goalMap = {for (final g in goals) g.id: g};
+
+              // Exclude tasks from blocked goals - they were not supposed to run
+              var filtered = comps.where((c) {
+                final t = taskMap[c.taskId];
+                if (t == null) return false;
+                if (filterGoalId != null && t.goalId != filterGoalId) return false;
+                if (t.goalId != null && blocked.contains(t.goalId)) return false;
+                if (searchQuery.isNotEmpty) {
+                  final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
+                  final matchesGoal = gName.toLowerCase().contains(searchQuery.toLowerCase());
+                  final matchesTask = t.name.toLowerCase().contains(searchQuery.toLowerCase());
+                  if (!matchesGoal && !matchesTask) return false;
+                }
+                return true;
+              }).toList();
 
             // Sort: pending (undone) first, then completed missed last
             filtered.sort((a, b) {
@@ -474,7 +587,10 @@ class _MissedSection extends StatelessWidget {
                 );
               },
             );
-          },
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
           loading: () => const SizedBox.shrink(),
           error: (_, __) => const SizedBox.shrink(),
         ),
@@ -489,112 +605,67 @@ class _MissedSection extends StatelessWidget {
 
 // ── Locked Goals Banner ─────────────────────────────────────────────────────
 
-class _LockedGoalsBanner extends StatelessWidget {
-  final List<String> goalNames;
-  const _LockedGoalsBanner({required this.goalNames});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D0D0D),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.lock_outline, color: Color(0xFF555555), size: 13),
-              const SizedBox(width: 8),
-              const Text(
-                'LOCKED PHASES',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 9,
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF555555),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ...goalNames.map((name) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 4),
-                    const Text('—', style: TextStyle(color: Color(0xFF333333), fontSize: 11)),
-                    const SizedBox(width: 8),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        color: Color(0xFF444444),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 4),
-          const Text(
-            'Complete the required phase to unlock these tasks.',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 11,
-              color: Color(0xFF333333),
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _UpcomingSection extends StatelessWidget {
   final AsyncValue<List<Task>> allTasks;
+  final AsyncValue<List<Goal>> allGoals;
+  final AsyncValue<Set<String>> blockedIds;
   final String? filterGoalId;
+  final String searchQuery;
   final WidgetRef ref;
 
   const _UpcomingSection({
     required this.allTasks,
+    required this.allGoals,
+    required this.blockedIds,
     this.filterGoalId,
+    required this.searchQuery,
     required this.ref,
   });
 
   @override
   Widget build(BuildContext context) {
     return allTasks.when(
-      data: (tasks) {
-        var filtered = tasks.where((t) {
-          if (t.isActive == 0) return false;
-          if (filterGoalId != null && t.goalId != filterGoalId) return false;
-          return true;
-        }).toList();
+      data: (tasks) => allGoals.when(
+        data: (goals) => blockedIds.when(
+          data: (blocked) {
+            final goalMap = {for (final g in goals) g.id: g};
+            var filtered = tasks.where((t) {
+              if (t.isActive == 0) return false;
+              if (filterGoalId != null && t.goalId != filterGoalId) return false;
+              if (t.goalId != null && blocked.contains(t.goalId)) return false;
+              if (searchQuery.isNotEmpty) {
+                final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
+                final matchesGoal = gName.toLowerCase().contains(searchQuery.toLowerCase());
+                final matchesTask = t.name.toLowerCase().contains(searchQuery.toLowerCase());
+                if (!matchesGoal && !matchesTask) return false;
+              }
+              return true;
+            }).toList();
 
-        if (filtered.isEmpty) return const _EmptyState('No upcoming tasks.');
+            if (filtered.isEmpty) return const _EmptyState('No upcoming tasks.');
 
-        return ListView.builder(
-          itemCount: filtered.length,
-          itemBuilder: (ctx, i) {
-            final t = filtered[i];
-            return _MinimalTaskRow(
-              title: t.name,
-              subtitle: t.schedule == 'specific_date' 
-                  ? 'Scheduled for ${t.scheduleOn} at ${t.reminderTime}'
-                  : 'Repeats: ${t.schedule} at ${t.reminderTime}',
-              onLongPress: () => _showTaskOptions(context, ref, t),
+            return ListView.builder(
+              itemCount: filtered.length,
+              itemBuilder: (ctx, i) {
+                final t = filtered[i];
+                return _MinimalTaskRow(
+                  title: t.name,
+                  subtitle: t.schedule == 'specific_date' 
+                      ? 'Scheduled for ${t.scheduleOn} at ${t.reminderTime}'
+                      : 'Repeats: ${t.schedule} at ${t.reminderTime}',
+                  onLongPress: () => _showTaskOptions(context, ref, t),
+                );
+              },
             );
           },
-        );
-      },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
     );
@@ -603,38 +674,60 @@ class _UpcomingSection extends StatelessWidget {
 
 class _AllSection extends StatelessWidget {
   final AsyncValue<List<Task>> allTasks;
+  final AsyncValue<List<Goal>> allGoals;
+  final AsyncValue<Set<String>> blockedIds;
   final String? filterGoalId;
+  final String searchQuery;
   final WidgetRef ref;
 
   const _AllSection({
     required this.allTasks,
+    required this.allGoals,
+    required this.blockedIds,
     this.filterGoalId,
+    required this.searchQuery,
     required this.ref,
   });
 
   @override
   Widget build(BuildContext context) {
     return allTasks.when(
-      data: (tasks) {
-        var filtered = tasks.where((t) {
-          if (filterGoalId != null && t.goalId != filterGoalId) return false;
-          return true;
-        }).toList();
+      data: (tasks) => allGoals.when(
+        data: (goals) => blockedIds.when(
+          data: (blocked) {
+            final goalMap = {for (final g in goals) g.id: g};
+            var filtered = tasks.where((t) {
+              if (filterGoalId != null && t.goalId != filterGoalId) return false;
+              if (t.goalId != null && blocked.contains(t.goalId)) return false;
+              if (searchQuery.isNotEmpty) {
+                final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
+                final matchesGoal = gName.toLowerCase().contains(searchQuery.toLowerCase());
+                final matchesTask = t.name.toLowerCase().contains(searchQuery.toLowerCase());
+                if (!matchesGoal && !matchesTask) return false;
+              }
+              return true;
+            }).toList();
 
-        if (filtered.isEmpty) return const _EmptyState('No tasks created.');
+            if (filtered.isEmpty) return const _EmptyState('No tasks created.');
 
-        return ListView.builder(
-          itemCount: filtered.length,
-          itemBuilder: (ctx, i) {
-            final t = filtered[i];
-            return _MinimalTaskRow(
-              title: t.name,
-              subtitle: t.isActive == 1 ? 'Active' : 'Inactive',
-              onLongPress: () => _showTaskOptions(context, ref, t),
+            return ListView.builder(
+              itemCount: filtered.length,
+              itemBuilder: (ctx, i) {
+                final t = filtered[i];
+                return _MinimalTaskRow(
+                  title: t.name,
+                  subtitle: t.isActive == 1 ? 'Active' : 'Inactive',
+                  onLongPress: () => _showTaskOptions(context, ref, t),
+                );
+              },
             );
           },
-        );
-      },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        ),
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
     );
@@ -646,6 +739,7 @@ class _CompletedSection extends StatelessWidget {
   final AsyncValue<List<Task>> allTasks;
   final AsyncValue<List<Goal>> allGoals;
   final String? filterGoalId;
+  final String searchQuery;
   final WidgetRef ref;
 
   const _CompletedSection({
@@ -653,6 +747,7 @@ class _CompletedSection extends StatelessWidget {
     required this.allTasks,
     required this.allGoals,
     this.filterGoalId,
+    required this.searchQuery,
     required this.ref,
   });
 
@@ -668,6 +763,12 @@ class _CompletedSection extends StatelessWidget {
               final t = taskMap[c.taskId];
               if (t == null) return false;
               if (filterGoalId != null && t.goalId != filterGoalId) return false;
+              if (searchQuery.isNotEmpty) {
+                final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
+                final matchesGoal = gName.toLowerCase().contains(searchQuery.toLowerCase());
+                final matchesTask = t.name.toLowerCase().contains(searchQuery.toLowerCase());
+                if (!matchesGoal && !matchesTask) return false;
+              }
               return true;
             }).toList();
 

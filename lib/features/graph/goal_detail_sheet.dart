@@ -195,10 +195,36 @@ class _GoalDetailSheetState extends ConsumerState<GoalDetailSheet> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.xl, vertical: 8),
-                      child: ElevatedButton(
-                        onPressed: () => _confirmComplete(context, gwp, ref),
-                        child: const Text('Mark Goal as Complete'),
-                      ),
+                      child: Builder(builder: (context) {
+                        final isStrict = gwp.goal.hasStrictDeadline;
+                        final nowMs = DateTime.now().millisecondsSinceEpoch;
+                        final isLockedByDeadline = isStrict && nowMs < gwp.goal.deadline;
+
+                        if (isLockedByDeadline) {
+                          final deadlineDate = DateTime.fromMillisecondsSinceEpoch(gwp.goal.deadline);
+                          final formattedDeadline = "${deadlineDate.year}-${deadlineDate.month.toString().padLeft(2, '0')}-${deadlineDate.day.toString().padLeft(2, '0')}";
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const ElevatedButton(
+                                onPressed: null, // Disabled
+                                child: Text('Mark Goal as Complete'),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'This goal has a strict deadline and cannot be completed until $formattedDeadline.',
+                                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          );
+                        }
+
+                        return ElevatedButton(
+                          onPressed: () => _confirmComplete(context, gwp, ref),
+                          child: const Text('Mark Goal as Complete'),
+                        );
+                      }),
                     ),
                   ),
 
@@ -747,5 +773,6 @@ class _SubGoalsSection extends StatelessWidget {
     GoalStatus.overdue    => const Color(0xFFFF4500),
     GoalStatus.blocked    => const Color(0xFFFFD700),
     GoalStatus.notStarted => const Color(0xFF888888),
+    GoalStatus.pending    => const Color(0xFFB0B5BC),
   };
 }

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 part 'app_database.g.dart';
@@ -25,6 +26,7 @@ class Goals extends Table {
   // null for blocked goals (set to unlock timestamp when dependency completes).
   // For non-blocked goals, set to createdAt or the YAML-specified start_date.
   IntColumn get startDate => integer().nullable()();
+  BoolColumn get hasStrictDeadline => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -89,6 +91,8 @@ class UserProfiles extends Table {
       text().withDefault(const Constant('22:30'))();
   IntColumn get autoLogTasks =>
       integer().withDefault(const Constant(1))();
+  TextColumn get navStyle =>
+      text().withDefault(const Constant('radial'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -149,9 +153,10 @@ class ProductivityCaches extends Table {
              ActivityLogs, SleepLogs, ProductivityCaches])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+  AppDatabase.withExecutor(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -191,6 +196,12 @@ class AppDatabase extends _$AppDatabase {
             await customStatement('DELETE FROM sleep_logs');
             await customStatement('DELETE FROM productivity_caches');
             await customStatement('DELETE FROM user_profiles');
+          }
+          if (from < 7) {
+            await m.addColumn(goals, goals.hasStrictDeadline);
+          }
+          if (from < 8) {
+            await m.addColumn(userProfiles, userProfiles.navStyle);
           }
         },
       );

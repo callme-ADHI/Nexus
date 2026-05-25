@@ -493,6 +493,15 @@ goals:
     # Must be today or a future date. Never a past date.
     # Example: "2026-07-07"
 
+    has_strict_deadline: boolean
+    # OPTIONAL. Default: false if omitted.
+    # Set to true for goals that require strict training or practice up to a specific date
+    # (e.g. 3-month communication skills training).
+    # If true, the user CANNOT mark the goal as complete until today's date reaches
+    # or passes the deadline, and tasks are scheduled all the way until the deadline.
+    # If false, the goal can be marked complete once 80%+ progress is made.
+    # Example: has_strict_deadline: true
+
     start_date: string
     # OPTIONAL. Format: "YYYY-MM-DD"
     # The date from which this goal's tasks begin appearing in the schedule.
