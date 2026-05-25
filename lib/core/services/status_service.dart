@@ -24,15 +24,15 @@ class StatusService {
     required Map<String, Goal> allGoalsMap,
     required double effectiveProgress,
   }) {
-    // Overdue takes priority over blocked
-    final now = DateTime.now().millisecondsSinceEpoch;
-    if (now > goal.deadline && goal.status != 'completed') {
-      return GoalStatus.overdue;
-    }
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
 
+    // 1. Completed always wins — even if past deadline
     if (goal.status == 'completed') return GoalStatus.completed;
 
-    // Check if blocked
+    // 2. Overdue: past deadline and not completed
+    if (nowMs > goal.deadline) return GoalStatus.overdue;
+
+    // 3. Blocked: has at least one incomplete dependency
     final deps = _depGraph[goal.id] ?? [];
     final isBlocked = deps.any((depId) {
       final dep = allGoalsMap[depId];
@@ -40,7 +40,12 @@ class StatusService {
     });
     if (isBlocked) return GoalStatus.blocked;
 
-    // In progress vs not started
+    // 4. Not Started: startDate is in the future (goal not kicked off yet)
+    //    e.g. imported with a future start_date, or just unlocked today.
+    final sd = goal.startDate;
+    if (sd != null && sd > nowMs) return GoalStatus.notStarted;
+
+    // 5. Active vs Not Started based on actual task completion progress
     if (effectiveProgress > 0) return GoalStatus.inProgress;
     return GoalStatus.notStarted;
   }

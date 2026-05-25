@@ -101,7 +101,10 @@ abstract final class ProgressCalculator {
   }
 
   static bool hasTimeWarning(double timeElapsed, double effectiveProg) {
-    return timeElapsed > (effectiveProg + 15);
+    // Only fire a warning after 25% of the timeframe has passed
+    // AND progress is more than 20 percentage-points behind schedule.
+    // This prevents false alarms on freshly-created goals.
+    return timeElapsed > 25 && timeElapsed > (effectiveProg + 20);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
