@@ -53,8 +53,9 @@ final allDependenciesProvider = StreamProvider<List<GoalDependency>>((ref) {
 
 
 /// Provides the set of goal IDs that are currently blocked by incomplete dependencies.
-/// Reactive: re-evaluates whenever goals or dependencies change (StreamProvider).
-final blockedGoalIdsProvider = StreamProvider<Set<String>>((ref) async* {
+/// Reactive: re-evaluates whenever goals or dependencies stream-emit new data.
+/// FutureProvider watching stream .future is the correct Riverpod 2 reactive pattern.
+final blockedGoalIdsProvider = FutureProvider<Set<String>>((ref) async {
   final goals = await ref.watch(allGoalsProvider.future);
   final deps  = await ref.watch(allDependenciesProvider.future);
   final goalMap  = {for (final g in goals) g.id: g};
@@ -70,7 +71,7 @@ final blockedGoalIdsProvider = StreamProvider<Set<String>>((ref) async* {
       blocked.add(g.id);
     }
   }
-  yield blocked;
+  return blocked;
 });
 
 /// Full graph model with progress, status, and dependency info
@@ -220,6 +221,14 @@ final completedCompletionsProvider = StreamProvider<List<TaskCompletion>>((ref) 
 final pastCompletionsProvider = StreamProvider.family<List<TaskCompletion>, int>((ref, days) {
   final db = ref.watch(databaseProvider);
   return db.watchPastCompletions(days);
+});
+
+/// All TaskCompletion records for tasks belonging to a specific goal.
+/// Used by GoalDetailSheet to show/toggle task completions regardless of date.
+final allCompletionsForGoalProvider =
+    StreamProvider.family<List<TaskCompletion>, String>((ref, goalId) {
+  final db = ref.watch(databaseProvider);
+  return db.watchCompletionsForGoal(goalId);
 });
 
 

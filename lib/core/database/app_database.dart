@@ -285,6 +285,17 @@ class AppDatabase extends _$AppDatabase {
 
   Stream<List<Task>> watchAllTasks() => select(tasks).watch();
 
+  /// All TaskCompletion records whose taskId belongs to tasks of [goalId].
+  /// Used by GoalDetailSheet so tasks can be toggled regardless of schedule date.
+  Stream<List<TaskCompletion>> watchCompletionsForGoal(String goalId) {
+    final query = select(taskCompletions).join([
+      innerJoin(tasks, tasks.id.equalsExp(taskCompletions.taskId)),
+    ])..where(tasks.goalId.equals(goalId));
+    return query
+        .map((row) => row.readTable(taskCompletions))
+        .watch();
+  }
+
 
   Future<List<Task>> getActiveTasksForGoal(String goalId) =>
       (select(tasks)

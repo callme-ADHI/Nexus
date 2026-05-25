@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:drift/drift.dart' as drift;
 
 import 'package:nexus/core/providers/providers.dart';
 import 'package:nexus/core/database/app_database.dart';
@@ -30,6 +31,7 @@ class _GoalDetailSheetState extends ConsumerState<GoalDetailSheet> {
     final allGoals = ref.watch(allGoalsProvider);
     final allTasks = ref.watch(allTasksProvider);
     final todayCompletions = ref.watch(todayCompletionsProvider);
+    final allCompletions = ref.watch(allCompletionsForGoalProvider(_goal.id));
 
     return goalGraph.when(
       data: (goals) {
@@ -119,18 +121,37 @@ class _GoalDetailSheetState extends ConsumerState<GoalDetailSheet> {
                         AppSpacing.xl, AppSpacing.xxl, AppSpacing.xl, AppSpacing.md),
                     child: allTasks.when(
                       data: (tasks) => todayCompletions.when(
-                        data: (completions) {
-                          final goalTasks =
-                              tasks.where((t) => t.goalId == _goal.id).toList();
-                          final completionMap = {
-                            for (final c in completions) c.taskId: c
-                          };
-                          return _TasksSection(
-                            tasks: goalTasks,
-                            completionMap: completionMap,
-                            isBlocked: gwp.status == GoalStatus.blocked,
-                          );
-                        },
+                        data: (todayComps) => allCompletions.when(
+                          data: (allComps) {
+                            final goalTasks =
+                                tasks.where((t) => t.goalId == _goal.id).toList();
+                            // today's midnight timestamp
+                            final now = DateTime.now();
+                            final todayMs = DateTime(now.year, now.month, now.day)
+                                .millisecondsSinceEpoch;
+                            // Build map: taskId -> today's completion (if any)
+                            final todayMap = {
+                              for (final c in todayComps) c.taskId: c
+                            };
+                            // Build map: taskId -> most-recent completion ever (fallback)
+                            final anyCompMap = <String, TaskCompletion>{};
+                            for (final c in allComps) {
+                              final existing = anyCompMap[c.taskId];
+                              if (existing == null || c.scheduledDate > existing.scheduledDate) {
+                                anyCompMap[c.taskId] = c;
+                              }
+                            }
+                            return _TasksSection(
+                              tasks: goalTasks,
+                              todayMap: todayMap,
+                              anyCompMap: anyCompMap,
+                              todayMs: todayMs,
+                              isBlocked: gwp.status == GoalStatus.blocked,
+                            );
+                          },
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
                         loading: () => const SizedBox.shrink(),
                         error: (_, __) => const SizedBox.shrink(),
                       ),
@@ -497,18 +518,26 @@ class _DepBreadcrumb extends StatelessWidget {
 
 class _TasksSection extends ConsumerWidget {
   final List<Task> tasks;
-  final Map<String, TaskCompletion> completionMap;
+  /// Completion records for TODAY specifically (taskId → completion).
+  final Map<String, TaskCompletion> todayMap;
+  /// Most-recent completion ever per task (taskId → completion) — used as fallback
+  /// to get scheduledDate when the task has no today record.
+  final Map<String, TaskCompletion> anyCompMap;
+  /// Today midnight timestamp — used to create on-the-fly records.
+  final int todayMs;
   final bool isBlocked;
   const _TasksSection({
     required this.tasks,
-    required this.completionMap,
+    required this.todayMap,
+    required this.anyCompMap,
+    required this.todayMs,
     required this.isBlocked,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final doneCount =
-        completionMap.values.where((c) => c.completedDate != null).length;
+        todayMap.values.where((c) => c.completedDate != null).length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,8 +558,12 @@ class _TasksSection extends ConsumerWidget {
               style: AppTypography.body
                   .copyWith(color: AppColors.textSecondary)),
         ...tasks.map((task) {
-          final completion = completionMap[task.id];
-          final isDone = completion?.completedDate != null;
+          // Prefer today's record; fall back to any completion for display.
+          final todayComp = todayMap[task.id];
+          final isDone = todayComp?.completedDate != null;
+          // Show grayed badge when task isn't scheduled for today
+          final scheduledToday = todayComp != null;
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Row(
@@ -538,20 +571,39 @@ class _TasksSection extends ConsumerWidget {
                 GestureDetector(
                   onTap: isBlocked
                       ? null
-                      : () {
-                          if (isDone && completion != null) {
+                      : () async {
+                          if (isDone && todayComp != null) {
+                            // Un-complete today's record
                             ref
                                 .read(taskNotifierProvider.notifier)
                                 .uncompleteTask(
                                   taskId: task.id,
-                                  scheduledDate: completion.scheduledDate,
+                                  scheduledDate: todayComp.scheduledDate,
                                 );
-                          } else if (completion != null) {
+                          } else if (todayComp != null) {
+                            // Complete existing today record
                             ref
                                 .read(taskNotifierProvider.notifier)
                                 .completeTask(
                                   taskId: task.id,
-                                  scheduledDate: completion.scheduledDate,
+                                  scheduledDate: todayComp.scheduledDate,
+                                );
+                          } else {
+                            // Task has no record for today — create one on-the-fly
+                            // (ad-hoc completion for non-daily tasks or pending goals)
+                            final db = ref.read(databaseProvider);
+                            await db.upsertCompletion(
+                              TaskCompletionsCompanion(
+                                taskId: drift.Value(task.id),
+                                scheduledDate: drift.Value(todayMs),
+                              ),
+                            );
+                            // Now mark it completed
+                            ref
+                                .read(taskNotifierProvider.notifier)
+                                .completeTask(
+                                  taskId: task.id,
+                                  scheduledDate: todayMs,
                                 );
                           }
                         },
@@ -569,7 +621,9 @@ class _TasksSection extends ConsumerWidget {
                             ? AppColors.border
                             : isDone
                                 ? AppColors.accentPrimary
-                                : AppColors.textPrimary,
+                                : scheduledToday
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
                         width: 2,
                       ),
                     ),
@@ -589,10 +643,19 @@ class _TasksSection extends ConsumerWidget {
                             decoration: isDone
                                 ? TextDecoration.lineThrough
                                 : null,
+                            color: scheduledToday || isDone
+                                ? null
+                                : AppColors.textSecondary,
                           )),
                       Text(
-                        '${_scheduleLabel(task)} · ${task.reminderTime}',
-                        style: AppTypography.caption,
+                        scheduledToday
+                            ? '${_scheduleLabel(task)} · ${task.reminderTime}'
+                            : '${_scheduleLabel(task)} · tap to mark done today',
+                        style: AppTypography.caption.copyWith(
+                          color: scheduledToday
+                              ? null
+                              : AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
