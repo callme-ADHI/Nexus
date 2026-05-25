@@ -115,14 +115,14 @@ class NotificationService {
     final end   = now.add(const Duration(days: 7));
     final tasks = await db.getAllTasks();
     final goals = await db.getAllGoals();
-    final deps  = await db.getAllGoalDependencies();
+    final deps  = await db.getAllDependencies();
     final goalMap = {for (final g in goals) g.id: g};
 
     // Compute blocked goal IDs
     final completedIds = goals.where((g) => g.status == 'completed').map((g) => g.id).toSet();
     final blockedGoalIds = <String>{};
     for (final dep in deps) {
-      if (!completedIds.contains(dep.dependencyId)) {
+      if (!completedIds.contains(dep.dependsOnId)) {
         blockedGoalIds.add(dep.goalId);
       }
     }
