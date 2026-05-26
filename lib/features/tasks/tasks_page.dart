@@ -492,12 +492,17 @@ class _TodaySection extends StatelessWidget {
                 }
               }
 
-              // Sort list
+              // Sort list: incomplete first, then task of the day first, then by reminder time
               unblockedComps.sort((a, b) {
                 if (a.completedDate != null && b.completedDate == null) return 1;
                 if (a.completedDate == null && b.completedDate != null) return -1;
-                return (taskMap[a.taskId]?.reminderTime ?? '')
-                    .compareTo(taskMap[b.taskId]?.reminderTime ?? '');
+                
+                final tA = taskMap[a.taskId]!;
+                final tB = taskMap[b.taskId]!;
+                if (tA.isTaskOfTheDay && !tB.isTaskOfTheDay) return -1;
+                if (!tA.isTaskOfTheDay && tB.isTaskOfTheDay) return 1;
+
+                return tA.reminderTime.compareTo(tB.reminderTime);
               });
 
               if (unblockedComps.isEmpty) {
@@ -589,11 +594,17 @@ class _MissedSection extends StatelessWidget {
                 return true;
               }).toList();
 
-            // Sort: pending (undone) first, then completed missed last
+            // Sort: pending (undone) first, then task of the day first, then completed missed last
             filtered.sort((a, b) {
               final aDone = a.completedDate != null ? 1 : 0;
               final bDone = b.completedDate != null ? 1 : 0;
               if (aDone != bDone) return aDone.compareTo(bDone);
+              
+              final tA = taskMap[a.taskId]!;
+              final tB = taskMap[b.taskId]!;
+              if (tA.isTaskOfTheDay && !tB.isTaskOfTheDay) return -1;
+              if (!tA.isTaskOfTheDay && tB.isTaskOfTheDay) return 1;
+
               return b.scheduledDate.compareTo(a.scheduledDate); // most recent first
             });
 
@@ -683,6 +694,13 @@ class _UpcomingSection extends StatelessWidget {
               return true;
             }).toList();
 
+            // Sort: Task of the day first
+            filtered.sort((a, b) {
+              if (a.isTaskOfTheDay && !b.isTaskOfTheDay) return -1;
+              if (!a.isTaskOfTheDay && b.isTaskOfTheDay) return 1;
+              return a.reminderTime.compareTo(b.reminderTime);
+            });
+
             if (filtered.isEmpty) return const _EmptyState('No upcoming tasks.');
 
             return ListView.builder(
@@ -748,6 +766,13 @@ class _AllSection extends StatelessWidget {
               return true;
             }).toList();
 
+            // Sort: Task of the day first, then active tasks first
+            filtered.sort((a, b) {
+              if (a.isTaskOfTheDay && !b.isTaskOfTheDay) return -1;
+              if (!a.isTaskOfTheDay && b.isTaskOfTheDay) return 1;
+              return b.isActive.compareTo(a.isActive);
+            });
+
             if (filtered.isEmpty) return const _EmptyState('No tasks created.');
 
             return ListView.builder(
@@ -812,6 +837,15 @@ class _CompletedSection extends StatelessWidget {
               }
               return true;
             }).toList();
+
+            // Sort: Completed Task of the Day first, then by completedDate (most recent first)
+            filtered.sort((a, b) {
+              final tA = taskMap[a.taskId]!;
+              final tB = taskMap[b.taskId]!;
+              if (tA.isTaskOfTheDay && !tB.isTaskOfTheDay) return -1;
+              if (!tA.isTaskOfTheDay && tB.isTaskOfTheDay) return 1;
+              return (b.completedDate ?? 0).compareTo(a.completedDate ?? 0);
+            });
 
             if (filtered.isEmpty) return const _EmptyState('No completed tasks.');
 
