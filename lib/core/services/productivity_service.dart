@@ -227,7 +227,12 @@ class ProductivityService {
     final activities = await db.getActivitiesForDate(dateMidnight);
     final sleep = await db.getSleepForDate(dateMidnight);
     final completions = await db.getCompletionsForDate(dateMidnight);
-    final completedCount = completions.where((c) => c.completedDate != null).length;
+    final completedCount = completions.where((c) {
+      if (c.completedDate == null) return false;
+      final s = DateTime.fromMillisecondsSinceEpoch(c.scheduledDate);
+      final comp = DateTime.fromMillisecondsSinceEpoch(c.completedDate!);
+      return s.year == comp.year && s.month == comp.month && s.day == comp.day;
+    }).length;
     final score = calculate(activities: activities, sleep: sleep, completedTasksCount: completedCount);
     await cacheScore(db, dateMidnight, score);
     return score;
