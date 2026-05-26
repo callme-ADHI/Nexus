@@ -175,11 +175,13 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
       dependencies: depGoalProgress,
     );
     final te = ProgressCalculator.timeElapsedPct(g);
+    final hasActiveTasks = tasks.any((t) => t.goalId == g.id && t.isActive == 1);
     final status = statusService.evaluateStatus(
       goal: g,
       allGoalsMap: goalMap,
       effectiveProgress: ep,
       completions: allCompletions[g.id] ?? [],
+      hasActiveTasks: hasActiveTasks,
     );
 
     return GoalWithProgress(
