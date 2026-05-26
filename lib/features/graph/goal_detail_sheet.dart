@@ -647,9 +647,11 @@ class _TasksSection extends ConsumerWidget {
                             ? AppColors.border
                             : isDone
                                 ? AppColors.accentPrimary
-                                : scheduledToday
-                                    ? AppColors.textPrimary
-                                    : AppColors.textSecondary,
+                                : task.isTaskOfTheDay
+                                    ? Colors.amber
+                                    : scheduledToday
+                                        ? AppColors.textPrimary
+                                        : AppColors.textSecondary,
                         width: 2,
                       ),
                     ),
@@ -664,15 +666,43 @@ class _TasksSection extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(task.name,
-                          style: AppTypography.body.copyWith(
-                            decoration: isDone
-                                ? TextDecoration.lineThrough
-                                : null,
-                            color: scheduledToday || isDone
-                                ? null
-                                : AppColors.textSecondary,
-                          )),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              task.name,
+                              style: AppTypography.body.copyWith(
+                                decoration: isDone ? TextDecoration.lineThrough : null,
+                                color: isBlocked
+                                    ? AppColors.textSecondary
+                                    : (isDone
+                                        ? AppColors.textSecondary
+                                        : (task.isTaskOfTheDay ? Colors.amber : (scheduledToday ? null : AppColors.textSecondary))),
+                              ),
+                            ),
+                          ),
+                          if (task.isTaskOfTheDay) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: const Text(
+                                'TASK OF THE DAY',
+                                style: TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                       Text(
                         scheduledToday
                             ? '${_scheduleLabel(task)} · ${task.reminderTime}'

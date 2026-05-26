@@ -285,6 +285,7 @@ class _MinimalTaskRow extends StatelessWidget {
   final VoidCallback? onLongPress;
   final bool isLocked;
   final VoidCallback? onLockedTap;
+  final bool isTaskOfTheDay;
 
   const _MinimalTaskRow({
     required this.title,
@@ -294,6 +295,7 @@ class _MinimalTaskRow extends StatelessWidget {
     this.onLongPress,
     this.isLocked = false,
     this.onLockedTap,
+    this.isTaskOfTheDay = false,
   });
 
   @override
@@ -307,8 +309,17 @@ class _MinimalTaskRow extends StatelessWidget {
       onLongPress: onLongPress,
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          border: isTaskOfTheDay
+              ? Border(left: BorderSide(color: Colors.amber.withValues(alpha: 0.8), width: 3))
+              : null,
+          color: isTaskOfTheDay ? Colors.amber.withValues(alpha: 0.03) : Colors.transparent,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: isTaskOfTheDay ? 21 : 24,
+          vertical: 16,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -337,18 +348,44 @@ class _MinimalTaskRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      color: isLocked
-                          ? const Color(0xFF555555)
-                          : (isDone ? const Color(0xFF555555) : Colors.white),
-                      decoration: isDone ? TextDecoration.lineThrough : null,
-                      decorationColor: const Color(0xFF555555),
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 15,
+                            fontWeight: isTaskOfTheDay ? FontWeight.w600 : FontWeight.w400,
+                            color: isLocked
+                                ? const Color(0xFF555555)
+                                : (isDone ? const Color(0xFF555555) : (isTaskOfTheDay ? Colors.amber : Colors.white)),
+                            decoration: isDone ? TextDecoration.lineThrough : null,
+                            decorationColor: const Color(0xFF555555),
+                          ),
+                        ),
+                      ),
+                      if (isTaskOfTheDay) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'TASK OF THE DAY',
+                            style: TextStyle(
+                              color: Colors.amber,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Inter',
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -477,6 +514,7 @@ class _TodaySection extends StatelessWidget {
                       title: t.name,
                       subtitle: subtitle,
                       isDone: c.completedDate != null,
+                      isTaskOfTheDay: t.isTaskOfTheDay,
                       onToggle: (done) {
                         if (done) {
                           ref.read(taskNotifierProvider.notifier).completeTask(
@@ -574,6 +612,7 @@ class _MissedSection extends StatelessWidget {
                       ? 'Made up on ${d.month}/${d.day}'
                       : 'Missed on ${d.month}/${d.day}',
                   isDone: isDone,
+                  isTaskOfTheDay: t.isTaskOfTheDay,
                   onToggle: (done) {
                     if (done) {
                       ref.read(taskNotifierProvider.notifier).completeTask(
@@ -655,6 +694,7 @@ class _UpcomingSection extends StatelessWidget {
                   subtitle: t.schedule == 'specific_date' 
                       ? 'Scheduled for ${t.scheduleOn} at ${t.reminderTime}'
                       : 'Repeats: ${t.schedule} at ${t.reminderTime}',
+                  isTaskOfTheDay: t.isTaskOfTheDay,
                   onLongPress: () => _showTaskOptions(context, ref, t),
                 );
               },
@@ -717,6 +757,7 @@ class _AllSection extends StatelessWidget {
                 return _MinimalTaskRow(
                   title: t.name,
                   subtitle: t.isActive == 1 ? 'Active' : 'Inactive',
+                  isTaskOfTheDay: t.isTaskOfTheDay,
                   onLongPress: () => _showTaskOptions(context, ref, t),
                 );
               },
@@ -793,9 +834,13 @@ class _CompletedSection extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF111111),
+                      color: t.isTaskOfTheDay ? Colors.amber.withValues(alpha: 0.02) : const Color(0xFF111111),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+                      border: Border.all(
+                        color: t.isTaskOfTheDay
+                            ? Colors.amber.withValues(alpha: 0.8)
+                            : Colors.white.withValues(alpha: 0.10),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -804,14 +849,40 @@ class _CompletedSection extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Text(
-                                t.name,
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      t.name,
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: t.isTaskOfTheDay ? Colors.amber : Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  if (t.isTaskOfTheDay) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text(
+                                        'TASK OF THE DAY',
+                                        style: TextStyle(
+                                          color: Colors.amber,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Inter',
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                             const Icon(Icons.check_circle, color: Color(0xFF27AE60), size: 18),

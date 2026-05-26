@@ -117,6 +117,8 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
     depMap[d.goalId]!.add(d.dependsOnId);
   }
 
+  final taskOfTheDayIds = tasks.where((t) => t.isTaskOfTheDay).map((t) => t.id).toSet();
+
   // Compute effective progress for each goal (bottom-up)
   final progressMap = <String, double>{};
 
@@ -124,7 +126,11 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
   // Simple: compute in two passes (handle up to 2 levels of nesting)
   for (final g in goals) {
     final comps = allCompletions[g.id] ?? [];
-    final tp = ProgressCalculator.taskProgress(goal: g, completions: comps);
+    final tp = ProgressCalculator.taskProgress(
+      goal: g,
+      completions: comps,
+      taskOfTheDayIds: taskOfTheDayIds,
+    );
     progressMap[g.id] = tp; // default (overwritten below if has children)
   }
 
@@ -132,7 +138,11 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
   for (final g in goals) {
     final subIds = subGoalMap[g.id] ?? [];
     final comps = allCompletions[g.id] ?? [];
-    final tp = ProgressCalculator.taskProgress(goal: g, completions: comps);
+    final tp = ProgressCalculator.taskProgress(
+      goal: g,
+      completions: comps,
+      taskOfTheDayIds: taskOfTheDayIds,
+    );
 
     final subGoalProgressList =
         subIds.map((sid) {
@@ -364,6 +374,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
     String? scheduleOn,
     required String reminderTime,
     bool isActive = true,
+    bool isTaskOfTheDay = false,
   }) async {
     state = const AsyncLoading();
     try {
@@ -377,6 +388,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
         reminderTime: reminderTime,
         isActive: Value(isActive ? 1 : 0),
         createdAt: DateTime.now().millisecondsSinceEpoch,
+        isTaskOfTheDay: Value(isTaskOfTheDay),
       );
       await db.insertTask(companion);
       
@@ -389,6 +401,7 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
         reminderTime: reminderTime,
         isActive: isActive ? 1 : 0,
         createdAt: companion.createdAt.value,
+        isTaskOfTheDay: isTaskOfTheDay,
       );
       
       await schedulingService.generateForTask(task);

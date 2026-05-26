@@ -158,15 +158,19 @@ class NotificationService {
           m = int.tryParse(timeParts[1]) ?? 0;
         }
 
+        final isTotd = task.isTaskOfTheDay;
+
         // 1. Notification at the assigned time
         final reminderDt = _atTime(date, h, m);
         if (reminderDt.isAfter(now) && notifId < 9900) {
           await _schedule(
             id: notifId++,
             channelId: _chReminders.id,
-              title: 'Scheduled Task',
-              body: '${task.name}${goal != null ? ' · ${goal.name}' : ''}',
-              when: reminderDt,
+            title: isTotd ? '⭐ TASK OF THE DAY' : 'Scheduled Task',
+            body: isTotd
+                ? '${task.name.toUpperCase()}${goal != null ? ' (Goal: ${goal.name})' : ''} — Priority task!'
+                : '${task.name}${goal != null ? ' · ${goal.name}' : ''}',
+            when: reminderDt,
           );
         }
 
@@ -177,9 +181,11 @@ class NotificationService {
           await _schedule(
             id: notifId++,
             channelId: _chFollowUps.id,
-              title: 'Incomplete Task',
-              body: '${task.name} — complete it tonight!${goal != null ? ' · ${goal.name}' : ''}',
-              when: eveningDt,
+            title: isTotd ? '⭐ INCOMPLETE: TASK OF THE DAY' : 'Incomplete Task',
+            body: isTotd
+                ? '${task.name.toUpperCase()} — must complete tonight!${goal != null ? ' · ${goal.name}' : ''}'
+                : '${task.name} — complete it tonight!${goal != null ? ' · ${goal.name}' : ''}',
+            when: eveningDt,
           );
         }
       }

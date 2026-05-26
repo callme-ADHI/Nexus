@@ -898,6 +898,16 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
   late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
       'created_at', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isTaskOfTheDayMeta =
+      const VerificationMeta('isTaskOfTheDay');
+  @override
+  late final GeneratedColumn<bool> isTaskOfTheDay = GeneratedColumn<bool>(
+      'is_task_of_the_day', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_task_of_the_day" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -907,7 +917,8 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         scheduleOn,
         reminderTime,
         isActive,
-        createdAt
+        createdAt,
+        isTaskOfTheDay
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -964,6 +975,12 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('is_task_of_the_day')) {
+      context.handle(
+          _isTaskOfTheDayMeta,
+          isTaskOfTheDay.isAcceptableOrUnknown(
+              data['is_task_of_the_day']!, _isTaskOfTheDayMeta));
+    }
     return context;
   }
 
@@ -989,6 +1006,8 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
           .read(DriftSqlType.int, data['${effectivePrefix}is_active'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      isTaskOfTheDay: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}is_task_of_the_day'])!,
     );
   }
 
@@ -1007,6 +1026,7 @@ class Task extends DataClass implements Insertable<Task> {
   final String reminderTime;
   final int isActive;
   final int createdAt;
+  final bool isTaskOfTheDay;
   const Task(
       {required this.id,
       this.goalId,
@@ -1015,7 +1035,8 @@ class Task extends DataClass implements Insertable<Task> {
       this.scheduleOn,
       required this.reminderTime,
       required this.isActive,
-      required this.createdAt});
+      required this.createdAt,
+      required this.isTaskOfTheDay});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1031,6 +1052,7 @@ class Task extends DataClass implements Insertable<Task> {
     map['reminder_time'] = Variable<String>(reminderTime);
     map['is_active'] = Variable<int>(isActive);
     map['created_at'] = Variable<int>(createdAt);
+    map['is_task_of_the_day'] = Variable<bool>(isTaskOfTheDay);
     return map;
   }
 
@@ -1047,6 +1069,7 @@ class Task extends DataClass implements Insertable<Task> {
       reminderTime: Value(reminderTime),
       isActive: Value(isActive),
       createdAt: Value(createdAt),
+      isTaskOfTheDay: Value(isTaskOfTheDay),
     );
   }
 
@@ -1062,6 +1085,7 @@ class Task extends DataClass implements Insertable<Task> {
       reminderTime: serializer.fromJson<String>(json['reminderTime']),
       isActive: serializer.fromJson<int>(json['isActive']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
+      isTaskOfTheDay: serializer.fromJson<bool>(json['isTaskOfTheDay']),
     );
   }
   @override
@@ -1076,6 +1100,7 @@ class Task extends DataClass implements Insertable<Task> {
       'reminderTime': serializer.toJson<String>(reminderTime),
       'isActive': serializer.toJson<int>(isActive),
       'createdAt': serializer.toJson<int>(createdAt),
+      'isTaskOfTheDay': serializer.toJson<bool>(isTaskOfTheDay),
     };
   }
 
@@ -1087,7 +1112,8 @@ class Task extends DataClass implements Insertable<Task> {
           Value<String?> scheduleOn = const Value.absent(),
           String? reminderTime,
           int? isActive,
-          int? createdAt}) =>
+          int? createdAt,
+          bool? isTaskOfTheDay}) =>
       Task(
         id: id ?? this.id,
         goalId: goalId.present ? goalId.value : this.goalId,
@@ -1097,6 +1123,7 @@ class Task extends DataClass implements Insertable<Task> {
         reminderTime: reminderTime ?? this.reminderTime,
         isActive: isActive ?? this.isActive,
         createdAt: createdAt ?? this.createdAt,
+        isTaskOfTheDay: isTaskOfTheDay ?? this.isTaskOfTheDay,
       );
   Task copyWithCompanion(TasksCompanion data) {
     return Task(
@@ -1111,6 +1138,9 @@ class Task extends DataClass implements Insertable<Task> {
           : this.reminderTime,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isTaskOfTheDay: data.isTaskOfTheDay.present
+          ? data.isTaskOfTheDay.value
+          : this.isTaskOfTheDay,
     );
   }
 
@@ -1124,14 +1154,15 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('scheduleOn: $scheduleOn, ')
           ..write('reminderTime: $reminderTime, ')
           ..write('isActive: $isActive, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isTaskOfTheDay: $isTaskOfTheDay')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, goalId, name, schedule, scheduleOn,
-      reminderTime, isActive, createdAt);
+      reminderTime, isActive, createdAt, isTaskOfTheDay);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1143,7 +1174,8 @@ class Task extends DataClass implements Insertable<Task> {
           other.scheduleOn == this.scheduleOn &&
           other.reminderTime == this.reminderTime &&
           other.isActive == this.isActive &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.isTaskOfTheDay == this.isTaskOfTheDay);
 }
 
 class TasksCompanion extends UpdateCompanion<Task> {
@@ -1155,6 +1187,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<String> reminderTime;
   final Value<int> isActive;
   final Value<int> createdAt;
+  final Value<bool> isTaskOfTheDay;
   final Value<int> rowid;
   const TasksCompanion({
     this.id = const Value.absent(),
@@ -1165,6 +1198,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.reminderTime = const Value.absent(),
     this.isActive = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isTaskOfTheDay = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TasksCompanion.insert({
@@ -1176,6 +1210,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     required String reminderTime,
     this.isActive = const Value.absent(),
     required int createdAt,
+    this.isTaskOfTheDay = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -1191,6 +1226,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<String>? reminderTime,
     Expression<int>? isActive,
     Expression<int>? createdAt,
+    Expression<bool>? isTaskOfTheDay,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1202,6 +1238,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (reminderTime != null) 'reminder_time': reminderTime,
       if (isActive != null) 'is_active': isActive,
       if (createdAt != null) 'created_at': createdAt,
+      if (isTaskOfTheDay != null) 'is_task_of_the_day': isTaskOfTheDay,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1215,6 +1252,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       Value<String>? reminderTime,
       Value<int>? isActive,
       Value<int>? createdAt,
+      Value<bool>? isTaskOfTheDay,
       Value<int>? rowid}) {
     return TasksCompanion(
       id: id ?? this.id,
@@ -1225,6 +1263,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       reminderTime: reminderTime ?? this.reminderTime,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      isTaskOfTheDay: isTaskOfTheDay ?? this.isTaskOfTheDay,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1256,6 +1295,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
+    if (isTaskOfTheDay.present) {
+      map['is_task_of_the_day'] = Variable<bool>(isTaskOfTheDay.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1273,6 +1315,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('reminderTime: $reminderTime, ')
           ..write('isActive: $isActive, ')
           ..write('createdAt: $createdAt, ')
+          ..write('isTaskOfTheDay: $isTaskOfTheDay, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4207,6 +4250,7 @@ typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
   required String reminderTime,
   Value<int> isActive,
   required int createdAt,
+  Value<bool> isTaskOfTheDay,
   Value<int> rowid,
 });
 typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
@@ -4218,6 +4262,7 @@ typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
   Value<String> reminderTime,
   Value<int> isActive,
   Value<int> createdAt,
+  Value<bool> isTaskOfTheDay,
   Value<int> rowid,
 });
 
@@ -4285,6 +4330,10 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
 
   ColumnFilters<int> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isTaskOfTheDay => $composableBuilder(
+      column: $table.isTaskOfTheDay,
+      builder: (column) => ColumnFilters(column));
 
   $$GoalsTableFilterComposer get goalId {
     final $$GoalsTableFilterComposer composer = $composerBuilder(
@@ -4359,6 +4408,10 @@ class $$TasksTableOrderingComposer
   ColumnOrderings<int> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get isTaskOfTheDay => $composableBuilder(
+      column: $table.isTaskOfTheDay,
+      builder: (column) => ColumnOrderings(column));
+
   $$GoalsTableOrderingComposer get goalId {
     final $$GoalsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4409,6 +4462,9 @@ class $$TasksTableAnnotationComposer
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isTaskOfTheDay => $composableBuilder(
+      column: $table.isTaskOfTheDay, builder: (column) => column);
 
   $$GoalsTableAnnotationComposer get goalId {
     final $$GoalsTableAnnotationComposer composer = $composerBuilder(
@@ -4483,6 +4539,7 @@ class $$TasksTableTableManager extends RootTableManager<
             Value<String> reminderTime = const Value.absent(),
             Value<int> isActive = const Value.absent(),
             Value<int> createdAt = const Value.absent(),
+            Value<bool> isTaskOfTheDay = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TasksCompanion(
@@ -4494,6 +4551,7 @@ class $$TasksTableTableManager extends RootTableManager<
             reminderTime: reminderTime,
             isActive: isActive,
             createdAt: createdAt,
+            isTaskOfTheDay: isTaskOfTheDay,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -4505,6 +4563,7 @@ class $$TasksTableTableManager extends RootTableManager<
             required String reminderTime,
             Value<int> isActive = const Value.absent(),
             required int createdAt,
+            Value<bool> isTaskOfTheDay = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TasksCompanion.insert(
@@ -4516,6 +4575,7 @@ class $$TasksTableTableManager extends RootTableManager<
             reminderTime: reminderTime,
             isActive: isActive,
             createdAt: createdAt,
+            isTaskOfTheDay: isTaskOfTheDay,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

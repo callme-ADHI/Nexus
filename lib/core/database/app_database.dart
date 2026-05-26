@@ -49,6 +49,7 @@ class Tasks extends Table {
   TextColumn get reminderTime => text()(); // "HH:MM"
   IntColumn get isActive => integer().withDefault(const Constant(1))();
   IntColumn get createdAt => integer()();
+  BoolColumn get isTaskOfTheDay => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -156,7 +157,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -202,6 +203,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 8) {
             await m.addColumn(userProfiles, userProfiles.navStyle);
+          }
+          if (from < 9) {
+            await m.addColumn(tasks, tasks.isTaskOfTheDay);
           }
         },
       );

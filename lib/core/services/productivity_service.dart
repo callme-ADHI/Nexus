@@ -83,6 +83,7 @@ class ProductivityService {
     required List<ActivityLog> activities,
     SleepLog? sleep,
     int completedTasksCount = 0,
+    double? completedTasksPoints,
   }) {
     // ── Gather minutes per category ────────────────────────────────────
     final Map<String, int> categoryMinutes = {};
@@ -144,7 +145,8 @@ class ProductivityService {
       }
     }
 
-    final total = (coverageScore + qualityScore + sleepScoreVal + (completedTasksCount * 5)).clamp(0.0, 100.0);
+    final points = completedTasksPoints ?? (completedTasksCount * 5.0);
+    final total = (coverageScore + qualityScore + sleepScoreVal + points).clamp(0.0, 100.0);
 
     // ── Top category ─────────────────────────────────────────────────
     String? topCat;
@@ -227,13 +229,28 @@ class ProductivityService {
     final activities = await db.getActivitiesForDate(dateMidnight);
     final sleep = await db.getSleepForDate(dateMidnight);
     final completions = await db.getCompletionsForDate(dateMidnight);
-    final completedCount = completions.where((c) {
-      if (c.completedDate == null) return false;
+    final tasks = await db.getAllTasks();
+    final taskOfTheDayIds = tasks.where((t) => t.isTaskOfTheDay).map((t) => t.id).toSet();
+
+    double completedTasksPoints = 0;
+    int completedCount = 0;
+    for (final c in completions) {
+      if (c.completedDate == null) continue;
       final s = DateTime.fromMillisecondsSinceEpoch(c.scheduledDate);
       final comp = DateTime.fromMillisecondsSinceEpoch(c.completedDate!);
-      return s.year == comp.year && s.month == comp.month && s.day == comp.day;
-    }).length;
-    final score = calculate(activities: activities, sleep: sleep, completedTasksCount: completedCount);
+      final isSameDay = s.year == comp.year && s.month == comp.month && s.day == comp.day;
+      if (isSameDay) {
+        completedCount++;
+        final isTotd = taskOfTheDayIds.contains(c.taskId);
+        completedTasksPoints += isTotd ? 20.0 : 5.0;
+      }
+    }
+    final score = calculate(
+      activities: activities,
+      sleep: sleep,
+      completedTasksCount: completedCount,
+      completedTasksPoints: completedTasksPoints,
+    );
     await cacheScore(db, dateMidnight, score);
     return score;
   }

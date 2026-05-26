@@ -25,6 +25,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
   String? _scheduleOn;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
   bool   _isActive = true;
+  bool   _isTaskOfTheDay = false;
   bool   _saving   = false;
 
   @override
@@ -37,6 +38,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
       _schedule = t.schedule;
       _scheduleOn = t.scheduleOn;
       _isActive = t.isActive == 1;
+      _isTaskOfTheDay = t.isTaskOfTheDay;
       try {
         final parts = t.reminderTime.split(':');
         if (parts.length == 2) {
@@ -240,6 +242,43 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                       ),
                     ),
 
+                    const SizedBox(height: AppSpacing.xl),
+
+                    // Task of the Day toggle
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceAlt,
+                        borderRadius: AppRadius.card,
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                                    const SizedBox(width: 4),
+                                    Text('Task of the Day', style: AppTypography.cardTitle),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text('Highlight this task with extra importance and weight', style: AppTypography.caption),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _isTaskOfTheDay,
+                            activeColor: Colors.amber,
+                            onChanged: (v) => setState(() => _isTaskOfTheDay = v),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     const SizedBox(height: 32),
 
                     SizedBox(
@@ -283,6 +322,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
           scheduleOn: _scheduleOn,
           reminderTime: reminderStr,
           isActive: _isActive,
+          isTaskOfTheDay: _isTaskOfTheDay,
         );
       } else {
         await ref.read(databaseProvider).updateTask(
@@ -294,6 +334,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
             scheduleOn: Value(_scheduleOn),
             reminderTime: Value(reminderStr),
             isActive: Value(_isActive ? 1 : 0),
+            isTaskOfTheDay: Value(_isTaskOfTheDay),
           )
         );
         await NotificationService.rescheduleAll(ref.read(databaseProvider));

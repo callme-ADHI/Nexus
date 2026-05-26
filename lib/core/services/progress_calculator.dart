@@ -11,6 +11,7 @@ abstract final class ProgressCalculator {
   static double taskProgress({
     required Goal goal,
     required List<TaskCompletion> completions,
+    Set<String> taskOfTheDayIds = const {},
   }) {
     if (goal.status == 'completed') return 100.0;
 
@@ -21,9 +22,20 @@ abstract final class ProgressCalculator {
 
     if (dueSoFar.isEmpty) return 0.0;
 
-    final completedCount =
-        dueSoFar.where((c) => c.completedDate != null).length;
-    return (completedCount / dueSoFar.length) * 100.0;
+    double weightedNumerator = 0;
+    double weightedDenominator = 0;
+
+    for (final c in dueSoFar) {
+      final isTotd = taskOfTheDayIds.contains(c.taskId);
+      final weight = isTotd ? 5.0 : 1.0;
+      weightedDenominator += weight;
+      if (c.completedDate != null) {
+        weightedNumerator += weight;
+      }
+    }
+
+    if (weightedDenominator == 0) return 0.0;
+    return (weightedNumerator / weightedDenominator) * 100.0;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

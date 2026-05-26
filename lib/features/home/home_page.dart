@@ -324,13 +324,23 @@ class _MinimalTaskRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDone = completion.completedDate != null;
+    final isTotd = task.isTaskOfTheDay;
     
     return InkWell(
       onTap: () => onToggle(!isDone),
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      child: Container(
+        decoration: BoxDecoration(
+          border: isTotd
+              ? Border(left: BorderSide(color: Colors.amber.withValues(alpha: 0.8), width: 3))
+              : null,
+          color: isTotd ? Colors.amber.withValues(alpha: 0.03) : Colors.transparent,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: isTotd ? 17 : 20,
+          vertical: 14,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -351,16 +361,42 @@ class _MinimalTaskRow extends StatelessWidget {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                task.name,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                  color: isDone ? const Color(0xFF555555) : Colors.white,
-                  decoration: isDone ? TextDecoration.lineThrough : null,
-                  decorationColor: const Color(0xFF555555),
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      task.name,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 15,
+                        fontWeight: isTotd ? FontWeight.w600 : FontWeight.w400,
+                        color: isDone ? const Color(0xFF555555) : (isTotd ? Colors.amber : Colors.white),
+                        decoration: isDone ? TextDecoration.lineThrough : null,
+                        decorationColor: const Color(0xFF555555),
+                      ),
+                    ),
+                  ),
+                  if (isTotd) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'TASK OF THE DAY',
+                        style: TextStyle(
+                          color: Colors.amber,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter',
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             const SizedBox(width: 12),
