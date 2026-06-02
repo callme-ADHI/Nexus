@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -5,9 +6,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers/providers.dart';
 import '../../core/database/app_database.dart';
 import '../../core/models/models.dart';
-import '../../shared/theme/app_theme.dart';
 import '../graph/goal_detail_sheet.dart';
-import '../tasks/add_task_form.dart';
 import '../../shared/widgets/nexus_logo.dart';
 
 class HomePage extends ConsumerWidget {
@@ -25,11 +24,12 @@ class HomePage extends ConsumerWidget {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             // ── Minimal Header ──────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
                 child: profile.when(
                   data: (p) => _MinimalHeader(name: p?.displayName ?? 'You'),
                   loading: () => const _MinimalHeader(name: 'You'),
@@ -38,146 +38,217 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            // ── Tasks Frame ─────────────────────────────────────────────────
+            // ── Progress Banner ─────────────────────────────────────────────
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0A0A0A),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
-                  ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                        child: Row(
+              child: todayCompletions.when(
+                data: (comps) {
+                  if (comps.isEmpty) return const SizedBox.shrink();
+                  final done = comps.where((c) => c.completedDate != null).length;
+                  final total = comps.length;
+                  final pct = total > 0 ? done / total : 0.0;
+                  
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0A0A0A),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'TASKS',
+                              'DAILY PROGRESS',
                               style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 11,
-                                letterSpacing: 2.0,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                                letterSpacing: 1.5,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white38,
+                              ),
+                            ),
+                            Text(
+                              '$done / $total',
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                                 color: Colors.white70,
                               ),
                             ),
-                            todayCompletions.when(
-                              data: (comps) {
-                                final done = comps.where((c) => c.completedDate != null).length;
-                                return Text(
-                                  '$done / ${comps.length}',
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF444444),
-                                  ),
-                                );
-                              },
-                              loading: () => const SizedBox.shrink(),
-                              error: (_, __) => const SizedBox.shrink(),
-                            ),
                           ],
                         ),
-                      ),
-                      const Divider(color: Colors.white10, height: 1),
-                      Expanded(
-                        child: todayCompletions.when(
-                          data: (completions) => allTasks.when(
-                            data: (tasks) {
-                              if (completions.isEmpty) {
-                                return const Center(child: _EmptyState('No tasks for today.'));
-                              }
-                              final taskMap = {for (final t in tasks) t.id: t};
-                              return blockedIds.when(
-                                data: (blocked) {
-                                  // Show only tasks whose goal is NOT blocked
-                                  final sorted = [...completions]
-                                    ..removeWhere((c) {
-                                      final t = taskMap[c.taskId];
-                                      return t != null &&
-                                          t.goalId != null &&
-                                          blocked.contains(t.goalId);
-                                    })
-                                    ..sort((a, b) {
-                                      if (a.completedDate != null && b.completedDate == null) return 1;
-                                      if (a.completedDate == null && b.completedDate != null) return -1;
-                                      return (taskMap[a.taskId]?.reminderTime ?? '')
-                                          .compareTo(taskMap[b.taskId]?.reminderTime ?? '');
-                                    });
-
-                                  if (sorted.isEmpty) {
-                                    return const Center(child: _EmptyState('No tasks for today.'));
-                                  }
-
-                                  return ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    itemCount: sorted.length,
-                                    itemBuilder: (ctx, i) {
-                                      final c = sorted[i];
-                                      final task = taskMap[c.taskId];
-                                      if (task == null) return const SizedBox.shrink();
-                                      return _MinimalTaskRow(
-                                        completion: c,
-                                        task: task,
-                                        onToggle: (done) {
-                                          if (done) {
-                                            ref.read(taskNotifierProvider.notifier).completeTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
-                                          } else {
-                                            ref.read(taskNotifierProvider.notifier).uncompleteTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
-                                          }
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
-                                loading: () => const SizedBox.shrink(),
-                                error: (_, __) => const SizedBox.shrink(),
-                              );
-                            },
-                            loading: () => const SizedBox.shrink(),
-                            error: (_, __) => const SizedBox.shrink(),
-                          ),
-                          loading: () => const Center(child: CircularProgressIndicator(color: Colors.white24, strokeWidth: 2)),
-                          error: (_, __) => const SizedBox.shrink(),
-                        ),
-                      ),
-                      const Divider(color: Colors.white10, height: 1),
-                      InkWell(
-                        onTap: () {
-                          ref.read(pageIndexProvider.notifier).state = 2; // Tasks Page
-                        },
-                        child: Container(
+                        const SizedBox(height: 12),
+                        Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            'VIEW ALL TASKS',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 10,
-                              letterSpacing: 1.5,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white54,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: FractionallySizedBox(
+                              widthFactor: pct,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+            ),
+
+            // ── Tasks Header ────────────────────────────────────────────────
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(28, 28, 24, 12),
+                child: Text(
+                  'TODAY\'S TASKS',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    letterSpacing: 2.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white54,
                   ),
                 ),
               ),
             ),
 
-            // ── Active Goals ───────────────────────────────────────────────
+            // ── Tasks List ──────────────────────────────────────────────────
+            todayCompletions.when(
+              data: (completions) => allTasks.when(
+                data: (tasks) {
+                  if (completions.isEmpty) {
+                    return const SliverToBoxAdapter(child: _EmptyState('No tasks for today.'));
+                  }
+                  final taskMap = {for (final t in tasks) t.id: t};
+                  return blockedIds.when(
+                    data: (blocked) {
+                      final sorted = [...completions]
+                        ..removeWhere((c) {
+                          final t = taskMap[c.taskId];
+                          return t != null &&
+                              t.goalId != null &&
+                              blocked.contains(t.goalId);
+                        })
+                        ..sort((a, b) {
+                          // Sort tasks: incomplete first, then Task of the Day first, then by reminder time
+                          if (a.completedDate != null && b.completedDate == null) return 1;
+                          if (a.completedDate == null && b.completedDate != null) return -1;
+                          
+                          final tA = taskMap[a.taskId];
+                          final tB = taskMap[b.taskId];
+                          if (tA != null && tB != null) {
+                            if (tA.isTaskOfTheDay && !tB.isTaskOfTheDay) return -1;
+                            if (!tA.isTaskOfTheDay && tB.isTaskOfTheDay) return 1;
+                            return tA.reminderTime.compareTo(tB.reminderTime);
+                          }
+                          return 0;
+                        });
+
+                      if (sorted.isEmpty) {
+                        return const SliverToBoxAdapter(child: _EmptyState('No tasks for today.'));
+                      }
+
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (ctx, i) {
+                            final c = sorted[i];
+                            final task = taskMap[c.taskId];
+                            if (task == null) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0A0A0A),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                                ),
+                                child: _MinimalTaskRow(
+                                  completion: c,
+                                  task: task,
+                                  onToggle: (done) {
+                                    if (done) {
+                                      ref.read(taskNotifierProvider.notifier).completeTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
+                                    } else {
+                                      ref.read(taskNotifierProvider.notifier).uncompleteTask(taskId: c.taskId, scheduledDate: c.scheduledDate);
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: sorted.length,
+                        ),
+                      );
+                    },
+                    loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+                    error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+                  );
+                },
+                loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+                error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+              ),
+              loading: () => const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Center(child: CircularProgressIndicator(color: Colors.white24, strokeWidth: 2)),
+                ),
+              ),
+              error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+            ),
+
+            // ── View All Tasks Action ───────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                child: InkWell(
+                  onTap: () {
+                    ref.read(pageIndexProvider.notifier).state = 2; // Tasks Page
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'VIEW ALL TASKS',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 10,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white54,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Active Goals Header ─────────────────────────────────────────
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(28, 40, 24, 16),
+                padding: EdgeInsets.fromLTRB(28, 28, 24, 12),
                 child: Text(
                   'MAIN GOALS',
                   style: TextStyle(
@@ -191,37 +262,41 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            SliverToBoxAdapter(
-              child: goalGraph.when(
-                data: (goals) {
-                  final active = goals.where((g) => g.status != GoalStatus.completed && g.status != GoalStatus.blocked).toList();
-                  active.sort((a, b) => (b.goal.weight ?? 0).compareTo(a.goal.weight ?? 0));
-                  
-                  if (active.isEmpty) {
-                    return const _EmptyState('No active goals.');
-                  }
+            // ── Active Goals List ───────────────────────────────────────────
+            goalGraph.when(
+              data: (goals) {
+                final active = goals.where((g) => g.status != GoalStatus.completed && g.status != GoalStatus.blocked).toList();
+                active.sort((a, b) => (b.goal.weight ?? 0).compareTo(a.goal.weight ?? 0));
+                
+                if (active.isEmpty) {
+                  return const SliverToBoxAdapter(child: _EmptyState('No active goals.'));
+                }
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: active.take(5).map((g) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0, left: 24, right: 24),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0A0A0A),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) {
+                      final g = active[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, left: 24, right: 24),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A0A0A),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                          ),
+                          child: _MinimalGoalRow(
+                            goalWP: g,
+                            onTap: () => _openGoalDetail(context, g.goal as Goal),
+                          ),
                         ),
-                        child: _MinimalGoalRow(
-                          goalWP: g,
-                          onTap: () => _openGoalDetail(context, g.goal as Goal),
-                        ),
-                      ),
-                    )).toList(),
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
+                      );
+                    },
+                    childCount: math.min(active.length, 5),
+                  ),
+                );
+              },
+              loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+              error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 120)),
@@ -336,6 +411,7 @@ class _MinimalTaskRow extends StatelessWidget {
               ? Border(left: BorderSide(color: Colors.amber.withValues(alpha: 0.8), width: 3))
               : null,
           color: isTotd ? Colors.amber.withValues(alpha: 0.03) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
         padding: EdgeInsets.symmetric(
           horizontal: isTotd ? 17 : 20,
@@ -424,36 +500,62 @@ class _MinimalGoalRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final goal = goalWP.goal as Goal;
-    final progress = goalWP.effectiveProgress.round();
+    final progress = goalWP.effectiveProgress.round().clamp(0, 100);
 
     return InkWell(
       onTap: onTap,
       splashColor: Colors.transparent,
       highlightColor: const Color(0xFF111111),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                goal.name,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    goal.name,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 16),
+                Text(
+                  '$progress%',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Text(
-              '$progress%',
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF888888),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              height: 3,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(1.5),
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FractionallySizedBox(
+                  widthFactor: progress / 100.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(1.5),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
