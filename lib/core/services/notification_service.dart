@@ -348,6 +348,31 @@ class NotificationService {
     await _plugin.show(999, 'Nexus Test', 'Your notifications are working perfectly!', details);
   }
 
+  static Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+    String channelId = 'task_reminders',
+  }) async {
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        channelId,
+        channelId == 'task_reminders' ? 'Task Reminders' : channelId,
+        importance: Importance.max,
+        priority: Priority.high,
+        playSound: true,
+      ),
+      iOS: const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    );
+    try {
+      await _plugin.show(id, title, body, details);
+    } catch (_) {}
+  }
+
   static Future<void> _createChannels() async {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();

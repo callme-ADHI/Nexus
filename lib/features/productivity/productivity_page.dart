@@ -11,6 +11,7 @@ import 'package:audioplayers/audioplayers.dart';
 import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/nexus_logo.dart';
 import '../../core/providers/providers.dart';
+import '../../core/services/notification_service.dart';
 import 'productivity_providers.dart';
 import 'log_tab.dart';
 
@@ -235,12 +236,21 @@ class _FocusTimerPageState extends ConsumerState<FocusTimerPage> with TickerProv
 
   void _onComplete() async {
     _triggerHaptic(HapticFeedback.heavyImpact);
-    // Try playing a formal system sound
+    
+    // Play our calm chime sound
     try {
-      await _audio.play(AssetSource('sounds/complete.mp3')); // If exists
-    } catch (_) {
-      // Fallback: Just vibration + dialog
-    }
+      await _audio.setSource(AssetSource('sounds/timer_end.wav'));
+      await _audio.resume();
+    } catch (_) {}
+
+    // Trigger local notification when timer completes
+    try {
+      await NotificationService.showNotification(
+        id: 8888,
+        title: 'Focus Session Complete ⏳',
+        body: 'Great job! Time for a short break.',
+      );
+    } catch (_) {}
     
     if (mounted) {
       showDialog(
