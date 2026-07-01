@@ -411,9 +411,13 @@ RULE 6 — DEADLINE RULES:
     A 3-month goal should have phases with 3–5 week deadlines.
 
 RULE 7 — TASK SCHEDULING RULES:
-  daily         → every single calendar day. No 'on:' field.
-  weekly        → every week. 'on:' field = the day name in lowercase.
-                  Valid: monday tuesday wednesday thursday friday saturday sunday
+  daily         → runs every single calendar day. The 'on:' field is optional; if specified,
+                  it is a comma-separated list of weekdays it runs on (e.g. "monday,tuesday,wednesday,thursday,friday"
+                  to set breaks on weekends). If omitted, it runs every day.
+  weekly        → repeats on specified days of the week. 'on:' field is required and can be a single day
+                  name or a comma-separated list of days.
+                  Valid days: monday tuesday wednesday thursday friday saturday sunday
+                  Example: "monday,wednesday,friday"
   monthly       → once per month. 'on:' field = day number as a quoted string.
                   Valid: "1" through "28". NEVER "29", "30", or "31".
                   Reason: months have varying lengths. 28 is always safe.
@@ -553,15 +557,15 @@ goals:
         # REQUIRED. One of: daily | weekly | monthly | yearly | specific_date
 
         on: string
-        # CONDITIONAL. Required for all schedules EXCEPT daily.
-        # weekly      → lowercase day name: monday tuesday wednesday
-        #               thursday friday saturday sunday
+        # CONDITIONAL.
+        # daily       → optional. omit for every day, or specify a comma-separated list of weekdays to run on.
+        # weekly      → required. a single weekday or a comma-separated list of weekdays (e.g. monday,wednesday,friday).
+        #               Valid days: monday tuesday wednesday thursday friday saturday sunday
         # monthly     → quoted day number string: "1" through "28"
         #               NEVER "29" "30" or "31"
         # yearly      → "MM-DD" format: "06-15" "12-01"
         #               NEVER "02-29"
         # specific_date → "YYYY-MM-DD" format: "2026-07-07"
-        # daily       → omit this field entirely
 
         reminder: string
         # REQUIRED. 24-hour time format: "HH:MM"
@@ -583,7 +587,8 @@ schedule values (exactly one of):
   daily | weekly | monthly | yearly | specific_date
 
 on values by schedule type:
-  weekly:        monday | tuesday | wednesday | thursday | friday | saturday | sunday
+  daily:         omit entirely (no breaks), or a comma-separated list of weekdays (e.g., monday,tuesday,wednesday,thursday,friday)
+  weekly:        a single weekday or a comma-separated list of weekdays (e.g., monday,wednesday,friday)
   monthly:       "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11" "12"
                  "13" "14" "15" "16" "17" "18" "19" "20" "21" "22"
                  "23" "24" "25" "26" "27" "28"
@@ -592,7 +597,6 @@ on values by schedule type:
                  NOT ALLOWED: "02-29" "01-31" "03-31" "05-31" "07-31"
                  "08-31" "10-31" "12-31" (use day 28 for all months)
   specific_date: "YYYY-MM-DD" any future date
-  daily:         no 'on:' field at all
 
 reminder values:
   "HH:MM" where HH is 00–23 and MM is 00 or 30 or any valid minute

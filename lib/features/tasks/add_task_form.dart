@@ -225,6 +225,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                       _Label('Day of Month (1–28)'),
                       const SizedBox(height: 6),
                       TextFormField(
+                        initialValue: _scheduleOn,
                         keyboardType: TextInputType.number,
                         style: AppTypography.body,
                         decoration: const InputDecoration(hintText: 'e.g. 1'),
@@ -401,6 +402,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
             scheduleOn: Value(updatedTask.scheduleOn),
             reminderTime: Value(updatedTask.reminderTime),
             isActive: Value(updatedTask.isActive),
+            createdAt: Value(updatedTask.createdAt),
             isTaskOfTheDay: Value(updatedTask.isTaskOfTheDay),
           )
         );
