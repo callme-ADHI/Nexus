@@ -1364,9 +1364,19 @@ class $TaskCompletionsTable extends TaskCompletions
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, taskId, scheduledDate, completedDate, isLate];
+      [id, taskId, scheduledDate, completedDate, isLate, isDeleted];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1404,6 +1414,10 @@ class $TaskCompletionsTable extends TaskCompletions
       context.handle(_isLateMeta,
           isLate.isAcceptableOrUnknown(data['is_late']!, _isLateMeta));
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
     return context;
   }
 
@@ -1427,6 +1441,8 @@ class $TaskCompletionsTable extends TaskCompletions
           .read(DriftSqlType.int, data['${effectivePrefix}completed_date']),
       isLate: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}is_late'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
     );
   }
 
@@ -1442,12 +1458,14 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
   final int scheduledDate;
   final int? completedDate;
   final int isLate;
+  final bool isDeleted;
   const TaskCompletion(
       {required this.id,
       required this.taskId,
       required this.scheduledDate,
       this.completedDate,
-      required this.isLate});
+      required this.isLate,
+      required this.isDeleted});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1458,6 +1476,7 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
       map['completed_date'] = Variable<int>(completedDate);
     }
     map['is_late'] = Variable<int>(isLate);
+    map['is_deleted'] = Variable<bool>(isDeleted);
     return map;
   }
 
@@ -1470,6 +1489,7 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
           ? const Value.absent()
           : Value(completedDate),
       isLate: Value(isLate),
+      isDeleted: Value(isDeleted),
     );
   }
 
@@ -1482,6 +1502,7 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
       scheduledDate: serializer.fromJson<int>(json['scheduledDate']),
       completedDate: serializer.fromJson<int?>(json['completedDate']),
       isLate: serializer.fromJson<int>(json['isLate']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
     );
   }
   @override
@@ -1493,6 +1514,7 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
       'scheduledDate': serializer.toJson<int>(scheduledDate),
       'completedDate': serializer.toJson<int?>(completedDate),
       'isLate': serializer.toJson<int>(isLate),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
     };
   }
 
@@ -1501,7 +1523,8 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
           String? taskId,
           int? scheduledDate,
           Value<int?> completedDate = const Value.absent(),
-          int? isLate}) =>
+          int? isLate,
+          bool? isDeleted}) =>
       TaskCompletion(
         id: id ?? this.id,
         taskId: taskId ?? this.taskId,
@@ -1509,6 +1532,7 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
         completedDate:
             completedDate.present ? completedDate.value : this.completedDate,
         isLate: isLate ?? this.isLate,
+        isDeleted: isDeleted ?? this.isDeleted,
       );
   TaskCompletion copyWithCompanion(TaskCompletionsCompanion data) {
     return TaskCompletion(
@@ -1521,6 +1545,7 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
           ? data.completedDate.value
           : this.completedDate,
       isLate: data.isLate.present ? data.isLate.value : this.isLate,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
     );
   }
 
@@ -1531,14 +1556,15 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
           ..write('taskId: $taskId, ')
           ..write('scheduledDate: $scheduledDate, ')
           ..write('completedDate: $completedDate, ')
-          ..write('isLate: $isLate')
+          ..write('isLate: $isLate, ')
+          ..write('isDeleted: $isDeleted')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, taskId, scheduledDate, completedDate, isLate);
+      Object.hash(id, taskId, scheduledDate, completedDate, isLate, isDeleted);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1547,7 +1573,8 @@ class TaskCompletion extends DataClass implements Insertable<TaskCompletion> {
           other.taskId == this.taskId &&
           other.scheduledDate == this.scheduledDate &&
           other.completedDate == this.completedDate &&
-          other.isLate == this.isLate);
+          other.isLate == this.isLate &&
+          other.isDeleted == this.isDeleted);
 }
 
 class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
@@ -1556,12 +1583,14 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
   final Value<int> scheduledDate;
   final Value<int?> completedDate;
   final Value<int> isLate;
+  final Value<bool> isDeleted;
   const TaskCompletionsCompanion({
     this.id = const Value.absent(),
     this.taskId = const Value.absent(),
     this.scheduledDate = const Value.absent(),
     this.completedDate = const Value.absent(),
     this.isLate = const Value.absent(),
+    this.isDeleted = const Value.absent(),
   });
   TaskCompletionsCompanion.insert({
     this.id = const Value.absent(),
@@ -1569,6 +1598,7 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
     required int scheduledDate,
     this.completedDate = const Value.absent(),
     this.isLate = const Value.absent(),
+    this.isDeleted = const Value.absent(),
   })  : taskId = Value(taskId),
         scheduledDate = Value(scheduledDate);
   static Insertable<TaskCompletion> custom({
@@ -1577,6 +1607,7 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
     Expression<int>? scheduledDate,
     Expression<int>? completedDate,
     Expression<int>? isLate,
+    Expression<bool>? isDeleted,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1584,6 +1615,7 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
       if (scheduledDate != null) 'scheduled_date': scheduledDate,
       if (completedDate != null) 'completed_date': completedDate,
       if (isLate != null) 'is_late': isLate,
+      if (isDeleted != null) 'is_deleted': isDeleted,
     });
   }
 
@@ -1592,13 +1624,15 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
       Value<String>? taskId,
       Value<int>? scheduledDate,
       Value<int?>? completedDate,
-      Value<int>? isLate}) {
+      Value<int>? isLate,
+      Value<bool>? isDeleted}) {
     return TaskCompletionsCompanion(
       id: id ?? this.id,
       taskId: taskId ?? this.taskId,
       scheduledDate: scheduledDate ?? this.scheduledDate,
       completedDate: completedDate ?? this.completedDate,
       isLate: isLate ?? this.isLate,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
@@ -1620,6 +1654,9 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
     if (isLate.present) {
       map['is_late'] = Variable<int>(isLate.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
     return map;
   }
 
@@ -1630,7 +1667,8 @@ class TaskCompletionsCompanion extends UpdateCompanion<TaskCompletion> {
           ..write('taskId: $taskId, ')
           ..write('scheduledDate: $scheduledDate, ')
           ..write('completedDate: $completedDate, ')
-          ..write('isLate: $isLate')
+          ..write('isLate: $isLate, ')
+          ..write('isDeleted: $isDeleted')
           ..write(')'))
         .toString();
   }
@@ -4655,6 +4693,7 @@ typedef $$TaskCompletionsTableCreateCompanionBuilder = TaskCompletionsCompanion
   required int scheduledDate,
   Value<int?> completedDate,
   Value<int> isLate,
+  Value<bool> isDeleted,
 });
 typedef $$TaskCompletionsTableUpdateCompanionBuilder = TaskCompletionsCompanion
     Function({
@@ -4663,6 +4702,7 @@ typedef $$TaskCompletionsTableUpdateCompanionBuilder = TaskCompletionsCompanion
   Value<int> scheduledDate,
   Value<int?> completedDate,
   Value<int> isLate,
+  Value<bool> isDeleted,
 });
 
 final class $$TaskCompletionsTableReferences extends BaseReferences<
@@ -4705,6 +4745,9 @@ class $$TaskCompletionsTableFilterComposer
 
   ColumnFilters<int> get isLate => $composableBuilder(
       column: $table.isLate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
 
   $$TasksTableFilterComposer get taskId {
     final $$TasksTableFilterComposer composer = $composerBuilder(
@@ -4750,6 +4793,9 @@ class $$TaskCompletionsTableOrderingComposer
   ColumnOrderings<int> get isLate => $composableBuilder(
       column: $table.isLate, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
   $$TasksTableOrderingComposer get taskId {
     final $$TasksTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4791,6 +4837,9 @@ class $$TaskCompletionsTableAnnotationComposer
 
   GeneratedColumn<int> get isLate =>
       $composableBuilder(column: $table.isLate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
   $$TasksTableAnnotationComposer get taskId {
     final $$TasksTableAnnotationComposer composer = $composerBuilder(
@@ -4842,6 +4891,7 @@ class $$TaskCompletionsTableTableManager extends RootTableManager<
             Value<int> scheduledDate = const Value.absent(),
             Value<int?> completedDate = const Value.absent(),
             Value<int> isLate = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
           }) =>
               TaskCompletionsCompanion(
             id: id,
@@ -4849,6 +4899,7 @@ class $$TaskCompletionsTableTableManager extends RootTableManager<
             scheduledDate: scheduledDate,
             completedDate: completedDate,
             isLate: isLate,
+            isDeleted: isDeleted,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -4856,6 +4907,7 @@ class $$TaskCompletionsTableTableManager extends RootTableManager<
             required int scheduledDate,
             Value<int?> completedDate = const Value.absent(),
             Value<int> isLate = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
           }) =>
               TaskCompletionsCompanion.insert(
             id: id,
@@ -4863,6 +4915,7 @@ class $$TaskCompletionsTableTableManager extends RootTableManager<
             scheduledDate: scheduledDate,
             completedDate: completedDate,
             isLate: isLate,
+            isDeleted: isDeleted,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

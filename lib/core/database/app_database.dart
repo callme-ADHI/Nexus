@@ -61,6 +61,7 @@ class TaskCompletions extends Table {
   IntColumn get scheduledDate => integer()(); // midnight unix ms
   IntColumn get completedDate => integer().nullable()();
   IntColumn get isLate => integer().withDefault(const Constant(0))();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
 
   @override
   List<Set<Column>> get uniqueKeys => [
@@ -157,7 +158,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -206,6 +207,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 9) {
             await m.addColumn(tasks, tasks.isTaskOfTheDay);
+          }
+          if (from < 10) {
+            await m.addColumn(taskCompletions, taskCompletions.isDeleted);
           }
         },
       );
@@ -305,7 +309,7 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<TaskCompletion>> watchCompletionsForGoal(String goalId) {
     final query = select(taskCompletions).join([
       innerJoin(tasks, tasks.id.equalsExp(taskCompletions.taskId)),
-    ])..where(tasks.goalId.equals(goalId));
+    ])..where(tasks.goalId.equals(goalId) & taskCompletions.isDeleted.equals(false));
     return query
         .map((row) => row.readTable(taskCompletions))
         .watch();
@@ -333,11 +337,11 @@ class AppDatabase extends _$AppDatabase {
   // ── TASK COMPLETIONS ─────────────────────────────────────────────────────
 
   Future<List<TaskCompletion>> getCompletionsForTask(String taskId) =>
-      (select(taskCompletions)..where((t) => t.taskId.equals(taskId))).get();
+      (select(taskCompletions)..where((t) => t.taskId.equals(taskId) & t.isDeleted.equals(false))).get();
 
   Future<List<TaskCompletion>> getCompletionsForDate(int scheduledDate) =>
       (select(taskCompletions)
-            ..where((t) => t.scheduledDate.equals(scheduledDate)))
+            ..where((t) => t.scheduledDate.equals(scheduledDate) & t.isDeleted.equals(false)))
           .get();
 
   Future<List<TaskCompletion>> getMissedCompletions() {
@@ -345,7 +349,8 @@ class AppDatabase extends _$AppDatabase {
     return (select(taskCompletions)
           ..where((t) =>
               t.scheduledDate.isSmallerThanValue(todayMidnight) &
-              t.completedDate.isNull()))
+              t.completedDate.isNull() &
+              t.isDeleted.equals(false)))
         .get();
   }
 
@@ -354,7 +359,8 @@ class AppDatabase extends _$AppDatabase {
     return (select(taskCompletions)
           ..where((t) =>
               t.scheduledDate.isSmallerThanValue(todayMidnight) &
-              t.completedDate.isNull()))
+              t.completedDate.isNull() &
+              t.isDeleted.equals(false)))
         .watch();
   }
 
@@ -362,14 +368,14 @@ class AppDatabase extends _$AppDatabase {
   Future<List<TaskCompletion>> getTodayCompletions() {
     final todayMidnight = _todayMidnightMs();
     return (select(taskCompletions)
-          ..where((t) => t.scheduledDate.equals(todayMidnight)))
+          ..where((t) => t.scheduledDate.equals(todayMidnight) & t.isDeleted.equals(false)))
         .get();
   }
 
   Stream<List<TaskCompletion>> watchTodayCompletions() {
     final todayMidnight = _todayMidnightMs();
     return (select(taskCompletions)
-          ..where((t) => t.scheduledDate.equals(todayMidnight)))
+          ..where((t) => t.scheduledDate.equals(todayMidnight) & t.isDeleted.equals(false)))
         .watch();
   }
 
@@ -378,7 +384,7 @@ class AppDatabase extends _$AppDatabase {
     final todayMidnight = _todayMidnightMs();
     final past = todayMidnight - (days * 86400000);
     return (select(taskCompletions)
-          ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight)))
+          ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight) & t.isDeleted.equals(false)))
         .get();
   }
 
@@ -386,7 +392,7 @@ class AppDatabase extends _$AppDatabase {
     final todayMidnight = _todayMidnightMs();
     final past = todayMidnight - (days * 86400000);
     return (select(taskCompletions)
-          ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight)))
+          ..where((t) => t.scheduledDate.isBiggerOrEqualValue(past) & t.scheduledDate.isSmallerOrEqualValue(todayMidnight) & t.isDeleted.equals(false)))
         .watch();
   }
 
@@ -396,25 +402,36 @@ class AppDatabase extends _$AppDatabase {
     return (select(taskCompletions)
           ..where((t) =>
               t.scheduledDate.isBiggerThanValue(todayMidnight) &
-              t.scheduledDate.isSmallerOrEqualValue(untilMs))
+              t.scheduledDate.isSmallerOrEqualValue(untilMs) &
+              t.isDeleted.equals(false))
           ..orderBy([(t) => OrderingTerm.asc(t.scheduledDate)]))
         .get();
   }
 
   Future<List<TaskCompletion>> getCompletedCompletions() {
     return (select(taskCompletions)
-          ..where((t) => t.completedDate.isNotNull())
+          ..where((t) => t.completedDate.isNotNull() & t.isDeleted.equals(false))
           ..orderBy([(t) => OrderingTerm.desc(t.completedDate)]))
         .get();
   }
 
   Stream<List<TaskCompletion>> watchCompletedCompletions() {
     return (select(taskCompletions)
-          ..where((t) => t.completedDate.isNotNull())
+          ..where((t) => t.completedDate.isNotNull() & t.isDeleted.equals(false))
           ..orderBy([(t) => OrderingTerm.desc(t.completedDate)]))
         .watch();
   }
 
+  Future<void> deleteOccurrence(String taskId, int scheduledDate) async {
+    await into(taskCompletions).insert(
+      TaskCompletionsCompanion(
+        taskId: Value(taskId),
+        scheduledDate: Value(scheduledDate),
+        isDeleted: const Value(true),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+  }
 
   Future<void> upsertCompletion(TaskCompletionsCompanion companion) =>
       into(taskCompletions)

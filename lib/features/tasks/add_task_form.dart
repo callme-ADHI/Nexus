@@ -160,15 +160,63 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
                       }),
                     ),
 
+                    if (_schedule == 'daily') ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _Label('Custom Days / Breaks'),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                if (_scheduleOn == null) {
+                                  _scheduleOn = 'monday,tuesday,wednesday,thursday,friday';
+                                } else {
+                                  _scheduleOn = null;
+                                }
+                              });
+                            },
+                            child: Text(
+                              _scheduleOn == null ? 'Set Breaks' : 'Clear Breaks',
+                              style: AppTypography.caption.copyWith(color: AppColors.accentBlue),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (_scheduleOn != null) ...[
+                        _MultiWeekDayPicker(
+                          selectedDays: _scheduleOn!.split(',').toSet(),
+                          onChanged: (days) {
+                            setState(() {
+                              _scheduleOn = days.join(',');
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Task will break on: ${_getBreakDaysStr(_scheduleOn!)}',
+                          style: AppTypography.caption.copyWith(color: Colors.white38),
+                        ),
+                      ] else ...[
+                        Text(
+                          'Task runs every day (no breaks)',
+                          style: AppTypography.caption.copyWith(color: Colors.white38),
+                        ),
+                      ],
+                    ],
+
                     if (_schedule == 'weekly') ...[
                       const SizedBox(height: AppSpacing.lg),
-                      _Label('Day of Week'),
+                      _Label('Active Days of Week'),
                       const SizedBox(height: 8),
-                      _SegmentedPicker<String>(
-                        options: const ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-                        labels:  const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                        value: _scheduleOn ?? 'monday',
-                        onChanged: (v) => setState(() => _scheduleOn = v),
+                      _MultiWeekDayPicker(
+                        selectedDays: (_scheduleOn ?? 'monday').split(',').toSet(),
+                        onChanged: (days) {
+                          setState(() {
+                            _scheduleOn = days.join(',');
+                          });
+                        },
                       ),
                     ],
 
@@ -305,6 +353,14 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
     );
   }
 
+  String _getBreakDaysStr(String scheduleOn) {
+    final active = scheduleOn.split(',').toSet();
+    final allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    final breaks = allDays.where((d) => !active.contains(d)).map((d) => d[0].toUpperCase() + d.substring(1)).toList();
+    if (breaks.isEmpty) return 'none';
+    return breaks.join(', ');
+  }
+
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -325,22 +381,35 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
           isTaskOfTheDay: _isTaskOfTheDay,
         );
       } else {
+        final updatedTask = Task(
+          id: widget.taskToEdit!.id,
+          goalId: _selectedGoalId,
+          name: _nameCtrl.text.trim(),
+          schedule: _schedule,
+          scheduleOn: _scheduleOn,
+          reminderTime: reminderStr,
+          isActive: _isActive ? 1 : 0,
+          createdAt: widget.taskToEdit!.createdAt,
+          isTaskOfTheDay: _isTaskOfTheDay,
+        );
         await ref.read(databaseProvider).updateTask(
           TasksCompanion(
-            id: Value(widget.taskToEdit!.id),
-            goalId: Value(_selectedGoalId),
-            name: Value(_nameCtrl.text.trim()),
-            schedule: Value(_schedule),
-            scheduleOn: Value(_scheduleOn),
-            reminderTime: Value(reminderStr),
-            isActive: Value(_isActive ? 1 : 0),
-            isTaskOfTheDay: Value(_isTaskOfTheDay),
+            id: Value(updatedTask.id),
+            goalId: Value(updatedTask.goalId),
+            name: Value(updatedTask.name),
+            schedule: Value(updatedTask.schedule),
+            scheduleOn: Value(updatedTask.scheduleOn),
+            reminderTime: Value(updatedTask.reminderTime),
+            isActive: Value(updatedTask.isActive),
+            isTaskOfTheDay: Value(updatedTask.isTaskOfTheDay),
           )
         );
+        await ref.read(schedulingServiceProvider).regenerateCompletionsForTask(updatedTask);
         await NotificationService.rescheduleAll(ref.read(databaseProvider));
         ref.invalidate(allTasksProvider);
         ref.invalidate(todayCompletionsProvider);
         ref.invalidate(missedCompletionsProvider);
+        ref.invalidate(goalGraphProvider);
       }
 
       if (mounted) Navigator.pop(context);
@@ -348,7 +417,7 @@ class _AddTaskFormState extends ConsumerState<AddTaskForm> {
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating task: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error creating/saving task: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -531,6 +600,61 @@ class _SegmentedPicker<T> extends StatelessWidget {
             ),
             child: Text(
               labels[i],
+              style: AppTypography.badge.copyWith(
+                color: selected ? Colors.white : AppColors.textSecondary,
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _MultiWeekDayPicker extends StatelessWidget {
+  final Set<String> selectedDays;
+  final ValueChanged<Set<String>> onChanged;
+
+  const _MultiWeekDayPicker({
+    required this.selectedDays,
+    required this.onChanged,
+  });
+
+  static const _days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  static const _labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: List.generate(_days.length, (i) {
+        final day = _days[i];
+        final selected = selectedDays.contains(day);
+        return GestureDetector(
+          onTap: () {
+            final next = Set<String>.from(selectedDays);
+            if (selected) {
+              if (next.length > 1) {
+                next.remove(day);
+              }
+            } else {
+              next.add(day);
+            }
+            onChanged(next);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.accentBlue : AppColors.surfaceAlt,
+              borderRadius: AppRadius.chip,
+              border: Border.all(
+                color: selected ? AppColors.accentBlue : AppColors.border,
+              ),
+            ),
+            child: Text(
+              _labels[i],
               style: AppTypography.badge.copyWith(
                 color: selected ? Colors.white : AppColors.textSecondary,
               ),

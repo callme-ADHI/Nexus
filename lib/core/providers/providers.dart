@@ -83,7 +83,9 @@ final goalGraphProvider = FutureProvider<List<GoalWithProgress>>((ref) async {
   final allCompletions = <String, List<TaskCompletion>>{};
 
   // Optimize: Fetch all completions in one query instead of loop (fixes UI freeze/lag)
-  final completions = await db.select(db.taskCompletions).get();
+  final completions = await (db.select(db.taskCompletions)
+        ..where((t) => t.isDeleted.equals(false)))
+      .get();
   final taskCompletionsMap = <String, List<TaskCompletion>>{};
   for (final c in completions) {
     taskCompletionsMap[c.taskId] ??= [];
@@ -452,12 +454,31 @@ class TaskNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
 
+  Future<void> deleteOccurrence({
+    required String taskId,
+    required int scheduledDate,
+  }) async {
+    try {
+      await db.deleteOccurrence(taskId, scheduledDate);
+      await db.invalidateCache(scheduledDate);
+      await ProductivityService.ensureScore(db, scheduledDate);
+
+      ref.invalidate(todayCompletionsProvider);
+      ref.invalidate(missedCompletionsProvider);
+      ref.invalidate(completedCompletionsProvider);
+      ref.invalidate(goalGraphProvider);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
   Future<void> deleteTask(String taskId) async {
     try {
       await db.deleteTask(taskId);
       await NotificationService.rescheduleAll(db);
       ref.invalidate(allTasksProvider);
       ref.invalidate(todayCompletionsProvider);
+      ref.invalidate(goalGraphProvider);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);

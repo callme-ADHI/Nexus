@@ -198,6 +198,7 @@ class _TasksPageState extends ConsumerState<TasksPage>
                     filterGoalId: _filterGoalId,
                     searchQuery: _searchQuery,
                     ref: ref,
+                    todayCompletions: todayCompletions,
                   ),
                   _AllSection(
                     allTasks: allTasks,
@@ -529,7 +530,7 @@ class _TodaySection extends StatelessWidget {
                               taskId: c.taskId, scheduledDate: c.scheduledDate);
                         }
                       },
-                      onLongPress: () => _showTaskOptions(context, ref, t),
+                      onLongPress: () => _showTaskOptions(context, ref, t, completion: c),
                     );
                   }),
                 ],
@@ -633,7 +634,7 @@ class _MissedSection extends StatelessWidget {
                           taskId: c.taskId, scheduledDate: c.scheduledDate);
                     }
                   },
-                  onLongPress: () => _showTaskOptions(context, ref, t),
+                  onLongPress: () => _showTaskOptions(context, ref, t, completion: c),
                 );
               },
             );
@@ -664,6 +665,7 @@ class _UpcomingSection extends StatelessWidget {
   final String? filterGoalId;
   final String searchQuery;
   final WidgetRef ref;
+  final AsyncValue<List<TaskCompletion>> todayCompletions;
 
   const _UpcomingSection({
     required this.allTasks,
@@ -672,6 +674,7 @@ class _UpcomingSection extends StatelessWidget {
     this.filterGoalId,
     required this.searchQuery,
     required this.ref,
+    required this.todayCompletions,
   });
 
   @override
@@ -681,10 +684,22 @@ class _UpcomingSection extends StatelessWidget {
         data: (goals) => blockedIds.when(
           data: (blocked) {
             final goalMap = {for (final g in goals) g.id: g};
+            
+            final completedTodayIds = todayCompletions.maybeWhen(
+              data: (comps) => comps
+                  .where((c) => c.completedDate != null)
+                  .map((c) => c.taskId)
+                  .toSet(),
+              orElse: () => <String>{},
+            );
+
             var filtered = tasks.where((t) {
               if (t.isActive == 0) return false;
               if (filterGoalId != null && t.goalId != filterGoalId) return false;
               if (t.goalId != null && blocked.contains(t.goalId)) return false;
+              
+              if (t.isTaskOfTheDay && completedTodayIds.contains(t.id)) return false;
+
               if (searchQuery.isNotEmpty) {
                 final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
                 final matchesGoal = gName.toLowerCase().contains(searchQuery.toLowerCase());
@@ -863,7 +878,7 @@ class _CompletedSection extends StatelessWidget {
                 final completedStr = '${completedD.month.toString().padLeft(2, '0')}/${completedD.day.toString().padLeft(2, '0')} at ${completedD.hour.toString().padLeft(2, '0')}:${completedD.minute.toString().padLeft(2, '0')}';
 
                 return GestureDetector(
-                  onLongPress: () => _showTaskOptions(context, ref, t),
+                  onLongPress: () => _showTaskOptions(context, ref, t, completion: c),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     padding: const EdgeInsets.all(16),
@@ -1017,7 +1032,7 @@ class _CompletedSection extends StatelessWidget {
   }
 }
 
-void _showTaskOptions(BuildContext context, WidgetRef ref, Task task) {
+void _showTaskOptions(BuildContext context, WidgetRef ref, Task task, {TaskCompletion? completion}) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -1048,9 +1063,21 @@ void _showTaskOptions(BuildContext context, WidgetRef ref, Task task) {
               );
             },
           ),
+          if (completion != null)
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Color(0xFFE74C3C)),
+              title: const Text('Delete this instance', style: TextStyle(color: Color(0xFFE74C3C), fontFamily: 'Inter')),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmDeleteOccurrence(context, ref, task, completion);
+              },
+            ),
           ListTile(
             leading: const Icon(Icons.delete, color: Color(0xFFE74C3C)),
-            title: const Text('Delete Task', style: TextStyle(color: Color(0xFFE74C3C), fontFamily: 'Inter')),
+            title: Text(
+              completion != null ? 'Delete entire series' : 'Delete Task',
+              style: const TextStyle(color: Color(0xFFE74C3C), fontFamily: 'Inter'),
+            ),
             onTap: () {
               Navigator.pop(ctx);
               _confirmDeleteTask(context, ref, task);
@@ -1058,6 +1085,31 @@ void _showTaskOptions(BuildContext context, WidgetRef ref, Task task) {
           ),
         ],
       ),
+    ),
+  );
+}
+
+void _confirmDeleteOccurrence(BuildContext context, WidgetRef ref, Task task, TaskCompletion completion) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: const Color(0xFF0A0A0A),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Colors.white12)),
+      title: const Text('Delete Instance', style: TextStyle(color: Colors.white, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+      content: const Text('Are you sure you want to delete this specific instance of the task? The rest of the series will not be affected.', style: TextStyle(color: Colors.white70, fontFamily: 'Inter')),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: Colors.white54, fontFamily: 'Inter'))),
+        TextButton(
+          onPressed: () {
+            ref.read(taskNotifierProvider.notifier).deleteOccurrence(
+                  taskId: completion.taskId,
+                  scheduledDate: completion.scheduledDate,
+                );
+            Navigator.pop(ctx);
+          },
+          child: const Text('Delete Instance', style: TextStyle(color: Color(0xFFE74C3C), fontFamily: 'Inter')),
+        ),
+      ],
     ),
   );
 }

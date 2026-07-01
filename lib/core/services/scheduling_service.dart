@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show Value, InsertMode;
+import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
 
@@ -41,10 +41,22 @@ class SchedulingService {
       var to = windowEnd;
       if (task.goalId != null) {
         final goal = goalMap[task.goalId];
-        if (goal != null && goal.hasStrictDeadline) {
+        if (goal != null) {
           final goalDeadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
-          if (goalDeadline.isAfter(to)) {
-            to = goalDeadline;
+          final deadlineMidnight = DateTime(goalDeadline.year, goalDeadline.month, goalDeadline.day);
+          
+          if (goal.hasStrictDeadline && deadlineMidnight.isAfter(to)) {
+            to = deadlineMidnight;
+          } else if (deadlineMidnight.isBefore(to)) {
+            to = deadlineMidnight;
+          }
+
+          if (goal.status == 'completed' && goal.completedAt != null) {
+            final completedDt = DateTime.fromMillisecondsSinceEpoch(goal.completedAt!);
+            final completedMidnight = DateTime(completedDt.year, completedDt.month, completedDt.day);
+            if (completedMidnight.isBefore(to)) {
+              to = completedMidnight;
+            }
           }
         }
       }
@@ -61,10 +73,22 @@ class SchedulingService {
     Goal? goal;
     if (task.goalId != null) {
       goal = await db.getGoalById(task.goalId!);
-      if (goal != null && goal.hasStrictDeadline) {
+      if (goal != null) {
         final goalDeadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
-        if (goalDeadline.isAfter(to)) {
-          to = goalDeadline;
+        final deadlineMidnight = DateTime(goalDeadline.year, goalDeadline.month, goalDeadline.day);
+        
+        if (goal.hasStrictDeadline && deadlineMidnight.isAfter(to)) {
+          to = deadlineMidnight;
+        } else if (deadlineMidnight.isBefore(to)) {
+          to = deadlineMidnight;
+        }
+
+        if (goal.status == 'completed' && goal.completedAt != null) {
+          final completedDt = DateTime.fromMillisecondsSinceEpoch(goal.completedAt!);
+          final completedMidnight = DateTime(completedDt.year, completedDt.month, completedDt.day);
+          if (completedMidnight.isBefore(to)) {
+            to = completedMidnight;
+          }
         }
       }
     }
@@ -125,10 +149,22 @@ class SchedulingService {
       var to = windowEnd;
       if (task.goalId != null) {
         final goal = goalMap[task.goalId];
-        if (goal != null && goal.hasStrictDeadline) {
+        if (goal != null) {
           final goalDeadline = DateTime.fromMillisecondsSinceEpoch(goal.deadline);
-          if (goalDeadline.isAfter(to)) {
-            to = goalDeadline;
+          final deadlineMidnight = DateTime(goalDeadline.year, goalDeadline.month, goalDeadline.day);
+          
+          if (goal.hasStrictDeadline && deadlineMidnight.isAfter(to)) {
+            to = deadlineMidnight;
+          } else if (deadlineMidnight.isBefore(to)) {
+            to = deadlineMidnight;
+          }
+
+          if (goal.status == 'completed' && goal.completedAt != null) {
+            final completedDt = DateTime.fromMillisecondsSinceEpoch(goal.completedAt!);
+            final completedMidnight = DateTime(completedDt.year, completedDt.month, completedDt.day);
+            if (completedMidnight.isBefore(to)) {
+              to = completedMidnight;
+            }
           }
         }
       }
@@ -136,6 +172,23 @@ class SchedulingService {
       final from = _goalStartDate(task, goalMap, fallback: now);
       await _generateForTaskInternal(task, from, to);
     }
+  }
+
+  /// Regenerates completions for a specific task when it is edited/created.
+  Future<void> regenerateCompletionsForTask(Task task) async {
+    final now = DateTime.now();
+    final todayMidnight = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+    
+    // Delete future uncompleted completions for this task
+    await (db.delete(db.taskCompletions)
+          ..where((t) =>
+              t.taskId.equals(task.id) &
+              t.scheduledDate.isBiggerOrEqualValue(todayMidnight) &
+              t.completedDate.isNull()))
+        .go();
+
+    // Generate new completions
+    await generateForTask(task);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -148,7 +201,15 @@ class SchedulingService {
     DateTime to,
   ) async {
     if (task.isActive == 0) return;
-    final dates = _scheduledDates(task, from, to);
+
+    // Delete any completions for this task scheduled AFTER 'to'
+    final toMidnight = DateTime(to.year, to.month, to.day);
+    final toMidnightMs = toMidnight.millisecondsSinceEpoch;
+    await (db.delete(db.taskCompletions)
+          ..where((t) => t.taskId.equals(task.id) & t.scheduledDate.isBiggerThanValue(toMidnightMs)))
+        .go();
+
+    final dates = scheduledDates(task, from, to);
     if (dates.isEmpty) return;
     await db.batch((batch) {
       for (final date in dates) {
@@ -213,18 +274,31 @@ class SchedulingService {
   // ── Date generation ───────────────────────────────────────────────────────
 
   /// Returns list of midnight timestamps for a task in [from, to]
-  List<int> _scheduledDates(Task task, DateTime from, DateTime to) {
+  List<int> scheduledDates(Task task, DateTime from, DateTime to) {
     final schedule   = task.schedule;
     final scheduleOn = task.scheduleOn;
 
     switch (schedule) {
       case 'daily':
-        return _dailyDates(from, to);
+        if (scheduleOn == null || scheduleOn.isEmpty) {
+          return _dailyDates(from, to);
+        } else {
+          final weekdays = scheduleOn.split(',').map((s) => _weekdayFromString(s.trim())).toList();
+          final result = <int>[];
+          for (final targetWeekday in weekdays) {
+            result.addAll(_weeklyDates(from, to, targetWeekday));
+          }
+          return result.toSet().toList()..sort();
+        }
 
       case 'weekly':
-        if (scheduleOn == null) return [];
-        final targetWeekday = _weekdayFromString(scheduleOn);
-        return _weeklyDates(from, to, targetWeekday);
+        if (scheduleOn == null || scheduleOn.isEmpty) return [];
+        final weekdays = scheduleOn.split(',').map((s) => _weekdayFromString(s.trim())).toList();
+        final result = <int>[];
+        for (final targetWeekday in weekdays) {
+          result.addAll(_weeklyDates(from, to, targetWeekday));
+        }
+        return result.toSet().toList()..sort();
 
       case 'monthly':
         if (scheduleOn == null) return [];
