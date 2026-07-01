@@ -693,12 +693,24 @@ class _UpcomingSection extends StatelessWidget {
               orElse: () => <String>{},
             );
 
+            final now = DateTime.now();
+            final todayMidnight = DateTime(now.year, now.month, now.day);
+
             var filtered = tasks.where((t) {
               if (t.isActive == 0) return false;
               if (filterGoalId != null && t.goalId != filterGoalId) return false;
               if (t.goalId != null && blocked.contains(t.goalId)) return false;
               
               if (t.isTaskOfTheDay && completedTodayIds.contains(t.id)) return false;
+
+              if (t.schedule == 'specific_date' && t.scheduleOn != null) {
+                final dt = DateTime.tryParse(t.scheduleOn!);
+                if (dt != null) {
+                  final taskMidnight = DateTime(dt.year, dt.month, dt.day);
+                  if (taskMidnight.isBefore(todayMidnight)) return false;
+                  if (taskMidnight.isAtSameMomentAs(todayMidnight) && completedTodayIds.contains(t.id)) return false;
+                }
+              }
 
               if (searchQuery.isNotEmpty) {
                 final gName = t.goalId != null ? (goalMap[t.goalId]?.name ?? '') : '';
